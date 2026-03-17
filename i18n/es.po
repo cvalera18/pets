@@ -1,0 +1,93 @@
+# Traducciones al español — Pets
+# Responsable: añade tu nombre aquí
+# Todos los strings de UI deben pasar por tr() en el código.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+
+# ── Etiquetas de stats ────────────────────────────────────────────────────────
+
+msgid "STAT_HUNGER"
+msgstr "Hambre"
+
+msgid "STAT_MOOD"
+msgstr "Humor"
+
+msgid "STAT_ENERGY"
+msgstr "Energía"
+
+msgid "STAT_AFFECTION"
+msgstr "Afecto"
+
+# ── Botones de acción ─────────────────────────────────────────────────────────
+
+msgid "ACTION_FEED"
+msgstr "Alimentar"
+
+msgid "ACTION_PLAY"
+msgstr "Jugar"
+
+msgid "ACTION_SLEEP"
+msgstr "Dormir"
+
+msgid "ACTION_PET"
+msgstr "Mimar"
+
+# ── Notificaciones ────────────────────────────────────────────────────────────
+
+msgid "NOTIF_HUNGRY_TITLE"
+msgstr "¡Tu mascota tiene hambre!"
+
+msgid "NOTIF_HUNGRY_BODY"
+msgstr "Su barriguita está gruñendo. ¡Ven a darle algo de comer!"
+
+msgid "NOTIF_LONELY_TITLE"
+msgstr "¡Tu mascota te echa de menos!"
+
+msgid "NOTIF_LONELY_BODY"
+msgstr "Ha pasado un rato... Tu pequeño se siente solo."
+
+msgid "NOTIF_TIRED_TITLE"
+msgstr "Tu mascota está agotada"
+
+msgid "NOTIF_TIRED_BODY"
+msgstr "Necesita descansar. ¡Ven a arroparle!"
+
+# ── Interfaz general ──────────────────────────────────────────────────────────
+
+msgid "UI_NEW_GAME"
+msgstr "Nueva partida"
+
+msgid "UI_CONTINUE"
+msgstr "Continuar"
+
+msgid "UI_SETTINGS"
+msgstr "Ajustes"
+
+msgid "UI_CONFIRM_DELETE"
+msgstr "¿Eliminar partida guardada? Esta acción no se puede deshacer."
+
+msgid "UI_YES"
+msgstr "Sí"
+
+msgid "UI_NO"
+msgstr "No"
+
+# ── Estados de la mascota ─────────────────────────────────────────────────────
+
+msgid "PET_STATE_HAPPY"
+msgstr "Feliz"
+
+msgid "PET_STATE_HUNGRY"
+msgstr "Hambriento"
+
+msgid "PET_STATE_TIRED"
+msgstr "Cansado"
+
+msgid "PET_STATE_SAD"
+msgstr "Triste"
+
+msgid "PET_TOO_TIRED_TO_PLAY"
+msgstr "Demasiado cansado para jugar ahora..."

@@ -1,0 +1,93 @@
+# English translations — Pets
+# Maintainer: add your name here
+# All UI strings must go through tr() in code. Add new keys here first.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+
+# ── Stat labels ───────────────────────────────────────────────────────────────
+
+msgid "STAT_HUNGER"
+msgstr "Hunger"
+
+msgid "STAT_MOOD"
+msgstr "Mood"
+
+msgid "STAT_ENERGY"
+msgstr "Energy"
+
+msgid "STAT_AFFECTION"
+msgstr "Affection"
+
+# ── Action buttons ────────────────────────────────────────────────────────────
+
+msgid "ACTION_FEED"
+msgstr "Feed"
+
+msgid "ACTION_PLAY"
+msgstr "Play"
+
+msgid "ACTION_SLEEP"
+msgstr "Sleep"
+
+msgid "ACTION_PET"
+msgstr "Pet"
+
+# ── Notifications ─────────────────────────────────────────────────────────────
+
+msgid "NOTIF_HUNGRY_TITLE"
+msgstr "Your pet is hungry!"
+
+msgid "NOTIF_HUNGRY_BODY"
+msgstr "Their tummy is rumbling. Come give them a snack!"
+
+msgid "NOTIF_LONELY_TITLE"
+msgstr "Your pet misses you!"
+
+msgid "NOTIF_LONELY_BODY"
+msgstr "It's been a while... Your little one is feeling lonely."
+
+msgid "NOTIF_TIRED_TITLE"
+msgstr "Your pet is exhausted"
+
+msgid "NOTIF_TIRED_BODY"
+msgstr "Your pet needs rest. Come tuck them in!"
+
+# ── General UI ────────────────────────────────────────────────────────────────
+
+msgid "UI_NEW_GAME"
+msgstr "New Game"
+
+msgid "UI_CONTINUE"
+msgstr "Continue"
+
+msgid "UI_SETTINGS"
+msgstr "Settings"
+
+msgid "UI_CONFIRM_DELETE"
+msgstr "Delete save data? This cannot be undone."
+
+msgid "UI_YES"
+msgstr "Yes"
+
+msgid "UI_NO"
+msgstr "No"
+
+# ── Pet states ────────────────────────────────────────────────────────────────
+
+msgid "PET_STATE_HAPPY"
+msgstr "Happy"
+
+msgid "PET_STATE_HUNGRY"
+msgstr "Hungry"
+
+msgid "PET_STATE_TIRED"
+msgstr "Tired"
+
+msgid "PET_STATE_SAD"
+msgstr "Sad"
+
+msgid "PET_TOO_TIRED_TO_PLAY"
+msgstr "Too tired to play right now..."

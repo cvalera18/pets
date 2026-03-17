@@ -1,0 +1,115 @@
+[gd_scene load_steps=2 format=3 uid="uid://pets00hud001"]
+
+[ext_resource type="Script" path="res://scenes/hud/HUD.gd" id="1_hud001"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud001")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="StatsPanel" type="VBoxContainer" parent="Control"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 0.6
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -220.0
+offset_right = -16.0
+offset_bottom = -100.0
+theme_override_constants/separation = 8
+
+[node name="HungerRow" type="HBoxContainer" parent="Control/StatsPanel"]
+layout_mode = 2
+
+[node name="HungerLabel" type="Label" parent="Control/StatsPanel/HungerRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 0)
+text = "Hunger"
+
+[node name="HungerBar" type="ProgressBar" parent="Control/StatsPanel/HungerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 100.0
+value = 100.0
+
+[node name="MoodRow" type="HBoxContainer" parent="Control/StatsPanel"]
+layout_mode = 2
+
+[node name="MoodLabel" type="Label" parent="Control/StatsPanel/MoodRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 0)
+text = "Mood"
+
+[node name="MoodBar" type="ProgressBar" parent="Control/StatsPanel/MoodRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 100.0
+value = 100.0
+
+[node name="EnergyRow" type="HBoxContainer" parent="Control/StatsPanel"]
+layout_mode = 2
+
+[node name="EnergyLabel" type="Label" parent="Control/StatsPanel/EnergyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 0)
+text = "Energy"
+
+[node name="EnergyBar" type="ProgressBar" parent="Control/StatsPanel/EnergyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 100.0
+value = 100.0
+
+[node name="AffectionRow" type="HBoxContainer" parent="Control/StatsPanel"]
+layout_mode = 2
+
+[node name="AffectionLabel" type="Label" parent="Control/StatsPanel/AffectionRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 0)
+text = "Affection"
+
+[node name="AffectionBar" type="ProgressBar" parent="Control/StatsPanel/AffectionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 100.0
+value = 100.0
+
+[node name="ActionButtons" type="HBoxContainer" parent="Control"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -88.0
+offset_right = -16.0
+offset_bottom = -16.0
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="FeedButton" type="Button" parent="Control/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Feed"
+
+[node name="PlayButton" type="Button" parent="Control/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Play"
+
+[node name="SleepButton" type="Button" parent="Control/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sleep"
+
+[node name="PetButton" type="Button" parent="Control/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pet"
