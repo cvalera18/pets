@@ -12,8 +12,8 @@ msgstr ""
 msgid "STAT_HUNGER"
 msgstr "Hunger"
 
-msgid "STAT_MOOD"
-msgstr "Mood"
+msgid "STAT_HAPPINESS"
+msgstr "Happiness"
 
 msgid "STAT_ENERGY"
 msgstr "Energy"

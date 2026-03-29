@@ -24,13 +24,13 @@ extends Resource
 			EventBus.stat_changed.emit("hunger", hunger, old)
 			_check_thresholds("hunger", hunger, old)
 
-@export_range(0.0, 100.0) var mood: float = 100.0:
+@export_range(0.0, 100.0) var happiness: float = 100.0:
 	set(v):
-		var old := mood
-		mood = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
-		if mood != old:
-			EventBus.stat_changed.emit("mood", mood, old)
-			_check_thresholds("mood", mood, old)
+		var old := happiness
+		happiness = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
+		if happiness != old:
+			EventBus.stat_changed.emit("happiness", happiness, old)
+			_check_thresholds("happiness", happiness, old)
 
 @export_range(0.0, 100.0) var energy: float = 100.0:
 	set(v):
@@ -56,7 +56,7 @@ extends Resource
 func apply_decay(delta: float) -> void:
 	var m := GameConfig.DECAY_MULTIPLIER
 	hunger    -= GameConfig.HUNGER_DECAY_RATE    * m * delta
-	mood      -= GameConfig.MOOD_DECAY_RATE      * m * delta
+	happiness -= GameConfig.HAPPINESS_DECAY_RATE * m * delta
 	energy    -= GameConfig.ENERGY_DECAY_RATE    * m * delta
 	affection -= GameConfig.AFFECTION_DECAY_RATE * m * delta
 	# Setters handle clamping and EventBus emission.
@@ -67,7 +67,7 @@ func apply_decay(delta: float) -> void:
 func apply_offline_decay(elapsed_seconds: float) -> void:
 	var m := GameConfig.DECAY_MULTIPLIER
 	hunger    -= GameConfig.HUNGER_DECAY_RATE    * m * elapsed_seconds
-	mood      -= GameConfig.MOOD_DECAY_RATE      * m * elapsed_seconds
+	happiness -= GameConfig.HAPPINESS_DECAY_RATE * m * elapsed_seconds
 	energy    -= GameConfig.ENERGY_DECAY_RATE    * m * elapsed_seconds
 	affection -= GameConfig.AFFECTION_DECAY_RATE * m * elapsed_seconds
 	# Setters handle clamping and events — the pet may already look sad on launch.
@@ -77,7 +77,7 @@ func apply_offline_decay(elapsed_seconds: float) -> void:
 func to_dict() -> Dictionary:
 	return {
 		"hunger":    hunger,
-		"mood":      mood,
+		"happiness": happiness,
 		"energy":    energy,
 		"affection": affection,
 	}
@@ -87,7 +87,7 @@ func to_dict() -> Dictionary:
 ## Missing keys fall back to STAT_MAX (safe default for new saves).
 func from_dict(data: Dictionary) -> void:
 	hunger    = data.get("hunger",    GameConfig.STAT_MAX)
-	mood      = data.get("mood",      GameConfig.STAT_MAX)
+	happiness = data.get("happiness", GameConfig.STAT_MAX)
 	energy    = data.get("energy",    GameConfig.STAT_MAX)
 	affection = data.get("affection", GameConfig.STAT_MAX)
 
@@ -95,14 +95,14 @@ func from_dict(data: Dictionary) -> void:
 ## Returns true when all stats are above LOW_THRESHOLD (pet is "healthy").
 func is_healthy() -> bool:
 	return hunger    > GameConfig.LOW_THRESHOLD \
-		and mood      > GameConfig.LOW_THRESHOLD \
+		and happiness > GameConfig.LOW_THRESHOLD \
 		and energy    > GameConfig.LOW_THRESHOLD \
 		and affection > GameConfig.LOW_THRESHOLD
 
 
 ## Returns the name of the lowest stat — useful for driving priority animations.
 func get_lowest_stat() -> String:
-	var stats := {"hunger": hunger, "mood": mood, "energy": energy, "affection": affection}
+	var stats := {"hunger": hunger, "happiness": happiness, "energy": energy, "affection": affection}
 	var lowest_name := "hunger"
 	var lowest_val  := hunger
 	for key in stats:

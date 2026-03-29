@@ -15,7 +15,7 @@
 ##    "saved_at":  1710000000.0,   # Unix timestamp — offline decay calculation
 ##    "pet": {
 ##      "hunger":    80.0,
-##      "mood":      75.0,
+##      "happiness": 75.0,
 ##      "energy":    60.0,
 ##      "affection": 90.0,
 ##      "name":      "Mochi"
@@ -55,7 +55,7 @@ func save_game(pet_stats: PetStats, pet_name: String,
 		"saved_at":  Time.get_unix_time_from_system(),
 		"pet": {
 			"hunger":    pet_stats.hunger,
-			"mood":      pet_stats.mood,
+			"happiness": pet_stats.happiness,
 			"energy":    pet_stats.energy,
 			"affection": pet_stats.affection,
 			"name":      pet_name,

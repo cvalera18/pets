@@ -102,7 +102,7 @@ func _on_played() -> void:
 		# Too tired to play — give visual feedback.
 		# TODO: show a "too tired" floating label via EventBus.
 		return
-	stats.mood   += GameConfig.PLAY_MOOD_GAIN
+	stats.happiness += GameConfig.PLAY_HAPPINESS_GAIN
 	stats.energy -= GameConfig.PLAY_ENERGY_COST
 	_play_anim(ANIM_PLAY)
 	_reset_cooldown()
@@ -181,7 +181,7 @@ func _schedule_notification(stat_name: String, delay_factor: float) -> void:
 		"hunger":
 			EventBus.notification_schedule_requested.emit(
 					"HUNGRY", GameConfig.NOTIF_HUNGER_DELAY * delay_factor)
-		"mood", "affection":
+		"happiness", "affection":
 			EventBus.notification_schedule_requested.emit(
 					"LONELY", GameConfig.NOTIF_LONELY_DELAY * delay_factor)
 		"energy":

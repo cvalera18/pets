@@ -14,8 +14,8 @@ extends CanvasLayer
 @onready var hunger_label:    Label       = $Control/StatsPanel/HungerRow/HungerLabel
 @onready var hunger_bar:      ProgressBar = $Control/StatsPanel/HungerRow/HungerBar
 
-@onready var mood_label:      Label       = $Control/StatsPanel/MoodRow/MoodLabel
-@onready var mood_bar:        ProgressBar = $Control/StatsPanel/MoodRow/MoodBar
+@onready var happiness_label:  Label       = $Control/StatsPanel/HappinessRow/HappinessLabel
+@onready var happiness_bar:    ProgressBar = $Control/StatsPanel/HappinessRow/HappinessBar
 
 @onready var energy_label:    Label       = $Control/StatsPanel/EnergyRow/EnergyLabel
 @onready var energy_bar:      ProgressBar = $Control/StatsPanel/EnergyRow/EnergyBar
@@ -51,7 +51,7 @@ func _on_stat_changed(stat_name: String, new_value: float, _old_value: float) ->
 
 
 func _init_bars() -> void:
-	for stat in ["hunger", "mood", "energy", "affection"]:
+	for stat in ["hunger", "happiness", "energy", "affection"]:
 		_set_bar(stat, GameConfig.STAT_MAX)
 
 
@@ -59,7 +59,7 @@ func _set_bar(stat_name: String, value: float) -> void:
 	var bar: ProgressBar
 	match stat_name:
 		"hunger":    bar = hunger_bar
-		"mood":      bar = mood_bar
+		"happiness": bar = happiness_bar
 		"energy":    bar = energy_bar
 		"affection": bar = affection_bar
 		_: return
@@ -74,7 +74,7 @@ func _set_bar(stat_name: String, value: float) -> void:
 ## Refreshes all text labels. Call again if the locale changes at runtime.
 func _refresh_labels() -> void:
 	hunger_label.text    = tr("STAT_HUNGER")
-	mood_label.text      = tr("STAT_MOOD")
+	happiness_label.text = tr("STAT_HAPPINESS")
 	energy_label.text    = tr("STAT_ENERGY")
 	affection_label.text = tr("STAT_AFFECTION")
 
