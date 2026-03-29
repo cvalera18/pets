@@ -32,6 +32,9 @@ msgstr "Jugar"
 msgid "ACTION_SLEEP"
 msgstr "Dormir"
 
+msgid "ACTION_WAKE"
+msgstr "Despertar"
+
 msgid "ACTION_PET"
 msgstr "Mimar"
 

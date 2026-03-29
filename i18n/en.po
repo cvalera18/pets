@@ -32,6 +32,9 @@ msgstr "Play"
 msgid "ACTION_SLEEP"
 msgstr "Sleep"
 
+msgid "ACTION_WAKE"
+msgstr "Wake up"
+
 msgid "ACTION_PET"
 msgstr "Pet"
 

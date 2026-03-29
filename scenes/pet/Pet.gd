@@ -45,6 +45,7 @@ func _ready() -> void:
 	EventBus.pet_fed.connect(_on_fed)
 	EventBus.pet_played.connect(_on_played)
 	EventBus.pet_slept.connect(_on_slept)
+	EventBus.pet_woken.connect(_on_woken)
 	EventBus.pet_petted.connect(_on_petted)
 	EventBus.stat_depleted.connect(_on_stat_depleted)
 	EventBus.stat_critical.connect(_on_stat_critical)
@@ -85,6 +86,15 @@ func load_from_save(pet_data: Dictionary, offline_seconds: float) -> void:
 	_update_anim_from_stats()
 
 
+## Emits stat_changed for all current values so the HUD can sync on startup.
+## Room.gd calls this after both Pet and HUD are in the scene tree.
+func broadcast_stats() -> void:
+	EventBus.stat_changed.emit("hunger",    stats.hunger,    stats.hunger)
+	EventBus.stat_changed.emit("happiness", stats.happiness, stats.happiness)
+	EventBus.stat_changed.emit("energy",    stats.energy,    stats.energy)
+	EventBus.stat_changed.emit("affection", stats.affection, stats.affection)
+
+
 # ─── Interaction Handlers ─────────────────────────────────────────────────────
 
 func _on_fed() -> void:
@@ -109,12 +119,21 @@ func _on_played() -> void:
 
 
 func _on_slept() -> void:
-	if not _can_interact():
+	if not _can_interact() or _is_sleeping:
 		return
 	_is_sleeping = true
 	stats.energy += GameConfig.SLEEP_ENERGY_GAIN
 	_play_anim(ANIM_SLEEP)
-	# TODO: add a wake-up timer or let the player tap to wake.
+	EventBus.sleeping_changed.emit(true)
+
+
+func _on_woken() -> void:
+	if not _is_sleeping:
+		return
+	_is_sleeping = false
+	_update_anim_from_stats()
+	EventBus.sleeping_changed.emit(false)
+	_reset_cooldown()
 
 
 func _on_petted() -> void:

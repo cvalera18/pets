@@ -9,44 +9,61 @@
 ## Pet.gd owns one instance and calls apply_decay(delta) every process frame.
 ## Setters emit EventBus signals so the HUD and other systems stay in sync
 ## without needing a direct reference to PetStats.
+##
+## ── Backing variables ─────────────────────────────────────────────────────────
+## Each stat has a private backing variable (_hunger, etc.) so that assigning
+## inside the setter never triggers recursion. In Godot 4, writing to the same
+## property name inside its setter causes recursive calls that silently swallow
+## the EventBus emission — backing variables eliminate this entirely.
 class_name PetStats
 extends Resource
 
 
-# ─── Stat Properties ──────────────────────────────────────────────────────────
-# Setters clamp to [STAT_MIN, STAT_MAX] and fire EventBus events on change.
+# ─── Backing variables (exported so the Godot editor can inspect live values) ─
 
-@export_range(0.0, 100.0) var hunger: float = 100.0:
-	set(v):
-		var old := hunger
-		hunger = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
-		if hunger != old:
-			EventBus.stat_changed.emit("hunger", hunger, old)
-			_check_thresholds("hunger", hunger, old)
+@export_range(0.0, 100.0) var _hunger:    float = 100.0
+@export_range(0.0, 100.0) var _happiness: float = 100.0
+@export_range(0.0, 100.0) var _energy:    float = 100.0
+@export_range(0.0, 100.0) var _affection: float = 100.0
 
-@export_range(0.0, 100.0) var happiness: float = 100.0:
-	set(v):
-		var old := happiness
-		happiness = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
-		if happiness != old:
-			EventBus.stat_changed.emit("happiness", happiness, old)
-			_check_thresholds("happiness", happiness, old)
 
-@export_range(0.0, 100.0) var energy: float = 100.0:
-	set(v):
-		var old := energy
-		energy = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
-		if energy != old:
-			EventBus.stat_changed.emit("energy", energy, old)
-			_check_thresholds("energy", energy, old)
+# ─── Public properties with setters ───────────────────────────────────────────
 
-@export_range(0.0, 100.0) var affection: float = 100.0:
+var hunger: float:
+	get: return _hunger
 	set(v):
-		var old := affection
-		affection = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
-		if affection != old:
-			EventBus.stat_changed.emit("affection", affection, old)
-			_check_thresholds("affection", affection, old)
+		var old := _hunger
+		_hunger = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
+		if _hunger != old:
+			EventBus.stat_changed.emit("hunger", _hunger, old)
+			_check_thresholds("hunger", _hunger, old)
+
+var happiness: float:
+	get: return _happiness
+	set(v):
+		var old := _happiness
+		_happiness = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
+		if _happiness != old:
+			EventBus.stat_changed.emit("happiness", _happiness, old)
+			_check_thresholds("happiness", _happiness, old)
+
+var energy: float:
+	get: return _energy
+	set(v):
+		var old := _energy
+		_energy = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
+		if _energy != old:
+			EventBus.stat_changed.emit("energy", _energy, old)
+			_check_thresholds("energy", _energy, old)
+
+var affection: float:
+	get: return _affection
+	set(v):
+		var old := _affection
+		_affection = clampf(v, GameConfig.STAT_MIN, GameConfig.STAT_MAX)
+		if _affection != old:
+			EventBus.stat_changed.emit("affection", _affection, old)
+			_check_thresholds("affection", _affection, old)
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
@@ -55,22 +72,22 @@ extends Resource
 ## Rates and multiplier come from GameConfig — change feel there, not here.
 func apply_decay(delta: float) -> void:
 	var m := GameConfig.DECAY_MULTIPLIER
-	hunger    -= GameConfig.HUNGER_DECAY_RATE    * m * delta
-	happiness -= GameConfig.HAPPINESS_DECAY_RATE * m * delta
-	energy    -= GameConfig.ENERGY_DECAY_RATE    * m * delta
-	affection -= GameConfig.AFFECTION_DECAY_RATE * m * delta
-	# Setters handle clamping and EventBus emission.
+	# Use self. to guarantee the setter is called and EventBus signals fire.
+	# Without self., GDScript may access the backing variable directly.
+	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * delta
+	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * delta
+	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * delta
+	self.affection = _affection - GameConfig.AFFECTION_DECAY_RATE * m * delta
 
 
 ## Applies decay for time elapsed while the app was closed.
 ## Called once on load, before the pet is shown to the player.
 func apply_offline_decay(elapsed_seconds: float) -> void:
 	var m := GameConfig.DECAY_MULTIPLIER
-	hunger    -= GameConfig.HUNGER_DECAY_RATE    * m * elapsed_seconds
-	happiness -= GameConfig.HAPPINESS_DECAY_RATE * m * elapsed_seconds
-	energy    -= GameConfig.ENERGY_DECAY_RATE    * m * elapsed_seconds
-	affection -= GameConfig.AFFECTION_DECAY_RATE * m * elapsed_seconds
-	# Setters handle clamping and events — the pet may already look sad on launch.
+	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * elapsed_seconds
+	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * elapsed_seconds
+	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * elapsed_seconds
+	self.affection = _affection - GameConfig.AFFECTION_DECAY_RATE * m * elapsed_seconds
 
 
 ## Returns a plain Dictionary for JSON serialization.
@@ -86,10 +103,10 @@ func to_dict() -> Dictionary:
 ## Restores stat values from a saved Dictionary.
 ## Missing keys fall back to STAT_MAX (safe default for new saves).
 func from_dict(data: Dictionary) -> void:
-	hunger    = data.get("hunger",    GameConfig.STAT_MAX)
-	happiness = data.get("happiness", GameConfig.STAT_MAX)
-	energy    = data.get("energy",    GameConfig.STAT_MAX)
-	affection = data.get("affection", GameConfig.STAT_MAX)
+	self.hunger    = data.get("hunger",    GameConfig.STAT_MAX)
+	self.happiness = data.get("happiness", GameConfig.STAT_MAX)
+	self.energy    = data.get("energy",    GameConfig.STAT_MAX)
+	self.affection = data.get("affection", GameConfig.STAT_MAX)
 
 
 ## Returns true when all stats are above LOW_THRESHOLD (pet is "healthy").

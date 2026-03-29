@@ -25,6 +25,9 @@ var _auto_save_timer:  float = 0.0
 func _ready() -> void:
 	_load_or_create_pet()
 	_spawn_hud()
+	# Sync HUD with actual stat values — must happen after both pet and HUD
+	# are in the scene tree so HUD's stat_changed connection is active.
+	_pet.broadcast_stats()
 
 	EventBus.save_requested.connect(_on_save_requested)
 
