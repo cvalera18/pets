@@ -1,14 +1,68 @@
-[gd_scene load_steps=3 format=3 uid="uid://pets00pet001"]
+[gd_scene load_steps=13 format=3 uid="uid://pets00pet001"]
 
 [ext_resource type="Script" path="res://scenes/pet/Pet.gd" id="1_pet001"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pet/cat_idle_spritesheet.png" id="2_spritesheet"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
 radius = 80.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(0, 0, 167, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(167, 0, 167, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(334, 0, 167, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(501, 0, 167, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(0, 187, 167, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(167, 187, 167, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(334, 187, 167, 186)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8"]
+atlas = ExtResource("2_spritesheet")
+region = Rect2(501, 187, 167, 186)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_idle"]
+animations = [{
+"frames": [
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_1") },
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_2") },
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_3") },
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_4") },
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_5") },
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_6") },
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_7") },
+{ "duration": 1.0, "texture": SubResource("AtlasTexture_8") }
+],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}]
 
 [node name="Pet" type="Node2D"]
 script = ExtResource("1_pet001")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_idle")
+animation = &"idle"
+playing = true
+scale = Vector2(1.5, 1.5)
 
 [node name="InteractionArea" type="Area2D" parent="."]
 

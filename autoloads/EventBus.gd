@@ -38,8 +38,15 @@ signal pet_played
 ## Player put the pet to sleep.
 signal pet_slept
 
+## Player woke the pet up.
+signal pet_woken
+
 ## Player tapped / petted the pet.
 signal pet_petted
+
+## Emitted when the pet's sleeping state changes.
+## HUD listens to this to toggle the Sleep/Wake button label.
+signal sleeping_changed(is_sleeping: bool)
 
 # ─── Navigation Events ────────────────────────────────────────────────────────
 

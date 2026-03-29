@@ -1,14 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://pets0room001"]
+[gd_scene format=3 uid="uid://pets0room001"]
 
-[ext_resource type="Script" path="res://scenes/room/Room.gd" id="1_room001"]
+[ext_resource type="Script" uid="uid://b3voeeoaeqkqs" path="res://scenes/room/Room.gd" id="1_room001"]
 
-[node name="Room" type="Node2D"]
+[node name="Room" type="Node2D" unique_id=762998677]
 script = ExtResource("1_room001")
 
-[node name="Background" type="Sprite2D" parent="."]
+[node name="Background" type="Sprite2D" parent="." unique_id=1858665485]
 position = Vector2(195, 422)
 
-[node name="DecorationLayer" type="Node2D" parent="."]
+[node name="DecorationLayer" type="Node2D" parent="." unique_id=515282388]
 
-[node name="PetSpawnPoint" type="Marker2D" parent="."]
+[node name="PetSpawnPoint" type="Marker2D" parent="." unique_id=482913848]
 position = Vector2(195, 500)

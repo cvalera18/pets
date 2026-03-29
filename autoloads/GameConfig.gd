@@ -20,12 +20,12 @@ const LOW_THRESHOLD: float = 40.0
 
 # ─── Decay Rates (units per real-time second) ─────────────────────────────────
 ## At default rates, a full stat takes roughly:
-##   hunger    → ~27 min   mood → ~41 min   energy → ~33 min   affection → ~55 min
+##   hunger → ~27 min   happiness → ~41 min   energy → ~33 min   affection → ~55 min
 ##
 ## Multiply by DECAY_MULTIPLIER for testing (e.g. set it to 10.0).
 
 const HUNGER_DECAY_RATE:    float = 0.06
-const MOOD_DECAY_RATE:      float = 0.04
+const HAPPINESS_DECAY_RATE: float = 0.04
 const ENERGY_DECAY_RATE:    float = 0.05
 const AFFECTION_DECAY_RATE: float = 0.03
 
@@ -34,8 +34,8 @@ const DECAY_MULTIPLIER: float = 1.0
 
 # ─── Interaction Gains ────────────────────────────────────────────────────────
 
-const FEED_HUNGER_GAIN:   float = 30.0
-const PLAY_MOOD_GAIN:     float = 25.0
+const FEED_HUNGER_GAIN:       float = 30.0
+const PLAY_HAPPINESS_GAIN:    float = 25.0
 const PLAY_ENERGY_COST:   float = 10.0  # Playing costs energy
 const SLEEP_ENERGY_GAIN:  float = 50.0
 const PET_AFFECTION_GAIN: float = 20.0

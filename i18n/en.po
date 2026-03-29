@@ -12,8 +12,8 @@ msgstr ""
 msgid "STAT_HUNGER"
 msgstr "Hunger"
 
-msgid "STAT_MOOD"
-msgstr "Mood"
+msgid "STAT_HAPPINESS"
+msgstr "Happiness"
 
 msgid "STAT_ENERGY"
 msgstr "Energy"
@@ -31,6 +31,9 @@ msgstr "Play"
 
 msgid "ACTION_SLEEP"
 msgstr "Sleep"
+
+msgid "ACTION_WAKE"
+msgstr "Wake up"
 
 msgid "ACTION_PET"
 msgstr "Pet"
