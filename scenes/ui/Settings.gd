@@ -48,6 +48,12 @@ func _ready() -> void:
 	box.add_child(_notif_check)
 	_register_text(_notif_check, "SETTINGS_NOTIFICATIONS")
 
+	var sfx_check := CheckButton.new()
+	sfx_check.button_pressed = GameState.sfx_enabled
+	sfx_check.toggled.connect(_on_sfx_toggled)
+	box.add_child(sfx_check)
+	_register_text(sfx_check, "SETTINGS_SOUND")
+
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(spacer)
@@ -111,6 +117,11 @@ func _on_notifications_toggled(enabled: bool) -> void:
 	GameState.notifications_enabled = enabled
 	if not enabled:
 		NotificationManager.cancel_all()
+	_persist()
+
+
+func _on_sfx_toggled(enabled: bool) -> void:
+	GameState.sfx_enabled = enabled
 	_persist()
 
 

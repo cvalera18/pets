@@ -120,6 +120,9 @@ msgstr "Borrar partida"
 msgid "SETTINGS_BACK"
 msgstr "Volver"
 
+msgid "SETTINGS_SOUND"
+msgstr "Sonido"
+
 # ── Pensamientos de la mascota ────────────────────────────────────────────────
 
 msgid "THOUGHT_HUNGER"

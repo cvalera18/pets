@@ -15,3 +15,6 @@ var pending_pet_name: String = ""
 ## Live notifications opt-out, toggled in Settings and respected by
 ## NotificationManager. Loaded from the save on launch.
 var notifications_enabled: bool = true
+
+## Live sound-effects toggle, set in Settings and respected by AudioManager.
+var sfx_enabled: bool = true

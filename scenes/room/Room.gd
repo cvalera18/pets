@@ -88,6 +88,7 @@ func _save() -> void:
 	var settings := {
 		"locale":                TranslationServer.get_locale().split("_")[0],
 		"notifications_enabled": GameState.notifications_enabled,
+		"sfx_enabled":           GameState.sfx_enabled,
 	}
 	var cosmetics := {
 		"equipped_skin": "skin_default",  # TODO v2: read from CosmeticManager.
@@ -102,6 +103,7 @@ func _apply_settings(settings: Dictionary) -> void:
 	if locale in GameConfig.SUPPORTED_LOCALES:
 		TranslationServer.set_locale(locale)
 	GameState.notifications_enabled = bool(settings.get("notifications_enabled", true))
+	GameState.sfx_enabled = bool(settings.get("sfx_enabled", true))
 
 
 func _on_save_requested() -> void:

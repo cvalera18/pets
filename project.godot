@@ -23,6 +23,7 @@ GameConfig="*res://autoloads/GameConfig.gd"
 GameState="*res://autoloads/GameState.gd"
 SaveSystem="*res://autoloads/SaveSystem.gd"
 NotificationManager="*res://autoloads/NotificationManager.gd"
+AudioManager="*res://autoloads/AudioManager.gd"
 
 [display]
 
