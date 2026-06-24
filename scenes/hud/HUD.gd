@@ -8,8 +8,11 @@
 ## Add new keys to i18n/en.po and i18n/es.po when adding UI text here.
 extends CanvasLayer
 
+const SETTINGS := preload("res://scenes/ui/Settings.tscn")
+
 var _cooldown_timer: float = 0.0
 var _is_sleeping: bool = false
+var _settings_button: Button
 
 # ─── Stat Bars ────────────────────────────────────────────────────────────────
 
@@ -43,7 +46,9 @@ func _ready() -> void:
 	pet_button.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_petted))
 
 	EventBus.sleeping_changed.connect(_on_sleeping_changed)
+	EventBus.locale_changed.connect(_on_locale_changed)
 
+	_create_settings_button()
 	_refresh_labels()
 	_init_bars()
 
@@ -78,6 +83,27 @@ func _on_sleeping_changed(is_sleeping: bool) -> void:
 	feed_button.disabled  = is_sleeping
 	play_button.disabled  = is_sleeping
 	pet_button.disabled   = is_sleeping
+
+
+## Adds a small settings entry button (top-right) that opens the Settings overlay.
+func _create_settings_button() -> void:
+	_settings_button = Button.new()
+	_settings_button.text = tr("UI_SETTINGS")
+	_settings_button.set_anchors_and_offsets_preset(
+			Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
+	_settings_button.pressed.connect(_on_settings_pressed)
+	$Control.add_child(_settings_button)
+
+
+func _on_settings_pressed() -> void:
+	add_child(SETTINGS.instantiate())
+
+
+## Re-translates HUD text when the locale changes while this HUD is alive.
+func _on_locale_changed() -> void:
+	_refresh_labels()
+	_settings_button.text = tr("UI_SETTINGS")
+	sleep_button.text = tr("ACTION_WAKE") if _is_sleeping else tr("ACTION_SLEEP")
 
 
 func _start_cooldown() -> void:

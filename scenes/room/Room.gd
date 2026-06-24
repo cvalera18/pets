@@ -79,8 +79,8 @@ func _save() -> void:
 		return
 
 	var settings := {
-		"locale":                TranslationServer.get_locale(),
-		"notifications_enabled": true,  # TODO: read from a settings screen toggle.
+		"locale":                TranslationServer.get_locale().split("_")[0],
+		"notifications_enabled": GameState.notifications_enabled,
 	}
 	var cosmetics := {
 		"equipped_skin": "skin_default",  # TODO v2: read from CosmeticManager.
@@ -90,9 +90,11 @@ func _save() -> void:
 
 
 func _apply_settings(settings: Dictionary) -> void:
-	var locale: String = settings.get("locale", GameConfig.DEFAULT_LOCALE)
+	# Normalize "es_MX" → "es" so saves from a regional system locale still match.
+	var locale: String = str(settings.get("locale", GameConfig.DEFAULT_LOCALE)).split("_")[0]
 	if locale in GameConfig.SUPPORTED_LOCALES:
 		TranslationServer.set_locale(locale)
+	GameState.notifications_enabled = bool(settings.get("notifications_enabled", true))
 
 
 func _on_save_requested() -> void:

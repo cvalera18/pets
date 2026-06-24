@@ -56,6 +56,9 @@ signal navigate_to(screen_name: String)
 ## Request to go back to the previous screen.
 signal navigate_back
 
+## Emitted after the UI locale changes at runtime, so live screens re-translate.
+signal locale_changed
+
 # ─── Save / Load Events ───────────────────────────────────────────────────────
 
 ## External systems (app pause, quit) request a save.

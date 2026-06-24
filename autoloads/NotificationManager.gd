@@ -41,6 +41,9 @@ func _ready() -> void:
 ## Schedules a local notification after delay_seconds.
 ## Safe to call on all platforms — gracefully no-ops without a plugin.
 func schedule(type: Type, delay_seconds: float) -> void:
+	if not GameState.notifications_enabled:
+		return  # Player opted out in Settings.
+
 	var title := _get_title(type)
 	var body  := _get_body(type)
 	var id    := type as int

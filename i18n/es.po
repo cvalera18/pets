@@ -105,3 +105,17 @@ msgstr "Escribe un nombre"
 
 msgid "ONBOARDING_CONFIRM"
 msgstr "¡Empezar!"
+
+# ── Ajustes ───────────────────────────────────────────────────────────────────
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "Idioma"
+
+msgid "SETTINGS_NOTIFICATIONS"
+msgstr "Notificaciones"
+
+msgid "SETTINGS_RESET"
+msgstr "Borrar partida"
+
+msgid "SETTINGS_BACK"
+msgstr "Volver"

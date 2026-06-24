@@ -105,3 +105,17 @@ msgstr "Type a name"
 
 msgid "ONBOARDING_CONFIRM"
 msgstr "Start!"
+
+# ── Settings ──────────────────────────────────────────────────────────────────
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "Language"
+
+msgid "SETTINGS_NOTIFICATIONS"
+msgstr "Notifications"
+
+msgid "SETTINGS_RESET"
+msgstr "Reset save"
+
+msgid "SETTINGS_BACK"
+msgstr "Back"
