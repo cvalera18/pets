@@ -58,8 +58,10 @@ func _load_or_create_pet() -> void:
 			_apply_settings(data.get("settings", {}))
 			return
 
-	# No valid save — start fresh.
-	_pet.initialize_fresh()
+	# No valid save — start fresh with the name chosen during onboarding.
+	var chosen_name := GameState.pending_pet_name if GameState.pending_pet_name != "" else "Mochi"
+	_pet.initialize_fresh(chosen_name)
+	_save()  # Persist immediately so the chosen name is never lost.
 
 
 func _spawn_hud() -> void:

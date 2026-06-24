@@ -43,6 +43,9 @@ const PET_AFFECTION_GAIN: float = 20.0
 ## Seconds between allowed interactions. Prevents button spam.
 const INTERACTION_COOLDOWN: float = 2.0
 
+## How long the pet naps before it auto-wakes when put to sleep.
+const SLEEP_DURATION: float = 8.0
+
 # ─── Notification Delays (seconds) ───────────────────────────────────────────
 
 const NOTIF_HUNGER_DELAY: float = 1800.0  # 30 min

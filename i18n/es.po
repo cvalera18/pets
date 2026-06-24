@@ -94,3 +94,14 @@ msgstr "Triste"
 
 msgid "PET_TOO_TIRED_TO_PLAY"
 msgstr "Demasiado cansado para jugar ahora..."
+
+# ── Onboarding ────────────────────────────────────────────────────────────────
+
+msgid "ONBOARDING_TITLE"
+msgstr "¿Cómo se llama tu mascota?"
+
+msgid "ONBOARDING_PLACEHOLDER"
+msgstr "Escribe un nombre"
+
+msgid "ONBOARDING_CONFIRM"
+msgstr "¡Empezar!"

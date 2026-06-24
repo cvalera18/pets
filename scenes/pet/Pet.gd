@@ -57,6 +57,7 @@ var pet_name: String   = "Mochi"
 
 var _interaction_cooldown: float  = 0.0
 var _is_sleeping:          bool   = false
+var _sleep_timer:          float  = 0.0
 
 # Procedural animation runtime state.
 var _mood:       Mood    = Mood.IDLE
@@ -86,6 +87,9 @@ func _process(delta: float) -> void:
 	_animate(delta)  # Procedural "alive" motion — runs even while sleeping.
 
 	if _is_sleeping:
+		_sleep_timer -= delta
+		if _sleep_timer <= 0.0:
+			EventBus.pet_woken.emit()  # Auto-wake after the nap finishes.
 		return  # Decay is paused while the pet sleeps.
 
 	stats.apply_decay(delta)
@@ -97,9 +101,9 @@ func _process(delta: float) -> void:
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 ## Initializes the pet with full stats for a brand new game.
-func initialize_fresh() -> void:
+func initialize_fresh(p_name: String = "Mochi") -> void:
 	stats    = PetStats.new()
-	pet_name = "Mochi"  # TODO: receive from name-entry onboarding screen.
+	pet_name = p_name
 	_play_anim(ANIM_IDLE)
 	_set_mood(Mood.IDLE)
 
@@ -158,6 +162,7 @@ func _on_slept() -> void:
 	if not _can_interact() or _is_sleeping:
 		return
 	_is_sleeping = true
+	_sleep_timer = GameConfig.SLEEP_DURATION
 	stats.energy += GameConfig.SLEEP_ENERGY_GAIN
 	_play_anim(ANIM_SLEEP)
 	_set_mood(Mood.SLEEP)
