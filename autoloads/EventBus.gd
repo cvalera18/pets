@@ -84,3 +84,16 @@ signal notification_schedule_requested(type: String, delay_seconds: float)
 
 ## Request to cancel all pending notifications of a given type.
 signal notification_cancel_requested(type: String)
+
+# ─── Juice / Feedback Events ──────────────────────────────────────────────────
+
+## Request a floating text label at a world position (e.g. "+20", "Zzz").
+## @param text       the string to show
+## @param color      font color (usually the related stat's hue)
+## @param world_pos  global position to anchor the effect to
+signal floating_text_requested(text: String, color: Color, world_pos: Vector2)
+
+## Request a one-shot particle burst at a world position.
+## @param kind       "love" | "play" | "eat" | "sleep" (see EffectsLayer.BURSTS)
+## @param world_pos  global position to emit from
+signal burst_requested(kind: String, world_pos: Vector2)

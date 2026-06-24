@@ -75,6 +75,16 @@ const FEATURE_MULTIPLAYER: bool = false  # TODO v2
 ## Enable when the cosmetics shop is implemented.
 const FEATURE_SHOP:        bool = false  # TODO v2
 
+# ─── Feedback Colors ──────────────────────────────────────────────────────────
+# Shared hues for floating text + particle effects, so each stat reads
+# consistently across the UI. Tweak here to recolor all juice at once.
+
+const COLOR_HUNGER:    Color = Color(1.0, 0.7, 0.35)   # warm orange
+const COLOR_HAPPINESS: Color = Color(1.0, 0.85, 0.3)   # sunny yellow
+const COLOR_ENERGY:    Color = Color(0.6, 0.8, 1.0)    # soft blue
+const COLOR_AFFECTION: Color = Color(1.0, 0.45, 0.6)   # pink
+const COLOR_NEUTRAL:   Color = Color(0.9, 0.9, 0.95)   # near-white
+
 # ─── Localization ─────────────────────────────────────────────────────────────
 
 const SUPPORTED_LOCALES: Array[String] = ["en", "es"]

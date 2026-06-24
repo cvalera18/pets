@@ -13,6 +13,7 @@ extends Node2D
 
 const PET_SCENE: PackedScene = preload("res://scenes/pet/Pet.tscn")
 const HUD_SCENE: PackedScene = preload("res://scenes/hud/HUD.tscn")
+const EFFECTS_LAYER: GDScript = preload("res://scenes/effects/EffectsLayer.gd")
 
 @onready var pet_spawn_point:   Marker2D = $PetSpawnPoint
 @onready var decoration_layer:  Node2D   = $DecorationLayer
@@ -25,6 +26,7 @@ var _auto_save_timer:  float = 0.0
 func _ready() -> void:
 	_load_or_create_pet()
 	_spawn_hud()
+	_spawn_effects_layer()
 	# Sync HUD with actual stat values — must happen after both pet and HUD
 	# are in the scene tree so HUD's stat_changed connection is active.
 	_pet.broadcast_stats()
@@ -63,6 +65,11 @@ func _load_or_create_pet() -> void:
 func _spawn_hud() -> void:
 	_hud = HUD_SCENE.instantiate()
 	add_child(_hud)  # CanvasLayer renders on top automatically.
+
+
+## Spawns the EffectsLayer that turns EventBus juice requests into visuals.
+func _spawn_effects_layer() -> void:
+	add_child(EFFECTS_LAYER.new())
 
 
 func _save() -> void:
