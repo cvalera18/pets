@@ -46,6 +46,10 @@ const INTERACTION_COOLDOWN: float = 2.0
 ## How long the pet naps before it auto-wakes when put to sleep.
 const SLEEP_DURATION: float = 8.0
 
+## Idle "thought" bubbles — the pet voices its neediest stat now and then.
+const THOUGHT_INTERVAL_MIN: float = 6.0
+const THOUGHT_INTERVAL_MAX: float = 12.0
+
 # ─── Notification Delays (seconds) ───────────────────────────────────────────
 
 const NOTIF_HUNGER_DELAY: float = 1800.0  # 30 min

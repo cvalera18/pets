@@ -119,3 +119,17 @@ msgstr "Reset save"
 
 msgid "SETTINGS_BACK"
 msgstr "Back"
+
+# ── Pet thoughts ──────────────────────────────────────────────────────────────
+
+msgid "THOUGHT_HUNGER"
+msgstr "Snack?"
+
+msgid "THOUGHT_HAPPINESS"
+msgstr "Play?"
+
+msgid "THOUGHT_ENERGY"
+msgstr "So sleepy..."
+
+msgid "THOUGHT_AFFECTION"
+msgstr "Pet me?"

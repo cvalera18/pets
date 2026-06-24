@@ -58,6 +58,7 @@ var pet_name: String   = "Mochi"
 var _interaction_cooldown: float  = 0.0
 var _is_sleeping:          bool   = false
 var _sleep_timer:          float  = 0.0
+var _thought_timer:        float  = 0.0
 
 # Procedural animation runtime state.
 var _mood:       Mood    = Mood.IDLE
@@ -81,6 +82,7 @@ func _ready() -> void:
 
 	_play_anim(ANIM_IDLE)
 	_capture_rest_pose()
+	_thought_timer = randf_range(GameConfig.THOUGHT_INTERVAL_MIN, GameConfig.THOUGHT_INTERVAL_MAX)
 
 
 func _process(delta: float) -> void:
@@ -96,6 +98,10 @@ func _process(delta: float) -> void:
 
 	if _interaction_cooldown > 0.0:
 		_interaction_cooldown -= delta
+
+	_thought_timer -= delta
+	if _thought_timer <= 0.0:
+		_maybe_think()
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
@@ -243,6 +249,26 @@ func _feedback(text: String, color: Color, burst_kind: String, haptic_ms: int) -
 func _haptic(ms: int) -> void:
 	if ms > 0 and OS.has_feature("mobile"):
 		Input.vibrate_handheld(ms)
+
+
+## Periodically voices the pet's neediest stat as a floating "thought" bubble.
+## Stays quiet while the pet is content (lowest stat still above LOW_THRESHOLD).
+func _maybe_think() -> void:
+	_thought_timer = randf_range(GameConfig.THOUGHT_INTERVAL_MIN, GameConfig.THOUGHT_INTERVAL_MAX)
+	var stat := stats.get_lowest_stat()
+	if float(stats.to_dict().get(stat, GameConfig.STAT_MAX)) >= GameConfig.LOW_THRESHOLD:
+		return
+	EventBus.floating_text_requested.emit(
+			tr("THOUGHT_" + stat.to_upper()), _stat_color(stat), global_position)
+
+
+func _stat_color(stat: String) -> Color:
+	match stat:
+		"hunger":    return GameConfig.COLOR_HUNGER
+		"happiness": return GameConfig.COLOR_HAPPINESS
+		"energy":    return GameConfig.COLOR_ENERGY
+		"affection": return GameConfig.COLOR_AFFECTION
+	return GameConfig.COLOR_NEUTRAL
 
 
 func _play_anim(anim_name: String) -> void:

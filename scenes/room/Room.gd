@@ -14,6 +14,7 @@ extends Node2D
 const PET_SCENE: PackedScene = preload("res://scenes/pet/Pet.tscn")
 const HUD_SCENE: PackedScene = preload("res://scenes/hud/HUD.tscn")
 const EFFECTS_LAYER: GDScript = preload("res://scenes/effects/EffectsLayer.gd")
+const AMBIENT_SKY:   GDScript = preload("res://scenes/effects/AmbientSky.gd")
 
 @onready var pet_spawn_point:   Marker2D = $PetSpawnPoint
 @onready var decoration_layer:  Node2D   = $DecorationLayer
@@ -24,6 +25,7 @@ var _auto_save_timer:  float = 0.0
 
 
 func _ready() -> void:
+	_spawn_ambient_sky()
 	_load_or_create_pet()
 	_spawn_hud()
 	_spawn_effects_layer()
@@ -72,6 +74,11 @@ func _spawn_hud() -> void:
 ## Spawns the EffectsLayer that turns EventBus juice requests into visuals.
 func _spawn_effects_layer() -> void:
 	add_child(EFFECTS_LAYER.new())
+
+
+## Adds the time-of-day backdrop behind everything in the room.
+func _spawn_ambient_sky() -> void:
+	add_child(AMBIENT_SKY.new())
 
 
 func _save() -> void:
