@@ -120,8 +120,8 @@ func _set_buttons_disabled(disabled: bool) -> void:
 		sleep_button.disabled = disabled
 
 
-func _on_stat_changed(stat_name: String, new_value: float, _old_value: float) -> void:
-	_set_bar(stat_name, new_value)
+func _on_stat_changed(stat_name: String, new_value: float, old_value: float) -> void:
+	_set_bar(stat_name, new_value, old_value)
 
 
 func _init_bars() -> void:
@@ -131,7 +131,7 @@ func _init_bars() -> void:
 		_set_bar(stat, 0.0)
 
 
-func _set_bar(stat_name: String, value: float) -> void:
+func _set_bar(stat_name: String, value: float, old_value: float = value) -> void:
 	var bar: ProgressBar
 	match stat_name:
 		"hunger":    bar = hunger_bar
@@ -140,11 +140,25 @@ func _set_bar(stat_name: String, value: float) -> void:
 		"affection": bar = affection_bar
 		_: return
 
-	bar.value = value
+	# Animate big jumps (interaction gains); apply gradual decay instantly so the
+	# bar doesn't spawn a fresh tween on every decay frame.
+	if absf(value - old_value) > 3.0:
+		var tween := create_tween()
+		tween.tween_property(bar, "value", value, 0.35) \
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	else:
+		bar.value = value
 
-	# Tint red when critical — simple visual urgency cue.
-	# TODO: replace with a Theme-based StyleBox swap for more polished visuals.
-	bar.modulate = Color.RED if value <= GameConfig.CRITICAL_THRESHOLD else Color.WHITE
+	bar.modulate = _bar_color(value)
+
+
+## Three-tier readability tint: critical / low / healthy.
+func _bar_color(value: float) -> Color:
+	if value <= GameConfig.CRITICAL_THRESHOLD:
+		return Color(1.0, 0.45, 0.45)
+	elif value <= GameConfig.LOW_THRESHOLD:
+		return Color(1.0, 0.80, 0.45)
+	return Color.WHITE
 
 
 ## Refreshes all text labels. Call again if the locale changes at runtime.
