@@ -13,8 +13,13 @@ var _timer: float = 0.0
 
 func _ready() -> void:
 	z_index = -100
-	set_anchors_preset(Control.PRESET_FULL_RECT)  # Fill the viewport.
-	mouse_filter = Control.MOUSE_FILTER_IGNORE     # Never swallow taps.
+	mouse_filter = Control.MOUSE_FILTER_IGNORE  # Never swallow taps.
+	# A Control parented to a Node2D does NOT auto-anchor to the viewport, so it
+	# would stay size (0,0) and be invisible. Size it explicitly and oversize
+	# generously so it covers any window aspect (stretch "expand") without having
+	# to track resizes — it's just a flat backdrop sitting behind everything.
+	position = Vector2(-2000.0, -2000.0)
+	size = Vector2(8000.0, 8000.0)
 	_apply_tint()
 
 
@@ -30,13 +35,15 @@ func _apply_tint() -> void:
 	color = _color_for_hour(hour)
 
 
+## Muted tones on purpose: the HUD uses white text, so the backdrop stays
+## medium-dark for readability while still shifting hue across the day.
 func _color_for_hour(hour: int) -> Color:
 	if hour < 5:
-		return Color(0.16, 0.18, 0.30)   # deep night
+		return Color(0.14, 0.16, 0.26)   # deep night
 	elif hour < 8:
-		return Color(0.70, 0.72, 0.88)   # soft dawn
+		return Color(0.42, 0.40, 0.52)   # muted dawn
 	elif hour < 17:
-		return Color(0.85, 0.93, 1.00)   # bright day
+		return Color(0.40, 0.55, 0.68)   # soft day sky
 	elif hour < 20:
-		return Color(0.98, 0.80, 0.62)   # warm dusk
-	return Color(0.16, 0.18, 0.30)       # deep night
+		return Color(0.55, 0.42, 0.40)   # warm dusk
+	return Color(0.14, 0.16, 0.26)       # deep night

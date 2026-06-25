@@ -155,10 +155,10 @@ func _set_bar(stat_name: String, value: float, old_value: float = value) -> void
 ## Three-tier readability tint: critical / low / healthy.
 func _bar_color(value: float) -> Color:
 	if value <= GameConfig.CRITICAL_THRESHOLD:
-		return Color(1.0, 0.45, 0.45)
+		return Color(1.0, 0.45, 0.45)   # red — critical
 	elif value <= GameConfig.LOW_THRESHOLD:
-		return Color(1.0, 0.80, 0.45)
-	return Color.WHITE
+		return Color(1.0, 0.80, 0.45)   # amber — low
+	return Color(0.55, 0.85, 0.55)      # green — healthy
 
 
 ## Refreshes all text labels. Call again if the locale changes at runtime.
