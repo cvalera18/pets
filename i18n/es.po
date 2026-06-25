@@ -104,7 +104,10 @@ msgid "ONBOARDING_PLACEHOLDER"
 msgstr "Escribe un nombre"
 
 msgid "ONBOARDING_CONFIRM"
-msgstr "¡Empezar!"
+msgstr "¡Vamos!"
+
+msgid "ONBOARDING_TAGLINE"
+msgstr "Tu pequeño compañero"
 
 # ── Ajustes ───────────────────────────────────────────────────────────────────
 
