@@ -9,8 +9,10 @@
 extends CanvasLayer
 
 const SETTINGS := preload("res://scenes/ui/Settings.tscn")
+const PAL := preload("res://theme/Palette.gd")
 
 var _cooldown_timer: float = 0.0
+var _bar_fills: Dictionary = {}
 var _is_sleeping: bool = false
 var _settings_button: Button
 var _name_label: Label
@@ -57,6 +59,7 @@ func _ready() -> void:
 
 	_create_settings_button()
 	_create_status_panel()
+	_apply_theme()
 	_refresh_labels()
 	_init_bars()
 
@@ -99,6 +102,11 @@ func _create_settings_button() -> void:
 	_settings_button.text = tr("UI_SETTINGS")
 	_settings_button.set_anchors_and_offsets_preset(
 			Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
+	_settings_button.add_theme_stylebox_override("normal", _card_sb(PAL.CARD, 14, 4))
+	_settings_button.add_theme_stylebox_override("hover", _card_sb(PAL.CARD.lightened(0.04), 14, 4))
+	_settings_button.add_theme_stylebox_override("pressed", _card_sb(PAL.CARD.darkened(0.05), 14, 1))
+	_settings_button.add_theme_color_override("font_color", PAL.TEXT_MUTED)
+	_settings_button.add_theme_font_size_override("font_size", 13)
 	_settings_button.pressed.connect(_on_settings_pressed)
 	$Control.add_child(_settings_button)
 
@@ -109,19 +117,28 @@ func _on_settings_pressed() -> void:
 
 ## Top-left status panel: the pet's name above its bond-level badge.
 func _create_status_panel() -> void:
-	var box := VBoxContainer.new()
-	box.set_anchors_and_offsets_preset(
+	var pill := PanelContainer.new()
+	pill.add_theme_stylebox_override("panel", _card_sb(PAL.CARD, 18, 4))
+	pill.set_anchors_and_offsets_preset(
 			Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE, 12)
-	$Control.add_child(box)
+	$Control.add_child(pill)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 3)
+	pill.add_child(box)
 
 	_name_label = Label.new()
 	_name_label.text = _pet_name
-	_name_label.add_theme_font_size_override("font_size", 24)
+	if Fonts.display != null:
+		_name_label.add_theme_font_override("font", Fonts.display)
+	_name_label.add_theme_font_size_override("font_size", 22)
+	_name_label.add_theme_color_override("font_color", PAL.TEXT)
 	box.add_child(_name_label)
 
 	_bond_label = Label.new()
 	_bond_label.text = tr("BOND_BADGE") % _bond_level
-	_bond_label.add_theme_font_size_override("font_size", 16)
+	_bond_label.add_theme_font_size_override("font_size", 13)
+	_bond_label.add_theme_color_override("font_color", PAL.BOND_BADGE_FG)
 	box.add_child(_bond_label)
 
 
@@ -219,7 +236,8 @@ func _set_bar(stat_name: String, value: float, old_value: float = value) -> void
 	else:
 		bar.value = value
 
-	bar.modulate = _bar_color(value)
+	if _bar_fills.has(stat_name):
+		_bar_fills[stat_name].bg_color = _bar_color(value)
 
 
 ## Three-tier readability tint: critical / low / healthy.
@@ -229,6 +247,73 @@ func _bar_color(value: float) -> Color:
 	elif value <= GameConfig.LOW_THRESHOLD:
 		return Color(1.0, 0.80, 0.45)   # amber — low
 	return Color(0.55, 0.85, 0.55)      # green — healthy
+
+
+# ─── Cozy theme (StyleBoxFlat) ────────────────────────────────────────────────
+
+func _apply_theme() -> void:
+	# Lift the stat panel up under the name pill so the cozy room shows below.
+	var sp: Control = $Control/StatsPanel
+	sp.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	sp.offset_left = 16.0
+	sp.offset_right = -16.0
+	sp.offset_top = 150.0
+	sp.add_theme_constant_override("separation", 9)
+
+	_style_bar(hunger_bar, "hunger")
+	_style_bar(happiness_bar, "happiness")
+	_style_bar(energy_bar, "energy")
+	_style_bar(affection_bar, "affection")
+	for lbl in [hunger_label, happiness_label, energy_label, affection_label]:
+		lbl.add_theme_color_override("font_color", PAL.TEXT_BODY)
+		lbl.add_theme_font_size_override("font_size", 13)
+
+	for b in [feed_button, play_button, sleep_button, pet_button]:
+		_style_button(b)
+
+
+func _card_sb(color: Color, radius: int, shadow: int) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = color
+	sb.set_corner_radius_all(radius)
+	sb.set_content_margin_all(10)
+	sb.border_color = Color(1, 1, 1, 0.55)
+	sb.set_border_width_all(1)
+	if shadow > 0:
+		sb.shadow_color = Color(0.59, 0.39, 0.24, 0.16)
+		sb.shadow_size = shadow
+		sb.shadow_offset = Vector2(0, 4)
+	return sb
+
+
+func _style_button(b: Button) -> void:
+	b.add_theme_stylebox_override("normal", _card_sb(PAL.CARD, 18, 5))
+	b.add_theme_stylebox_override("hover", _card_sb(PAL.CARD.lightened(0.04), 18, 5))
+	b.add_theme_stylebox_override("pressed", _card_sb(PAL.CARD.darkened(0.05), 18, 1))
+	b.add_theme_stylebox_override("disabled", _card_sb(Color(0.93, 0.89, 0.83), 18, 0))
+	b.add_theme_color_override("font_color", PAL.TEXT_BODY)
+	b.add_theme_color_override("font_hover_color", PAL.TEXT)
+	b.add_theme_color_override("font_pressed_color", PAL.ACCENT_DEEP)
+	b.add_theme_color_override("font_disabled_color", PAL.TEXT_FAINT)
+	b.add_theme_font_size_override("font_size", 14)
+	b.custom_minimum_size = Vector2(0, 62)
+
+
+func _style_bar(bar: ProgressBar, stat: String) -> void:
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color(0.35, 0.27, 0.22, 0.15)
+	track.set_corner_radius_all(5)
+	bar.add_theme_stylebox_override("background", track)
+
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = PAL.TIER_HEALTHY_B
+	fill.set_corner_radius_all(5)
+	bar.add_theme_stylebox_override("fill", fill)
+	_bar_fills[stat] = fill
+
+	bar.custom_minimum_size = Vector2(0, 12)
+	bar.add_theme_color_override("font_color", Color(1, 1, 1, 0.92))
+	bar.add_theme_font_size_override("font_size", 11)
 
 
 ## Refreshes all text labels. Call again if the locale changes at runtime.
