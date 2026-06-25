@@ -104,7 +104,10 @@ msgid "ONBOARDING_PLACEHOLDER"
 msgstr "Type a name"
 
 msgid "ONBOARDING_CONFIRM"
-msgstr "Start!"
+msgstr "Let's go!"
+
+msgid "ONBOARDING_TAGLINE"
+msgstr "Your little companion"
 
 # ── Settings ──────────────────────────────────────────────────────────────────
 
@@ -127,7 +130,10 @@ msgid "SETTINGS_VOLUME"
 msgstr "Volume"
 
 msgid "SETTINGS_TEST_MODE"
-msgstr "Test mode (fast decay)"
+msgstr "Test mode"
+
+msgid "SETTINGS_DONE"
+msgstr "Done"
 
 # ── Pet thoughts ──────────────────────────────────────────────────────────────
 

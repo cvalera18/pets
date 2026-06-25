@@ -47,7 +47,7 @@ const REACT_STRETCH  := 0.22
 
 # ─── Child references ─────────────────────────────────────────────────────────
 
-@onready var sprite:           AnimatedSprite2D = $Sprite
+@onready var sprite:           Node2D           = $Sprite
 @onready var interaction_area: Area2D           = $InteractionArea
 
 # ─── State ────────────────────────────────────────────────────────────────────
@@ -143,6 +143,7 @@ func broadcast_stats() -> void:
 	EventBus.stat_changed.emit("energy",    stats.energy,    stats.energy)
 	EventBus.stat_changed.emit("affection", stats.affection, stats.affection)
 	EventBus.bond_level_changed.emit(bond_level)
+	EventBus.bond_progress_changed.emit(_bond_ratio())
 	EventBus.pet_name_changed.emit(pet_name)
 
 
@@ -292,6 +293,14 @@ func _add_bond(xp: int) -> void:
 		bond_level = new_level
 		EventBus.bond_level_changed.emit(bond_level)
 		_celebrate_level_up()
+	EventBus.bond_progress_changed.emit(_bond_ratio())
+
+
+## Progress within the current bond level, in [0, 1].
+func _bond_ratio() -> float:
+	@warning_ignore("integer_division")
+	var into_level := bond_xp % GameConfig.BOND_XP_PER_LEVEL
+	return float(into_level) / float(GameConfig.BOND_XP_PER_LEVEL)
 
 
 func _celebrate_level_up() -> void:
@@ -301,10 +310,8 @@ func _celebrate_level_up() -> void:
 	_haptic(60)
 
 
-func _play_anim(anim_name: String) -> void:
-	if sprite.sprite_frames and sprite.sprite_frames.has_animation(anim_name):
-		sprite.play(anim_name)
-	# If the animation doesn't exist yet (placeholder sprites), fail silently.
+func _play_anim(_anim_name: String) -> void:
+	pass  # Mochi has no SpriteFrames; its face is driven by mood (see _set_mood).
 
 
 func _update_anim_from_stats() -> void:
@@ -353,6 +360,8 @@ func _trigger_reaction() -> void:
 
 func _set_mood(mood: Mood) -> void:
 	_mood = mood
+	if sprite:
+		sprite.set_mood(mood)
 
 
 func _update_mood_from_stats() -> void:
