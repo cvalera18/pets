@@ -31,11 +31,17 @@
 ##    "achievements": {
 ##      "unlocked":     ["first_care"],
 ##      "interactions": 12
+##    },
+##    "personality": {
+##      "w":         {"feed": 0.0, "play": 0.0, "sleep": 0.0, "pet": 0.0},
+##      "eff_total": 0,
+##      "dominant":  "",
+##      "revealed":  []
 ##    }
 ##  }
 extends Node
 
-const SAVE_SCHEMA_VERSION: int = 3
+const SAVE_SCHEMA_VERSION: int = 4
 
 var _provider: BaseSaveProvider
 
@@ -54,7 +60,8 @@ func _ready() -> void:
 ## Includes a Unix timestamp so offline decay can be calculated on next load.
 func save_game(pet_stats: PetStats, pet_name: String,
 		settings: Dictionary, cosmetics: Dictionary,
-		bond_xp: int = 0, achievements: Dictionary = {}) -> bool:
+		bond_xp: int = 0, achievements: Dictionary = {},
+		personality: Dictionary = {}) -> bool:
 
 	var data := {
 		"version":   SAVE_SCHEMA_VERSION,
@@ -70,6 +77,7 @@ func save_game(pet_stats: PetStats, pet_name: String,
 		"settings":     settings,
 		"cosmetics":    cosmetics,
 		"achievements": achievements,
+		"personality":  personality,
 	}
 
 	var success := _provider.save(data)
@@ -143,5 +151,14 @@ func _migrate(data: Dictionary) -> Dictionary:
 		if not data.has("achievements"):
 			data["achievements"] = {"unlocked": [], "interactions": 0}
 		data["version"] = 3
+
+	# v3 → v4: add personality block (emergent traits)
+	if version < 4:
+		if not data.has("personality"):
+			data["personality"] = {
+				"w": {"feed": 0.0, "play": 0.0, "sleep": 0.0, "pet": 0.0},
+				"eff_total": 0, "dominant": "", "revealed": [],
+			}
+		data["version"] = 4
 
 	return data

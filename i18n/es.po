@@ -160,6 +160,44 @@ msgstr "Vínculo Nv. %d"
 msgid "BOND_CHIP"
 msgstr "Nivel %d"
 
+# ── Personalidad ──────────────────────────────────────────────────────────────
+
+msgid "TRAIT_NAME_glotona"
+msgstr "Glotona"
+
+msgid "TRAIT_NAME_juguetona"
+msgstr "Juguetona"
+
+msgid "TRAIT_NAME_dormilona"
+msgstr "Dormilona"
+
+msgid "TRAIT_NAME_mimosa"
+msgstr "Mimosa"
+
+msgid "TRAIT_REVEAL_glotona"
+msgstr "¡Es Glotona!"
+
+msgid "TRAIT_REVEAL_juguetona"
+msgstr "¡Es Juguetona!"
+
+msgid "TRAIT_REVEAL_dormilona"
+msgstr "¡Es Dormilona!"
+
+msgid "TRAIT_REVEAL_mimosa"
+msgstr "¡Es Mimosa!"
+
+msgid "TRAIT_GLOTONA_IDLE"
+msgstr "¿Hay comidita?"
+
+msgid "TRAIT_JUGUETONA_IDLE"
+msgstr "¡A jugar!"
+
+msgid "TRAIT_DORMILONA_IDLE"
+msgstr "Qué sueñito..."
+
+msgid "TRAIT_MIMOSA_IDLE"
+msgstr "¿Me das un mimo?"
+
 # ── Logros ────────────────────────────────────────────────────────────────────
 
 msgid "ACHIEVEMENT_UNLOCKED"

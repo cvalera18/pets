@@ -23,6 +23,27 @@ const MOUTH     := Color("9c6b4e")
 const TEAR      := Color("9fd0e8")
 const WHITE     := Color("fff8f0")
 
+# Personality runtime tints — default to the base consts, overridden by the
+# active trait via set_personality(). 100% procedural, no art.
+var _fur_tint:    Color = FUR
+var _cheek_tint:  Color = CHEEK
+var _cheek_scale: float = 1.0
+
+
+## Applies the active trait's procedural tint (a multiply over the base fur/cheek
+## colors) + cheek scale. Called by Pet on EventBus.personality_updated.
+func set_personality(profile: Dictionary) -> void:
+	_fur_tint = _tint(FUR, profile.get("fur_mul", Color.WHITE))
+	_cheek_tint = _tint(CHEEK, profile.get("cheek_mul", Color.WHITE))
+	_cheek_tint.a = clampf(CHEEK.a + float(profile.get("cheek_alpha_add", 0.0)), 0.0, 1.0)
+	_cheek_scale = float(profile.get("cheek_scale", 1.0))
+	queue_redraw()
+
+
+func _tint(base: Color, m: Color) -> Color:
+	return Color(clampf(base.r * m.r, 0.0, 1.0), clampf(base.g * m.g, 0.0, 1.0),
+			clampf(base.b * m.b, 0.0, 1.0), base.a)
+
 
 func set_mood(mood: int) -> void:
 	if _mood == mood:
@@ -41,7 +62,7 @@ func _draw() -> void:
 
 	# Body blob — rim then fur, all centered.
 	_ellipse(Vector2(0, 10), 73, 72, FUR_RIM)
-	_ellipse(Vector2(0, 10), 70, 69, FUR)
+	_ellipse(Vector2(0, 10), 70, 69, _fur_tint)
 	# Subtle, CENTERED top sheen (not an off-centre disc).
 	_ellipse(Vector2(0, -16), 46, 26, SHEEN)
 	# Soft lighter muzzle/face patch the eyes sit on — low-contrast so it blends
@@ -49,8 +70,8 @@ func _draw() -> void:
 	_ellipse(Vector2(0, 27), 47, 40, Color(1.0, 0.94, 0.84, 0.45))
 
 	# Blush cheeks.
-	_ellipse(Vector2(-37, 34), 12, 7, CHEEK)
-	_ellipse(Vector2(37, 34), 12, 7, CHEEK)
+	_ellipse(Vector2(-37, 34), 12.0 * _cheek_scale, 7.0 * _cheek_scale, _cheek_tint)
+	_ellipse(Vector2(37, 34), 12.0 * _cheek_scale, 7.0 * _cheek_scale, _cheek_tint)
 
 	match _mood:
 		1: _face_sleep()
@@ -94,7 +115,7 @@ func _ear(side: int) -> void:
 	var center := Vector2(34.0 * s, -52.0)
 	var rot := deg_to_rad(18.0 * s)
 	_ellipse(center, 23, 31, FUR_RIM, rot)
-	_ellipse(center, 20, 28, FUR, rot)
+	_ellipse(center, 20, 28, _fur_tint, rot)
 	_ellipse(center + Vector2(0, 6).rotated(rot), 11, 16, INNER_EAR, rot)
 
 

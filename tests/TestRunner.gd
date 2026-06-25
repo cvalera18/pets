@@ -17,6 +17,7 @@ func _ready() -> void:
 	_test_petstats()
 	_test_migrations()
 	_test_achievements_persistence()
+	_test_personality()
 	print("=== RESULT: %d passed, %d failed ===" % [_passed, _failed])
 	if _failed > 0:
 		push_error("Test suite has %d failing assertion(s)." % _failed)
@@ -92,10 +93,18 @@ func _test_migrations() -> void:
 	_check("v1 backfills pet.bond_xp", m1["pet"].has("bond_xp"))
 	_check("v1 backfills achievements", m1.has("achievements"))
 
+	_check("v0 backfills personality", m0.has("personality"))
+
 	var v3: Dictionary = {"version": 3, "pet": {"bond_xp": 5}, "achievements": {"unlocked": ["a"]}}
 	var m3: Dictionary = SaveSystem._migrate(v3)
-	_check("current version is unchanged", m3.get("version") == 3)
+	_check("v3 -> current version", m3.get("version") == SaveSystem.SAVE_SCHEMA_VERSION)
+	_check("v3 backfills personality", m3.has("personality"))
 	_check("migration preserves existing bond_xp", m3["pet"]["bond_xp"] == 5)
+
+	var v4: Dictionary = {"version": 4, "personality": {"dominant": "glotona"}}
+	var m4: Dictionary = SaveSystem._migrate(v4)
+	_check("current version is unchanged", m4.get("version") == SaveSystem.SAVE_SCHEMA_VERSION)
+	_check("migration preserves existing personality", m4["personality"]["dominant"] == "glotona")
 
 
 # ─── Achievements persistence ─────────────────────────────────────────────────
@@ -107,3 +116,35 @@ func _test_achievements_persistence() -> void:
 	var unlocked: Array = d.get("unlocked", [])
 	_check("achievements unlocked round-trip", unlocked.has("first_care") and unlocked.has("bond_3"))
 	Achievements.load_from({})  # reset global state after the test
+
+
+# ─── Personality ──────────────────────────────────────────────────────────────
+
+func _test_personality() -> void:
+	Personality.load_from({})  # reset
+	for i in 10:
+		Personality.record("feed")
+	_check("below MIN_VOLUME -> no trait", Personality.trait_id() == "")
+
+	Personality.load_from({})
+	for i in 30:
+		Personality.record("feed")
+	_check("dominant feeding -> glotona", Personality.trait_id() == "glotona")
+	_check("glotona raises hunger decay", Personality.decay_factor("hunger") > 1.0)
+	_check("glotona boosts feed gain", Personality.gain_factor("feed") > 1.0)
+	_check("neutral stat decay unaffected", _approx(Personality.decay_factor("affection"), 1.0))
+
+	Personality.record("play")  # a single off-action
+	_check("one off-action keeps trait (hysteresis)", Personality.trait_id() == "glotona")
+
+	var snap: Dictionary = Personality.to_dict()
+	Personality.load_from({})
+	_check("reset clears trait", Personality.trait_id() == "")
+	Personality.load_from(snap)
+	_check("personality round-trips", Personality.trait_id() == "glotona")
+
+	for i in 60:
+		Personality.record("play")
+	_check("sustained play switches to juguetona", Personality.trait_id() == "juguetona")
+
+	Personality.load_from({})  # reset global state after the test
