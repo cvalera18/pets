@@ -14,6 +14,9 @@ const PAL := preload("res://theme/Palette.gd")
 var _cooldown_timer: float = 0.0
 var _bar_fills: Dictionary = {}
 var _action_labels: Dictionary = {}
+var _bars: Dictionary = {}
+var _value_labels: Dictionary = {}
+var _stat_labels: Dictionary = {}
 var _is_sleeping: bool = false
 var _settings_button: Button
 var _name_label: Label
@@ -221,13 +224,9 @@ func _init_bars() -> void:
 
 
 func _set_bar(stat_name: String, value: float, old_value: float = value) -> void:
-	var bar: ProgressBar
-	match stat_name:
-		"hunger":    bar = hunger_bar
-		"happiness": bar = happiness_bar
-		"energy":    bar = energy_bar
-		"affection": bar = affection_bar
-		_: return
+	if not _bars.has(stat_name):
+		return
+	var bar: ProgressBar = _bars[stat_name]
 
 	# Animate big jumps (interaction gains); apply gradual decay instantly so the
 	# bar doesn't spawn a fresh tween on every decay frame.
@@ -238,37 +237,29 @@ func _set_bar(stat_name: String, value: float, old_value: float = value) -> void
 	else:
 		bar.value = value
 
-	if _bar_fills.has(stat_name):
-		_bar_fills[stat_name].bg_color = _bar_color(value)
+	_bar_fills[stat_name].bg_color = _stat_color(stat_name, value)
+	if _value_labels.has(stat_name):
+		_value_labels[stat_name].text = str(roundi(value))
 
 
-## Three-tier readability tint: critical / low / healthy.
-func _bar_color(value: float) -> Color:
+## Bar fill colour: the stat's own hue, turning red when critical (design rule).
+func _stat_color(stat: String, value: float) -> Color:
 	if value <= GameConfig.CRITICAL_THRESHOLD:
-		return Color(1.0, 0.45, 0.45)   # red — critical
-	elif value <= GameConfig.LOW_THRESHOLD:
-		return Color(1.0, 0.80, 0.45)   # amber — low
-	return Color(0.55, 0.85, 0.55)      # green — healthy
+		return PAL.TIER_CRIT_B
+	match stat:
+		"hunger":    return PAL.HUNGER_B
+		"happiness": return PAL.HAPPY_B
+		"energy":    return PAL.ENERGY_B
+		"affection": return PAL.AFFECTION_B
+	return PAL.HUNGER_B
 
 
 # ─── Cozy theme (StyleBoxFlat) ────────────────────────────────────────────────
 
 func _apply_theme() -> void:
-	# Lift the stat panel up under the name pill so the cozy room shows below.
-	var sp: Control = $Control/StatsPanel
-	sp.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	sp.offset_left = 16.0
-	sp.offset_right = -16.0
-	sp.offset_top = 150.0
-	sp.add_theme_constant_override("separation", 9)
-
-	_style_bar(hunger_bar, "hunger")
-	_style_bar(happiness_bar, "happiness")
-	_style_bar(energy_bar, "energy")
-	_style_bar(affection_bar, "affection")
-	for lbl in [hunger_label, happiness_label, energy_label, affection_label]:
-		lbl.add_theme_color_override("font_color", PAL.TEXT_BODY)
-		lbl.add_theme_font_size_override("font_size", 13)
+	# Replace the old stat list with the cozy 2×2 card grid.
+	$Control/StatsPanel.hide()
+	_build_stat_grid()
 
 	for b in [feed_button, play_button, sleep_button, pet_button]:
 		_style_button(b)
@@ -306,21 +297,86 @@ func _style_button(b: Button) -> void:
 	b.custom_minimum_size = Vector2(0, 62)
 
 
-func _style_bar(bar: ProgressBar, stat: String) -> void:
+## Builds the 2×2 grid of stat cards (icon square + label + value + bar).
+func _build_stat_grid() -> void:
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 11)
+	grid.add_theme_constant_override("v_separation", 11)
+	grid.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	grid.offset_left = 16.0
+	grid.offset_right = -16.0
+	grid.offset_top = 96.0
+	$Control.add_child(grid)
+
+	_make_stat_card(grid, "hunger", Icons.bowl, PAL.HUNGER, "STAT_HUNGER")
+	_make_stat_card(grid, "happiness", Icons.star, PAL.HAPPY, "STAT_HAPPINESS")
+	_make_stat_card(grid, "energy", Icons.bolt, PAL.ENERGY, "STAT_ENERGY")
+	_make_stat_card(grid, "affection", Icons.heart, PAL.AFFECTION, "STAT_AFFECTION")
+
+
+func _make_stat_card(parent: Node, stat: String, icon: Texture2D, color: Color, label_key: String) -> void:
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", _card_sb(PAL.CARD, 16, 3))
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(card)
+
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 8)
+	card.add_child(v)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 7)
+	v.add_child(row)
+
+	var sq := Panel.new()
+	sq.custom_minimum_size = Vector2(24, 24)
+	var ssb := StyleBoxFlat.new()
+	ssb.bg_color = color
+	ssb.set_corner_radius_all(8)
+	sq.add_theme_stylebox_override("panel", ssb)
+	row.add_child(sq)
+	var ic := TextureRect.new()
+	ic.texture = icon
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ic.position = Vector2(5, 5)
+	ic.size = Vector2(14, 14)
+	ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sq.add_child(ic)
+
+	var lbl := Label.new()
+	lbl.text = tr(label_key)
+	lbl.add_theme_font_size_override("font_size", 12)
+	lbl.add_theme_color_override("font_color", PAL.TEXT_BODY)
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(lbl)
+	_stat_labels[stat] = lbl
+
+	var val := Label.new()
+	if Fonts.display != null:
+		val.add_theme_font_override("font", Fonts.display)
+	val.add_theme_font_size_override("font_size", 13)
+	val.add_theme_color_override("font_color", PAL.TEXT_MUTED)
+	val.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(val)
+	_value_labels[stat] = val
+
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.custom_minimum_size = Vector2(0, 8)
 	var track := StyleBoxFlat.new()
-	track.bg_color = Color(0.35, 0.27, 0.22, 0.15)
-	track.set_corner_radius_all(5)
+	track.bg_color = Color(0.35, 0.27, 0.22, 0.14)
+	track.set_corner_radius_all(4)
 	bar.add_theme_stylebox_override("background", track)
-
 	var fill := StyleBoxFlat.new()
-	fill.bg_color = PAL.TIER_HEALTHY_B
-	fill.set_corner_radius_all(5)
+	fill.bg_color = color
+	fill.set_corner_radius_all(4)
 	bar.add_theme_stylebox_override("fill", fill)
+	v.add_child(bar)
+	_bars[stat] = bar
 	_bar_fills[stat] = fill
-
-	bar.custom_minimum_size = Vector2(0, 12)
-	bar.add_theme_color_override("font_color", Color(1, 1, 1, 0.92))
-	bar.add_theme_font_size_override("font_size", 11)
 
 
 ## Turns a plain action Button into a cozy card: a colored circle with a white
@@ -366,10 +422,11 @@ func _decorate_action(btn: Button, icon: Texture2D, circle_color: Color) -> Labe
 
 ## Refreshes all text labels. Call again if the locale changes at runtime.
 func _refresh_labels() -> void:
-	hunger_label.text    = tr("STAT_HUNGER")
-	happiness_label.text = tr("STAT_HAPPINESS")
-	energy_label.text    = tr("STAT_ENERGY")
-	affection_label.text = tr("STAT_AFFECTION")
+	if not _stat_labels.is_empty():
+		_stat_labels["hunger"].text    = tr("STAT_HUNGER")
+		_stat_labels["happiness"].text = tr("STAT_HAPPINESS")
+		_stat_labels["energy"].text    = tr("STAT_ENERGY")
+		_stat_labels["affection"].text = tr("STAT_AFFECTION")
 
 	if not _action_labels.is_empty():
 		_action_labels["feed"].text  = tr("ACTION_FEED")
