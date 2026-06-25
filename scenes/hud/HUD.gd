@@ -13,6 +13,7 @@ const PAL := preload("res://theme/Palette.gd")
 
 var _cooldown_timer: float = 0.0
 var _bar_fills: Dictionary = {}
+var _action_labels: Dictionary = {}
 var _is_sleeping: bool = false
 var _settings_button: Button
 var _name_label: Label
@@ -89,7 +90,8 @@ func _on_sleep_button_pressed() -> void:
 
 func _on_sleeping_changed(is_sleeping: bool) -> void:
 	_is_sleeping = is_sleeping
-	sleep_button.text = tr("ACTION_WAKE") if is_sleeping else tr("ACTION_SLEEP")
+	if _action_labels.has("sleep"):
+		_action_labels["sleep"].text = tr("ACTION_WAKE") if is_sleeping else tr("ACTION_SLEEP")
 	# While sleeping, disable all buttons except sleep (which becomes Wake).
 	feed_button.disabled  = is_sleeping
 	play_button.disabled  = is_sleeping
@@ -99,14 +101,16 @@ func _on_sleeping_changed(is_sleeping: bool) -> void:
 ## Adds a small settings entry button (top-right) that opens the Settings overlay.
 func _create_settings_button() -> void:
 	_settings_button = Button.new()
-	_settings_button.text = tr("UI_SETTINGS")
+	_settings_button.icon = Icons.gear
+	_settings_button.expand_icon = true
+	_settings_button.custom_minimum_size = Vector2(46, 46)
 	_settings_button.set_anchors_and_offsets_preset(
 			Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
 	_settings_button.add_theme_stylebox_override("normal", _card_sb(PAL.CARD, 14, 4))
 	_settings_button.add_theme_stylebox_override("hover", _card_sb(PAL.CARD.lightened(0.04), 14, 4))
 	_settings_button.add_theme_stylebox_override("pressed", _card_sb(PAL.CARD.darkened(0.05), 14, 1))
-	_settings_button.add_theme_color_override("font_color", PAL.TEXT_MUTED)
-	_settings_button.add_theme_font_size_override("font_size", 13)
+	_settings_button.add_theme_color_override("icon_normal_color", PAL.TEXT_MUTED)
+	_settings_button.add_theme_color_override("icon_pressed_color", PAL.ACCENT_DEEP)
 	_settings_button.pressed.connect(_on_settings_pressed)
 	$Control.add_child(_settings_button)
 
@@ -188,9 +192,7 @@ func _on_achievement_unlocked(_id: String, title_key: String) -> void:
 ## Re-translates HUD text when the locale changes while this HUD is alive.
 func _on_locale_changed() -> void:
 	_refresh_labels()
-	_settings_button.text = tr("UI_SETTINGS")
 	_bond_label.text = tr("BOND_BADGE") % _bond_level
-	sleep_button.text = tr("ACTION_WAKE") if _is_sleeping else tr("ACTION_SLEEP")
 
 
 func _start_cooldown() -> void:
@@ -271,6 +273,11 @@ func _apply_theme() -> void:
 	for b in [feed_button, play_button, sleep_button, pet_button]:
 		_style_button(b)
 
+	_action_labels["feed"]  = _decorate_action(feed_button,  Icons.bowl,  Color("e2925e"))
+	_action_labels["play"]  = _decorate_action(play_button,  Icons.ball,  Color("e7b24b"))
+	_action_labels["sleep"] = _decorate_action(sleep_button, Icons.moon,  Color("7ba0ce"))
+	_action_labels["pet"]   = _decorate_action(pet_button,   Icons.heart, Color("db85a0"))
+
 
 func _card_sb(color: Color, radius: int, shadow: int) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
@@ -316,6 +323,47 @@ func _style_bar(bar: ProgressBar, stat: String) -> void:
 	bar.add_theme_font_size_override("font_size", 11)
 
 
+## Turns a plain action Button into a cozy card: a colored circle with a white
+## icon above the label. Returns the label so it can be re-translated later.
+func _decorate_action(btn: Button, icon: Texture2D, circle_color: Color) -> Label:
+	btn.text = ""
+	btn.custom_minimum_size = Vector2(0, 66)
+
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 4)
+	btn.add_child(box)
+
+	var circle := Panel.new()
+	circle.custom_minimum_size = Vector2(40, 40)
+	circle.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var csb := StyleBoxFlat.new()
+	csb.bg_color = circle_color
+	csb.set_corner_radius_all(20)
+	circle.add_theme_stylebox_override("panel", csb)
+	box.add_child(circle)
+
+	var ic := TextureRect.new()
+	ic.texture = icon
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ic.position = Vector2(9, 9)
+	ic.size = Vector2(22, 22)
+	ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	circle.add_child(ic)
+
+	var lbl := Label.new()
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", 12)
+	lbl.add_theme_color_override("font_color", PAL.TEXT_BODY)
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(lbl)
+	return lbl
+
+
 ## Refreshes all text labels. Call again if the locale changes at runtime.
 func _refresh_labels() -> void:
 	hunger_label.text    = tr("STAT_HUNGER")
@@ -323,7 +371,8 @@ func _refresh_labels() -> void:
 	energy_label.text    = tr("STAT_ENERGY")
 	affection_label.text = tr("STAT_AFFECTION")
 
-	feed_button.text  = tr("ACTION_FEED")
-	play_button.text  = tr("ACTION_PLAY")
-	sleep_button.text = tr("ACTION_SLEEP")
-	pet_button.text   = tr("ACTION_PET")
+	if not _action_labels.is_empty():
+		_action_labels["feed"].text  = tr("ACTION_FEED")
+		_action_labels["play"].text  = tr("ACTION_PLAY")
+		_action_labels["sleep"].text = tr("ACTION_WAKE") if _is_sleeping else tr("ACTION_SLEEP")
+		_action_labels["pet"].text   = tr("ACTION_PET")

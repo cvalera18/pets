@@ -26,6 +26,7 @@ NotificationManager="*res://autoloads/NotificationManager.gd"
 AudioManager="*res://autoloads/AudioManager.gd"
 Achievements="*res://autoloads/Achievements.gd"
 Fonts="*res://autoloads/Fonts.gd"
+Icons="*res://autoloads/Icons.gd"
 
 [display]
 
