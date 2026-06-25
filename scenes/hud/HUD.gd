@@ -50,6 +50,7 @@ func _ready() -> void:
 	EventBus.sleeping_changed.connect(_on_sleeping_changed)
 	EventBus.locale_changed.connect(_on_locale_changed)
 	EventBus.bond_level_changed.connect(_on_bond_level_changed)
+	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
 
 	_create_settings_button()
 	_create_bond_label()
@@ -116,6 +117,39 @@ func _create_bond_label() -> void:
 func _on_bond_level_changed(level: int) -> void:
 	_bond_level = level
 	_bond_label.text = tr("BOND_BADGE") % level
+
+
+## Slides a celebratory toast in at top-center when a milestone unlocks.
+func _on_achievement_unlocked(_id: String, title_key: String) -> void:
+	var panel := PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(
+			Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE, 20)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	panel.add_child(box)
+
+	var header := Label.new()
+	header.text = tr("ACHIEVEMENT_UNLOCKED")
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 14)
+	box.add_child(header)
+
+	var title := Label.new()
+	title.text = tr(title_key)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 22)
+	box.add_child(title)
+
+	$Control.add_child(panel)
+
+	panel.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(panel, "modulate:a", 1.0, 0.3)
+	tween.tween_interval(2.2)
+	tween.tween_property(panel, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(panel.queue_free)
 
 
 ## Re-translates HUD text when the locale changes while this HUD is alive.

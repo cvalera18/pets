@@ -27,11 +27,15 @@
 ##    },
 ##    "cosmetics": {
 ##      "equipped_skin": "skin_default"
+##    },
+##    "achievements": {
+##      "unlocked":     ["first_care"],
+##      "interactions": 12
 ##    }
 ##  }
 extends Node
 
-const SAVE_SCHEMA_VERSION: int = 2
+const SAVE_SCHEMA_VERSION: int = 3
 
 var _provider: BaseSaveProvider
 
@@ -49,7 +53,8 @@ func _ready() -> void:
 ## Builds the full save dictionary from current state and persists it.
 ## Includes a Unix timestamp so offline decay can be calculated on next load.
 func save_game(pet_stats: PetStats, pet_name: String,
-		settings: Dictionary, cosmetics: Dictionary, bond_xp: int = 0) -> bool:
+		settings: Dictionary, cosmetics: Dictionary,
+		bond_xp: int = 0, achievements: Dictionary = {}) -> bool:
 
 	var data := {
 		"version":   SAVE_SCHEMA_VERSION,
@@ -62,8 +67,9 @@ func save_game(pet_stats: PetStats, pet_name: String,
 			"name":      pet_name,
 			"bond_xp":   bond_xp,
 		},
-		"settings":  settings,
-		"cosmetics": cosmetics,
+		"settings":     settings,
+		"cosmetics":    cosmetics,
+		"achievements": achievements,
 	}
 
 	var success := _provider.save(data)
@@ -131,5 +137,11 @@ func _migrate(data: Dictionary) -> Dictionary:
 		if data.has("pet") and not data["pet"].has("bond_xp"):
 			data["pet"]["bond_xp"] = 0
 		data["version"] = 2
+
+	# v2 → v3: add achievements block
+	if version < 3:
+		if not data.has("achievements"):
+			data["achievements"] = {"unlocked": [], "interactions": 0}
+		data["version"] = 3
 
 	return data

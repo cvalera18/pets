@@ -28,15 +28,17 @@ func _ready() -> void:
 		_players.append(p)
 
 	_sfx = {
-		"eat":   _make_eat(),
-		"play":  _make_play(),
-		"love":  _make_love(),
-		"sleep": _make_sleep(),
-		"wake":  _make_wake(),
+		"eat":     _make_eat(),
+		"play":    _make_play(),
+		"love":    _make_love(),
+		"sleep":   _make_sleep(),
+		"wake":    _make_wake(),
+		"achieve": _make_achieve(),
 	}
 
 	EventBus.burst_requested.connect(_on_burst_requested)
 	EventBus.pet_woken.connect(_on_pet_woken)
+	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
 
 
 # ─── Playback ─────────────────────────────────────────────────────────────────
@@ -47,6 +49,10 @@ func _on_burst_requested(kind: String, _world_pos: Vector2) -> void:
 
 func _on_pet_woken() -> void:
 	_play("wake")
+
+
+func _on_achievement_unlocked(_id: String, _title_key: String) -> void:
+	_play("achieve")
 
 
 ## Plays a named SFX through a round-robin player pool (allows overlap).
@@ -127,4 +133,13 @@ func _make_wake() -> AudioStreamWAV:
 	var b := PackedFloat32Array()  # gentle ascending
 	_note(b, 261.63, 0.10, 0.35)
 	_note(b, 392.00, 0.16, 0.35)
+	return _to_stream(b)
+
+
+func _make_achieve() -> AudioStreamWAV:
+	var b := PackedFloat32Array()  # triumphant rising fanfare C-E-G-C
+	_note(b, 523.25, 0.10, 0.4)
+	_note(b, 659.25, 0.10, 0.4)
+	_note(b, 783.99, 0.10, 0.4)
+	_note(b, 1046.50, 0.22, 0.4, 4.0)
 	return _to_stream(b)

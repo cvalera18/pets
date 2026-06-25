@@ -144,3 +144,23 @@ msgstr "¡Nivel %d!"
 
 msgid "BOND_BADGE"
 msgstr "Vínculo Nv. %d"
+
+# ── Logros ────────────────────────────────────────────────────────────────────
+
+msgid "ACHIEVEMENT_UNLOCKED"
+msgstr "¡Logro desbloqueado!"
+
+msgid "ACH_FIRST_CARE"
+msgstr "Primer cuidado"
+
+msgid "ACH_BOND_3"
+msgstr "Mejores amigos"
+
+msgid "ACH_BOND_5"
+msgstr "Inseparables"
+
+msgid "ACH_CARETAKER_50"
+msgstr "Cuidador devoto"
+
+msgid "ACH_CARETAKER_200"
+msgstr "Guardián fiel"

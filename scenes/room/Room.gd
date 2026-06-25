@@ -58,6 +58,7 @@ func _load_or_create_pet() -> void:
 			var offline_secs := SaveSystem.get_offline_seconds(data)
 			_pet.load_from_save(data.get("pet", {}), offline_secs)
 			_apply_settings(data.get("settings", {}))
+			Achievements.load_from(data.get("achievements", {}))
 			return
 
 	# No valid save — start fresh with the name chosen during onboarding.
@@ -94,7 +95,8 @@ func _save() -> void:
 		"equipped_skin": "skin_default",  # TODO v2: read from CosmeticManager.
 	}
 
-	SaveSystem.save_game(_pet.stats, _pet.pet_name, settings, cosmetics, _pet.bond_xp)
+	SaveSystem.save_game(_pet.stats, _pet.pet_name, settings, cosmetics,
+			_pet.bond_xp, Achievements.to_dict())
 
 
 func _apply_settings(settings: Dictionary) -> void:

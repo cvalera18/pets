@@ -144,3 +144,23 @@ msgstr "Level %d!"
 
 msgid "BOND_BADGE"
 msgstr "Bond Lv. %d"
+
+# ── Achievements ──────────────────────────────────────────────────────────────
+
+msgid "ACHIEVEMENT_UNLOCKED"
+msgstr "Achievement unlocked!"
+
+msgid "ACH_FIRST_CARE"
+msgstr "First Care"
+
+msgid "ACH_BOND_3"
+msgstr "Best Friends"
+
+msgid "ACH_BOND_5"
+msgstr "Inseparable"
+
+msgid "ACH_CARETAKER_50"
+msgstr "Devoted Caretaker"
+
+msgid "ACH_CARETAKER_200"
+msgstr "Faithful Guardian"
