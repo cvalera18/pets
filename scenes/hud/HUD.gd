@@ -24,6 +24,7 @@ var _is_sleeping: bool = false
 var _settings_button: Button
 var _name_label: Label
 var _bond_label: Label
+var _bond_bar: ProgressBar
 var _bond_level: int = 1
 var _pet_name: String = ""
 
@@ -61,6 +62,7 @@ func _ready() -> void:
 	EventBus.sleeping_changed.connect(_on_sleeping_changed)
 	EventBus.locale_changed.connect(_on_locale_changed)
 	EventBus.bond_level_changed.connect(_on_bond_level_changed)
+	EventBus.bond_progress_changed.connect(_on_bond_progress)
 	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
 	EventBus.pet_name_changed.connect(_on_pet_name_changed)
 
@@ -159,7 +161,10 @@ func _create_status_panel() -> void:
 	chsb.content_margin_top = 3
 	chsb.content_margin_bottom = 3
 	chip.add_theme_stylebox_override("panel", chsb)
-	box.add_child(chip)
+	var bondrow := HBoxContainer.new()
+	bondrow.add_theme_constant_override("separation", 7)
+	box.add_child(bondrow)
+	bondrow.add_child(chip)
 
 	var chrow := HBoxContainer.new()
 	chrow.add_theme_constant_override("separation", 4)
@@ -180,6 +185,20 @@ func _create_status_panel() -> void:
 	_bond_label.add_theme_color_override("font_color", PAL.BOND_BADGE_FG)
 	chrow.add_child(_bond_label)
 
+	_bond_bar = ProgressBar.new()
+	_bond_bar.show_percentage = false
+	_bond_bar.custom_minimum_size = Vector2(54, 6)
+	_bond_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var bbt := StyleBoxFlat.new()
+	bbt.bg_color = Color(0.35, 0.27, 0.22, 0.16)
+	bbt.set_corner_radius_all(3)
+	_bond_bar.add_theme_stylebox_override("background", bbt)
+	var bbf := StyleBoxFlat.new()
+	bbf.bg_color = PAL.BOND_B
+	bbf.set_corner_radius_all(3)
+	_bond_bar.add_theme_stylebox_override("fill", bbf)
+	bondrow.add_child(_bond_bar)
+
 
 func _on_pet_name_changed(pet_name: String) -> void:
 	_pet_name = pet_name
@@ -189,6 +208,11 @@ func _on_pet_name_changed(pet_name: String) -> void:
 func _on_bond_level_changed(level: int) -> void:
 	_bond_level = level
 	_bond_label.text = tr("BOND_BADGE") % level
+
+
+func _on_bond_progress(ratio: float) -> void:
+	if _bond_bar != null:
+		_bond_bar.value = ratio * 100.0
 
 
 ## Slides a celebratory toast in at top-center when a milestone unlocks.

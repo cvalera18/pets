@@ -143,6 +143,7 @@ func broadcast_stats() -> void:
 	EventBus.stat_changed.emit("energy",    stats.energy,    stats.energy)
 	EventBus.stat_changed.emit("affection", stats.affection, stats.affection)
 	EventBus.bond_level_changed.emit(bond_level)
+	EventBus.bond_progress_changed.emit(_bond_ratio())
 	EventBus.pet_name_changed.emit(pet_name)
 
 
@@ -292,6 +293,14 @@ func _add_bond(xp: int) -> void:
 		bond_level = new_level
 		EventBus.bond_level_changed.emit(bond_level)
 		_celebrate_level_up()
+	EventBus.bond_progress_changed.emit(_bond_ratio())
+
+
+## Progress within the current bond level, in [0, 1].
+func _bond_ratio() -> float:
+	@warning_ignore("integer_division")
+	var into_level := bond_xp % GameConfig.BOND_XP_PER_LEVEL
+	return float(into_level) / float(GameConfig.BOND_XP_PER_LEVEL)
 
 
 func _celebrate_level_up() -> void:

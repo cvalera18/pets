@@ -56,6 +56,9 @@ signal pet_name_changed(pet_name: String)
 ## Emitted when the bond level changes, and once on load for initial HUD sync.
 signal bond_level_changed(level: int)
 
+## Emitted with the bond progress within the current level, in [0, 1].
+signal bond_progress_changed(ratio: float)
+
 ## Emitted when a milestone is newly unlocked.
 ## @param id         achievement id (a key of Achievements.CATALOG)
 ## @param title_key  i18n key for the display title
