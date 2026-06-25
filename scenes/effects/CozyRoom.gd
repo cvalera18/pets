@@ -101,11 +101,16 @@ func _build() -> void:
 	_leaf(Vector2(52, h - 100), Vector2(20, 42), 22.0)
 
 	# ── Time-of-day tint (added last so it's on top) ──
+	# Multiply blend so dusk/night deepen the scene like the design's
+	# mix-blend-mode:multiply, rather than washing it out with a flat overlay.
 	_tint = ColorRect.new()
-	_tint.color = Color(0, 0, 0, 0)
+	_tint.color = Color(1, 1, 1, 1)   # white = identity under multiply (daytime)
 	_tint.position = Vector2.ZERO
 	_tint.size = size
 	_tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tmat := CanvasItemMaterial.new()
+	tmat.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
+	_tint.material = tmat
 	add_child(_tint)
 
 
@@ -182,8 +187,8 @@ func _apply_time_tint() -> void:
 		return
 	var hour: int = Time.get_time_dict_from_system().get("hour", 12)
 	if hour < 5 or hour >= 20:
-		_tint.color = P.TINT_NIGHT
+		_tint.color = P.TINT_NIGHT_MUL
 	elif hour >= 17:
-		_tint.color = P.TINT_DUSK
+		_tint.color = P.TINT_DUSK_MUL
 	else:
-		_tint.color = Color(0, 0, 0, 0)
+		_tint.color = Color(1, 1, 1, 1)

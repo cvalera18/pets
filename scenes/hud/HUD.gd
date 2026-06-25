@@ -505,6 +505,8 @@ func _make_stat_card(parent: Node, stat: String, icon: Texture2D, color: Color, 
 
 	var lbl := Label.new()
 	lbl.text = tr(label_key)
+	if Fonts.body_strong != null:
+		lbl.add_theme_font_override("font", Fonts.body_strong)
 	lbl.add_theme_font_size_override("font_size", 12)
 	lbl.add_theme_color_override("font_color", PAL.TEXT_BODY)
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -594,6 +596,8 @@ func _decorate_action(btn: Button, icon: Texture2D, grad_a: Color, grad_b: Color
 
 	var lbl := Label.new()
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if Fonts.body_strong != null:
+		lbl.add_theme_font_override("font", Fonts.body_strong)
 	lbl.add_theme_font_size_override("font_size", 12)
 	lbl.add_theme_color_override("font_color", PAL.TEXT_BODY)
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
