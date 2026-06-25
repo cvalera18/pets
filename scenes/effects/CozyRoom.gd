@@ -64,6 +64,9 @@ func _build() -> void:
 	_round(Vector2(-30, h - floor_h), Vector2(w + 60, floor_h + 60), P.FLOOR_A, 64)
 	# warm highlight strip along the floor line
 	_round(Vector2(-30, h - floor_h - 6), Vector2(w + 60, 22), Color(1, 0.96, 0.9, 0.4), 11)
+	# soft FLOOR_A→FLOOR_B vertical shading over the floor body (keeps the domed top)
+	_grad(Vector2(-30, h - floor_h + 24), Vector2(w + 60, floor_h + 36),
+			Color(P.FLOOR_B, 0.0), Color(P.FLOOR_B, 0.75), true)
 
 	# ── Rug (three stacked stadiums) ──
 	_round(Vector2(w / 2 - 120, h - 170), Vector2(240, 74), P.RUG_1, 37)
@@ -72,21 +75,26 @@ func _build() -> void:
 
 	# ── Framed picture (top-left) ──
 	var pic := _round(Vector2(28, 96), Vector2(74, 60), P.WINDOW_FRAME, 12)
+	_add_shadow(pic, 6, 4)
 	_grad_child(pic, Vector2(7, 7), Vector2(60, 46), P.PICTURE_A, P.PICTURE_B, true, false, 7)
 	_round_child(pic, Vector2(15, 13), Vector2(12, 12), P.SUN_A, 6)
 
 	# ── Window (top-right) ──
 	var win := _round(Vector2(w - 144, 78), Vector2(118, 146), P.WINDOW_FRAME, 18)
 	var sky := _grad_child(win, Vector2(9, 9), Vector2(100, 128), P.SKY_B, P.SKY_A, true, false, 12)
+	# soft sun glow halo behind the sun
+	_grad_child(sky, Vector2(6, 10), Vector2(50, 50), Color(P.SUN_A, 0.65), Color(P.SUN_A, 0.0), false, true)
 	_grad_child(sky, Vector2(14, 18), Vector2(34, 34), P.SUN_A, P.SUN_B, false, true, 17)
 	_cloud(sky, Vector2(50, 46), Vector2(46, 18))
 	_cloud(sky, Vector2(60, 32), Vector2(30, 14))
 	# muntins
 	_round_child(win, Vector2(57, 9), Vector2(4, 128), P.WINDOW_FRAME, 2)
 	_round_child(win, Vector2(9, 71), Vector2(100, 4), P.WINDOW_FRAME, 2)
+	_add_shadow(win, 8, 5)
 
 	# ── Potted plant (bottom-left) ──
-	_round(Vector2(38, h - 96), Vector2(26, 34), P.POT_B, 8)
+	var pot := _round(Vector2(38, h - 96), Vector2(26, 34), P.POT_B, 8)
+	_add_shadow(pot, 5, 3)
 	_round(Vector2(35, h - 66), Vector2(32, 8), P.POT_B, 5)
 	_leaf(Vector2(30, h - 100), Vector2(20, 42), -22.0)
 	_leaf(Vector2(42, h - 104), Vector2(20, 48), 0.0)
@@ -147,6 +155,14 @@ func _round_child(parent: Control, pos: Vector2, sz: Vector2, color: Color, radi
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(p)
 	return p
+
+
+func _add_shadow(panel: Panel, sz: int, oy: float) -> void:
+	var sb := panel.get_theme_stylebox("panel") as StyleBoxFlat
+	if sb != null:
+		sb.shadow_color = Color(0.55, 0.36, 0.22, 0.16)
+		sb.shadow_size = sz
+		sb.shadow_offset = Vector2(0, oy)
 
 
 func _cloud(parent: Control, pos: Vector2, sz: Vector2) -> void:
