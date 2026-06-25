@@ -18,6 +18,8 @@ var _bars: Dictionary = {}
 var _value_labels: Dictionary = {}
 var _stat_labels: Dictionary = {}
 var _icon_styles: Dictionary = {}
+var _cards: Dictionary = {}
+var _pulse: Dictionary = {}
 var _is_sleeping: bool = false
 var _settings_button: Button
 var _name_label: Label
@@ -276,6 +278,20 @@ func _set_bar(stat_name: String, value: float, old_value: float = value) -> void
 		_value_labels[stat_name].add_theme_color_override(
 				"font_color", PAL.TIER_CRIT_B if crit else PAL.TEXT_MUTED)
 
+	# Gently pulse a card while its stat is critical.
+	if crit and not _pulse.has(stat_name) and _cards.has(stat_name):
+		var pt := create_tween().set_loops()
+		pt.tween_property(_cards[stat_name], "modulate", Color(1.0, 0.85, 0.83), 0.7) \
+				.set_trans(Tween.TRANS_SINE)
+		pt.tween_property(_cards[stat_name], "modulate", Color.WHITE, 0.7) \
+				.set_trans(Tween.TRANS_SINE)
+		_pulse[stat_name] = pt
+	elif not crit and _pulse.has(stat_name):
+		_pulse[stat_name].kill()
+		_pulse.erase(stat_name)
+		if _cards.has(stat_name):
+			_cards[stat_name].modulate = Color.WHITE
+
 
 ## Bar fill colour: the stat's own hue, turning red when critical (design rule).
 func _stat_color(stat: String, value: float) -> Color:
@@ -365,6 +381,7 @@ func _make_stat_card(parent: Node, stat: String, icon: Texture2D, color: Color, 
 	card.add_theme_stylebox_override("panel", _card_sb(PAL.CARD, 16, 3))
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(card)
+	_cards[stat] = card
 
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
