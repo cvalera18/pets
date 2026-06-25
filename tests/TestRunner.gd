@@ -50,10 +50,12 @@ func _test_petstats() -> void:
 	clamp_stat.hunger = -50.0
 	_check("clamp lower to STAT_MIN", _approx(clamp_stat.hunger, GameConfig.STAT_MIN))
 
+	GameState.decay_test_mode = true  # deterministic multiplier for the assertion
 	var decayer: PetStats = PetStatsScript.new()
 	decayer.apply_decay(1.0)
-	var expected := GameConfig.STAT_MAX - GameConfig.HUNGER_DECAY_RATE * GameConfig.DECAY_MULTIPLIER
+	var expected := GameConfig.STAT_MAX - GameConfig.HUNGER_DECAY_RATE * GameConfig.DECAY_MULTIPLIER_TEST
 	_check("apply_decay reduces hunger by its rate", _approx(decayer.hunger, expected))
+	GameState.decay_test_mode = false
 
 	var offliner: PetStats = PetStatsScript.new()
 	offliner.apply_offline_decay(100000.0)

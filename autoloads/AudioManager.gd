@@ -65,7 +65,13 @@ func _play(key: String) -> void:
 	var p := _players[_next]
 	_next = (_next + 1) % POOL_SIZE
 	p.stream = stream
+	p.volume_db = linear_to_db(clampf(GameState.sfx_volume, 0.0, 1.0))
 	p.play()
+
+
+## Plays a short sample so the Settings volume slider gives immediate feedback.
+func play_preview() -> void:
+	_play("love")
 
 
 # ─── Synthesis ────────────────────────────────────────────────────────────────

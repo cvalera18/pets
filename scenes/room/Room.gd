@@ -90,6 +90,8 @@ func _save() -> void:
 		"locale":                TranslationServer.get_locale().split("_")[0],
 		"notifications_enabled": GameState.notifications_enabled,
 		"sfx_enabled":           GameState.sfx_enabled,
+		"sfx_volume":            GameState.sfx_volume,
+		"decay_test_mode":       GameState.decay_test_mode,
 	}
 	var cosmetics := {
 		"equipped_skin": "skin_default",  # TODO v2: read from CosmeticManager.
@@ -106,6 +108,8 @@ func _apply_settings(settings: Dictionary) -> void:
 		TranslationServer.set_locale(locale)
 	GameState.notifications_enabled = bool(settings.get("notifications_enabled", true))
 	GameState.sfx_enabled = bool(settings.get("sfx_enabled", true))
+	GameState.sfx_volume = float(settings.get("sfx_volume", 0.8))
+	GameState.decay_test_mode = bool(settings.get("decay_test_mode", false))
 
 
 func _on_save_requested() -> void:

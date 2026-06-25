@@ -19,18 +19,19 @@ const CRITICAL_THRESHOLD: float = 20.0
 const LOW_THRESHOLD: float = 40.0
 
 # ─── Decay Rates (units per real-time second) ─────────────────────────────────
-## At default rates, a full stat takes roughly:
-##   hunger → ~27 min   happiness → ~41 min   energy → ~33 min   affection → ~55 min
-##
-## Multiply by DECAY_MULTIPLIER for testing (e.g. set it to 10.0).
+## At rate × NORMAL multiplier (0.2), a full stat empties in roughly:
+##   hunger → ~2.3 h   happiness → ~3.5 h   energy → ~2.8 h   affection → ~4.6 h
+## Test mode (×1.0) is ~5× faster, for development / observing decay quickly.
 
 const HUNGER_DECAY_RATE:    float = 0.06
 const HAPPINESS_DECAY_RATE: float = 0.04
 const ENERGY_DECAY_RATE:    float = 0.05
 const AFFECTION_DECAY_RATE: float = 0.03
 
-## Global multiplier applied to all decay rates.
-const DECAY_MULTIPLIER: float = 1.0
+## Decay-speed presets, selected at runtime via GameState.decay_test_mode
+## (toggled in Settings). Normal = logical pace; Test = the current fast pace.
+const DECAY_MULTIPLIER_NORMAL: float = 0.2
+const DECAY_MULTIPLIER_TEST:   float = 1.0
 
 # ─── Interaction Gains ────────────────────────────────────────────────────────
 

@@ -123,6 +123,12 @@ msgstr "Back"
 msgid "SETTINGS_SOUND"
 msgstr "Sound"
 
+msgid "SETTINGS_VOLUME"
+msgstr "Volume"
+
+msgid "SETTINGS_TEST_MODE"
+msgstr "Test mode (fast decay)"
+
 # ── Pet thoughts ──────────────────────────────────────────────────────────────
 
 msgid "THOUGHT_HUNGER"

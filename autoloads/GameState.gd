@@ -18,3 +18,10 @@ var notifications_enabled: bool = true
 
 ## Live sound-effects toggle, set in Settings and respected by AudioManager.
 var sfx_enabled: bool = true
+
+## SFX volume [0..1], set in Settings, applied by AudioManager per play.
+var sfx_volume: float = 0.8
+
+## When true, stats decay at the fast "test" rate; otherwise the normal pace.
+## Read by PetStats; toggled in Settings.
+var decay_test_mode: bool = false

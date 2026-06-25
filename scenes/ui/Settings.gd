@@ -54,6 +54,25 @@ func _ready() -> void:
 	box.add_child(sfx_check)
 	_register_text(sfx_check, "SETTINGS_SOUND")
 
+	_add_label(box, "SETTINGS_VOLUME", 18)
+	var volume := HSlider.new()
+	volume.min_value = 0.0
+	volume.max_value = 1.0
+	volume.step = 0.05
+	volume.value = GameState.sfx_volume
+	volume.custom_minimum_size = Vector2(0.0, 24.0)
+	volume.value_changed.connect(_on_volume_changed)
+	volume.drag_ended.connect(_on_volume_drag_ended)
+	box.add_child(volume)
+
+	box.add_child(HSeparator.new())
+
+	var test_check := CheckButton.new()
+	test_check.button_pressed = GameState.decay_test_mode
+	test_check.toggled.connect(_on_test_mode_toggled)
+	box.add_child(test_check)
+	_register_text(test_check, "SETTINGS_TEST_MODE")
+
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(spacer)
@@ -122,6 +141,20 @@ func _on_notifications_toggled(enabled: bool) -> void:
 
 func _on_sfx_toggled(enabled: bool) -> void:
 	GameState.sfx_enabled = enabled
+	_persist()
+
+
+func _on_volume_changed(value: float) -> void:
+	GameState.sfx_volume = value  # live; persisted on drag end to avoid save spam
+
+
+func _on_volume_drag_ended(_value_changed: bool) -> void:
+	AudioManager.play_preview()  # let the player hear the new level
+	_persist()
+
+
+func _on_test_mode_toggled(enabled: bool) -> void:
+	GameState.decay_test_mode = enabled
 	_persist()
 
 
