@@ -48,6 +48,19 @@ signal pet_petted
 ## HUD listens to this to toggle the Sleep/Wake button label.
 signal sleeping_changed(is_sleeping: bool)
 
+## Emitted with the pet's name for HUD display (on load and on name change).
+signal pet_name_changed(pet_name: String)
+
+# ─── Progression ──────────────────────────────────────────────────────────────
+
+## Emitted when the bond level changes, and once on load for initial HUD sync.
+signal bond_level_changed(level: int)
+
+## Emitted when a milestone is newly unlocked.
+## @param id         achievement id (a key of Achievements.CATALOG)
+## @param title_key  i18n key for the display title
+signal achievement_unlocked(id: String, title_key: String)
+
 # ─── Navigation Events ────────────────────────────────────────────────────────
 
 ## Request to navigate to a named screen (keys defined in Main.SCREENS).
@@ -55,6 +68,9 @@ signal navigate_to(screen_name: String)
 
 ## Request to go back to the previous screen.
 signal navigate_back
+
+## Emitted after the UI locale changes at runtime, so live screens re-translate.
+signal locale_changed
 
 # ─── Save / Load Events ───────────────────────────────────────────────────────
 
@@ -84,3 +100,16 @@ signal notification_schedule_requested(type: String, delay_seconds: float)
 
 ## Request to cancel all pending notifications of a given type.
 signal notification_cancel_requested(type: String)
+
+# ─── Juice / Feedback Events ──────────────────────────────────────────────────
+
+## Request a floating text label at a world position (e.g. "+20", "Zzz").
+## @param text       the string to show
+## @param color      font color (usually the related stat's hue)
+## @param world_pos  global position to anchor the effect to
+signal floating_text_requested(text: String, color: Color, world_pos: Vector2)
+
+## Request a one-shot particle burst at a world position.
+## @param kind       "love" | "play" | "eat" | "sleep" (see EffectsLayer.BURSTS)
+## @param world_pos  global position to emit from
+signal burst_requested(kind: String, world_pos: Vector2)

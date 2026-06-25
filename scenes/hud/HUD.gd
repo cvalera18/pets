@@ -8,8 +8,15 @@
 ## Add new keys to i18n/en.po and i18n/es.po when adding UI text here.
 extends CanvasLayer
 
+const SETTINGS := preload("res://scenes/ui/Settings.tscn")
+
 var _cooldown_timer: float = 0.0
 var _is_sleeping: bool = false
+var _settings_button: Button
+var _name_label: Label
+var _bond_label: Label
+var _bond_level: int = 1
+var _pet_name: String = ""
 
 # ─── Stat Bars ────────────────────────────────────────────────────────────────
 
@@ -43,7 +50,13 @@ func _ready() -> void:
 	pet_button.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_petted))
 
 	EventBus.sleeping_changed.connect(_on_sleeping_changed)
+	EventBus.locale_changed.connect(_on_locale_changed)
+	EventBus.bond_level_changed.connect(_on_bond_level_changed)
+	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
+	EventBus.pet_name_changed.connect(_on_pet_name_changed)
 
+	_create_settings_button()
+	_create_status_panel()
 	_refresh_labels()
 	_init_bars()
 
@@ -80,6 +93,89 @@ func _on_sleeping_changed(is_sleeping: bool) -> void:
 	pet_button.disabled   = is_sleeping
 
 
+## Adds a small settings entry button (top-right) that opens the Settings overlay.
+func _create_settings_button() -> void:
+	_settings_button = Button.new()
+	_settings_button.text = tr("UI_SETTINGS")
+	_settings_button.set_anchors_and_offsets_preset(
+			Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
+	_settings_button.pressed.connect(_on_settings_pressed)
+	$Control.add_child(_settings_button)
+
+
+func _on_settings_pressed() -> void:
+	add_child(SETTINGS.instantiate())
+
+
+## Top-left status panel: the pet's name above its bond-level badge.
+func _create_status_panel() -> void:
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(
+			Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE, 12)
+	$Control.add_child(box)
+
+	_name_label = Label.new()
+	_name_label.text = _pet_name
+	_name_label.add_theme_font_size_override("font_size", 24)
+	box.add_child(_name_label)
+
+	_bond_label = Label.new()
+	_bond_label.text = tr("BOND_BADGE") % _bond_level
+	_bond_label.add_theme_font_size_override("font_size", 16)
+	box.add_child(_bond_label)
+
+
+func _on_pet_name_changed(pet_name: String) -> void:
+	_pet_name = pet_name
+	_name_label.text = pet_name
+
+
+func _on_bond_level_changed(level: int) -> void:
+	_bond_level = level
+	_bond_label.text = tr("BOND_BADGE") % level
+
+
+## Slides a celebratory toast in at top-center when a milestone unlocks.
+func _on_achievement_unlocked(_id: String, title_key: String) -> void:
+	var panel := PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(
+			Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE, 20)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	panel.add_child(box)
+
+	var header := Label.new()
+	header.text = tr("ACHIEVEMENT_UNLOCKED")
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 14)
+	box.add_child(header)
+
+	var title := Label.new()
+	title.text = tr(title_key)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 22)
+	box.add_child(title)
+
+	$Control.add_child(panel)
+
+	panel.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(panel, "modulate:a", 1.0, 0.3)
+	tween.tween_interval(2.2)
+	tween.tween_property(panel, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(panel.queue_free)
+
+
+## Re-translates HUD text when the locale changes while this HUD is alive.
+func _on_locale_changed() -> void:
+	_refresh_labels()
+	_settings_button.text = tr("UI_SETTINGS")
+	_bond_label.text = tr("BOND_BADGE") % _bond_level
+	sleep_button.text = tr("ACTION_WAKE") if _is_sleeping else tr("ACTION_SLEEP")
+
+
 func _start_cooldown() -> void:
 	_cooldown_timer = GameConfig.INTERACTION_COOLDOWN
 	_set_buttons_disabled(true)
@@ -94,8 +190,8 @@ func _set_buttons_disabled(disabled: bool) -> void:
 		sleep_button.disabled = disabled
 
 
-func _on_stat_changed(stat_name: String, new_value: float, _old_value: float) -> void:
-	_set_bar(stat_name, new_value)
+func _on_stat_changed(stat_name: String, new_value: float, old_value: float) -> void:
+	_set_bar(stat_name, new_value, old_value)
 
 
 func _init_bars() -> void:
@@ -105,7 +201,7 @@ func _init_bars() -> void:
 		_set_bar(stat, 0.0)
 
 
-func _set_bar(stat_name: String, value: float) -> void:
+func _set_bar(stat_name: String, value: float, old_value: float = value) -> void:
 	var bar: ProgressBar
 	match stat_name:
 		"hunger":    bar = hunger_bar
@@ -114,11 +210,25 @@ func _set_bar(stat_name: String, value: float) -> void:
 		"affection": bar = affection_bar
 		_: return
 
-	bar.value = value
+	# Animate big jumps (interaction gains); apply gradual decay instantly so the
+	# bar doesn't spawn a fresh tween on every decay frame.
+	if absf(value - old_value) > 3.0:
+		var tween := create_tween()
+		tween.tween_property(bar, "value", value, 0.35) \
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	else:
+		bar.value = value
 
-	# Tint red when critical — simple visual urgency cue.
-	# TODO: replace with a Theme-based StyleBox swap for more polished visuals.
-	bar.modulate = Color.RED if value <= GameConfig.CRITICAL_THRESHOLD else Color.WHITE
+	bar.modulate = _bar_color(value)
+
+
+## Three-tier readability tint: critical / low / healthy.
+func _bar_color(value: float) -> Color:
+	if value <= GameConfig.CRITICAL_THRESHOLD:
+		return Color(1.0, 0.45, 0.45)   # red — critical
+	elif value <= GameConfig.LOW_THRESHOLD:
+		return Color(1.0, 0.80, 0.45)   # amber — low
+	return Color(0.55, 0.85, 0.55)      # green — healthy
 
 
 ## Refreshes all text labels. Call again if the locale changes at runtime.

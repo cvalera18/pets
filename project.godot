@@ -20,8 +20,11 @@ config/icon="res://icon.svg"
 
 EventBus="*res://autoloads/EventBus.gd"
 GameConfig="*res://autoloads/GameConfig.gd"
+GameState="*res://autoloads/GameState.gd"
 SaveSystem="*res://autoloads/SaveSystem.gd"
 NotificationManager="*res://autoloads/NotificationManager.gd"
+AudioManager="*res://autoloads/AudioManager.gd"
+Achievements="*res://autoloads/Achievements.gd"
 
 [display]
 

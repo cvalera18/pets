@@ -71,7 +71,7 @@ var affection: float:
 ## Applies real-time decay. Called by Pet.gd in _process(delta).
 ## Rates and multiplier come from GameConfig — change feel there, not here.
 func apply_decay(delta: float) -> void:
-	var m := GameConfig.DECAY_MULTIPLIER
+	var m := _decay_multiplier()
 	# Use self. to guarantee the setter is called and EventBus signals fire.
 	# Without self., GDScript may access the backing variable directly.
 	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * delta
@@ -83,7 +83,7 @@ func apply_decay(delta: float) -> void:
 ## Applies decay for time elapsed while the app was closed.
 ## Called once on load, before the pet is shown to the player.
 func apply_offline_decay(elapsed_seconds: float) -> void:
-	var m := GameConfig.DECAY_MULTIPLIER
+	var m := _decay_multiplier()
 	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * elapsed_seconds
 	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * elapsed_seconds
 	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * elapsed_seconds
@@ -107,6 +107,11 @@ func from_dict(data: Dictionary) -> void:
 	self.happiness = data.get("happiness", GameConfig.STAT_MAX)
 	self.energy    = data.get("energy",    GameConfig.STAT_MAX)
 	self.affection = data.get("affection", GameConfig.STAT_MAX)
+
+
+## Current decay multiplier — fast in test mode, logical pace otherwise.
+func _decay_multiplier() -> float:
+	return GameConfig.DECAY_MULTIPLIER_TEST if GameState.decay_test_mode else GameConfig.DECAY_MULTIPLIER_NORMAL
 
 
 ## Returns true when all stats are above LOW_THRESHOLD (pet is "healthy").

@@ -14,7 +14,8 @@ extends Node
 
 ## Registered screens. Add new entries here — no other navigation code changes needed.
 const SCREENS: Dictionary = {
-	"room": preload("res://scenes/room/Room.tscn"),
+	"room":       preload("res://scenes/room/Room.tscn"),
+	"onboarding": preload("res://scenes/ui/Onboarding.tscn"),
 	# TODO: "main_menu": preload("res://scenes/ui/MainMenu.tscn"),
 	# TODO: "settings":  preload("res://scenes/ui/Settings.tscn"),
 }
@@ -52,9 +53,8 @@ func _start_game() -> void:
 	if SaveSystem.has_save():
 		_navigate_to("room")
 	else:
-		# First launch — no save exists.
-		# TODO: navigate to a "name your pet" onboarding screen before room.
-		_navigate_to("room")
+		# First launch — let the player name their pet before entering the room.
+		_navigate_to("onboarding")
 
 
 func _navigate_to(screen_name: String) -> void:

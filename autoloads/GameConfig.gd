@@ -19,18 +19,19 @@ const CRITICAL_THRESHOLD: float = 20.0
 const LOW_THRESHOLD: float = 40.0
 
 # ─── Decay Rates (units per real-time second) ─────────────────────────────────
-## At default rates, a full stat takes roughly:
-##   hunger → ~27 min   happiness → ~41 min   energy → ~33 min   affection → ~55 min
-##
-## Multiply by DECAY_MULTIPLIER for testing (e.g. set it to 10.0).
+## At rate × NORMAL multiplier (0.2), a full stat empties in roughly:
+##   hunger → ~2.3 h   happiness → ~3.5 h   energy → ~2.8 h   affection → ~4.6 h
+## Test mode (×1.0) is ~5× faster, for development / observing decay quickly.
 
 const HUNGER_DECAY_RATE:    float = 0.06
 const HAPPINESS_DECAY_RATE: float = 0.04
 const ENERGY_DECAY_RATE:    float = 0.05
 const AFFECTION_DECAY_RATE: float = 0.03
 
-## Global multiplier applied to all decay rates.
-const DECAY_MULTIPLIER: float = 1.0
+## Decay-speed presets, selected at runtime via GameState.decay_test_mode
+## (toggled in Settings). Normal = logical pace; Test = the current fast pace.
+const DECAY_MULTIPLIER_NORMAL: float = 0.2
+const DECAY_MULTIPLIER_TEST:   float = 1.0
 
 # ─── Interaction Gains ────────────────────────────────────────────────────────
 
@@ -42,6 +43,20 @@ const PET_AFFECTION_GAIN: float = 20.0
 
 ## Seconds between allowed interactions. Prevents button spam.
 const INTERACTION_COOLDOWN: float = 2.0
+
+## How long the pet naps before it auto-wakes when put to sleep.
+const SLEEP_DURATION: float = 8.0
+
+## Idle "thought" bubbles — the pet voices its neediest stat now and then.
+const THOUGHT_INTERVAL_MIN: float = 6.0
+const THOUGHT_INTERVAL_MAX: float = 12.0
+
+## Bond / relationship progression — XP earned per positive interaction and how
+## much XP each level costs. Bond level = 1 + bond_xp / BOND_XP_PER_LEVEL.
+const BOND_XP_PER_LEVEL: int = 100
+const BOND_XP_FEED:      int = 10
+const BOND_XP_PLAY:      int = 15
+const BOND_XP_PET:       int = 12
 
 # ─── Notification Delays (seconds) ───────────────────────────────────────────
 
@@ -74,6 +89,16 @@ const FEATURE_MULTIPLAYER: bool = false  # TODO v2
 
 ## Enable when the cosmetics shop is implemented.
 const FEATURE_SHOP:        bool = false  # TODO v2
+
+# ─── Feedback Colors ──────────────────────────────────────────────────────────
+# Shared hues for floating text + particle effects, so each stat reads
+# consistently across the UI. Tweak here to recolor all juice at once.
+
+const COLOR_HUNGER:    Color = Color(1.0, 0.7, 0.35)   # warm orange
+const COLOR_HAPPINESS: Color = Color(1.0, 0.85, 0.3)   # sunny yellow
+const COLOR_ENERGY:    Color = Color(0.6, 0.8, 1.0)    # soft blue
+const COLOR_AFFECTION: Color = Color(1.0, 0.45, 0.6)   # pink
+const COLOR_NEUTRAL:   Color = Color(0.9, 0.9, 0.95)   # near-white
 
 # ─── Localization ─────────────────────────────────────────────────────────────
 

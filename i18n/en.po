@@ -94,3 +94,79 @@ msgstr "Sad"
 
 msgid "PET_TOO_TIRED_TO_PLAY"
 msgstr "Too tired to play right now..."
+
+# ── Onboarding ────────────────────────────────────────────────────────────────
+
+msgid "ONBOARDING_TITLE"
+msgstr "What's your pet's name?"
+
+msgid "ONBOARDING_PLACEHOLDER"
+msgstr "Type a name"
+
+msgid "ONBOARDING_CONFIRM"
+msgstr "Start!"
+
+# ── Settings ──────────────────────────────────────────────────────────────────
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "Language"
+
+msgid "SETTINGS_NOTIFICATIONS"
+msgstr "Notifications"
+
+msgid "SETTINGS_RESET"
+msgstr "Reset save"
+
+msgid "SETTINGS_BACK"
+msgstr "Back"
+
+msgid "SETTINGS_SOUND"
+msgstr "Sound"
+
+msgid "SETTINGS_VOLUME"
+msgstr "Volume"
+
+msgid "SETTINGS_TEST_MODE"
+msgstr "Test mode (fast decay)"
+
+# ── Pet thoughts ──────────────────────────────────────────────────────────────
+
+msgid "THOUGHT_HUNGER"
+msgstr "Snack?"
+
+msgid "THOUGHT_HAPPINESS"
+msgstr "Play?"
+
+msgid "THOUGHT_ENERGY"
+msgstr "So sleepy..."
+
+msgid "THOUGHT_AFFECTION"
+msgstr "Pet me?"
+
+# ── Bond ──────────────────────────────────────────────────────────────────────
+
+msgid "BOND_LEVEL_UP"
+msgstr "Level %d!"
+
+msgid "BOND_BADGE"
+msgstr "Bond Lv. %d"
+
+# ── Achievements ──────────────────────────────────────────────────────────────
+
+msgid "ACHIEVEMENT_UNLOCKED"
+msgstr "Achievement unlocked!"
+
+msgid "ACH_FIRST_CARE"
+msgstr "First Care"
+
+msgid "ACH_BOND_3"
+msgstr "Best Friends"
+
+msgid "ACH_BOND_5"
+msgstr "Inseparable"
+
+msgid "ACH_CARETAKER_50"
+msgstr "Devoted Caretaker"
+
+msgid "ACH_CARETAKER_200"
+msgstr "Faithful Guardian"
