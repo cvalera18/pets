@@ -48,6 +48,9 @@ signal pet_petted
 ## HUD listens to this to toggle the Sleep/Wake button label.
 signal sleeping_changed(is_sleeping: bool)
 
+## Emitted with the pet's name for HUD display (on load and on name change).
+signal pet_name_changed(pet_name: String)
+
 # ─── Progression ──────────────────────────────────────────────────────────────
 
 ## Emitted when the bond level changes, and once on load for initial HUD sync.

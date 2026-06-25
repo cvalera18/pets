@@ -13,8 +13,10 @@ const SETTINGS := preload("res://scenes/ui/Settings.tscn")
 var _cooldown_timer: float = 0.0
 var _is_sleeping: bool = false
 var _settings_button: Button
+var _name_label: Label
 var _bond_label: Label
 var _bond_level: int = 1
+var _pet_name: String = ""
 
 # ─── Stat Bars ────────────────────────────────────────────────────────────────
 
@@ -51,9 +53,10 @@ func _ready() -> void:
 	EventBus.locale_changed.connect(_on_locale_changed)
 	EventBus.bond_level_changed.connect(_on_bond_level_changed)
 	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
+	EventBus.pet_name_changed.connect(_on_pet_name_changed)
 
 	_create_settings_button()
-	_create_bond_label()
+	_create_status_panel()
 	_refresh_labels()
 	_init_bars()
 
@@ -104,14 +107,27 @@ func _on_settings_pressed() -> void:
 	add_child(SETTINGS.instantiate())
 
 
-## Small bond-level badge (top-left), updated via EventBus.bond_level_changed.
-func _create_bond_label() -> void:
-	_bond_label = Label.new()
-	_bond_label.add_theme_font_size_override("font_size", 18)
-	_bond_label.set_anchors_and_offsets_preset(
+## Top-left status panel: the pet's name above its bond-level badge.
+func _create_status_panel() -> void:
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(
 			Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE, 12)
+	$Control.add_child(box)
+
+	_name_label = Label.new()
+	_name_label.text = _pet_name
+	_name_label.add_theme_font_size_override("font_size", 24)
+	box.add_child(_name_label)
+
+	_bond_label = Label.new()
 	_bond_label.text = tr("BOND_BADGE") % _bond_level
-	$Control.add_child(_bond_label)
+	_bond_label.add_theme_font_size_override("font_size", 16)
+	box.add_child(_bond_label)
+
+
+func _on_pet_name_changed(pet_name: String) -> void:
+	_pet_name = pet_name
+	_name_label.text = pet_name
 
 
 func _on_bond_level_changed(level: int) -> void:

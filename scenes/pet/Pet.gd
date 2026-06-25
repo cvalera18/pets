@@ -143,6 +143,7 @@ func broadcast_stats() -> void:
 	EventBus.stat_changed.emit("energy",    stats.energy,    stats.energy)
 	EventBus.stat_changed.emit("affection", stats.affection, stats.affection)
 	EventBus.bond_level_changed.emit(bond_level)
+	EventBus.pet_name_changed.emit(pet_name)
 
 
 # ─── Interaction Handlers ─────────────────────────────────────────────────────
