@@ -72,8 +72,9 @@ func _face_sleep() -> void:
 
 
 func _face_sad() -> void:
-	draw_line(Vector2(-31, 4), Vector2(-17, 9), DARK, 3.0, true)
-	draw_line(Vector2(31, 4), Vector2(17, 9), DARK, 3.0, true)
+	# Worried brows: inner ends raised (not angry inner-down).
+	draw_line(Vector2(-31, 9), Vector2(-17, 4), DARK, 3.0, true)
+	draw_line(Vector2(31, 9), Vector2(17, 4), DARK, 3.0, true)
 	_ellipse(Vector2(-23, 18), 6, 8, DARK)
 	_ellipse(Vector2(23, 18), 6, 8, DARK)
 	draw_arc(Vector2(0, 44), 10, deg_to_rad(205), deg_to_rad(335), 16, MOUTH, 3.0, true)

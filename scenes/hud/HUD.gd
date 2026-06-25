@@ -107,8 +107,12 @@ func _create_settings_button() -> void:
 	_settings_button.icon = Icons.gear
 	_settings_button.expand_icon = true
 	_settings_button.custom_minimum_size = Vector2(46, 46)
-	_settings_button.set_anchors_and_offsets_preset(
-			Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 12)
+	_settings_button.anchor_left = 1.0
+	_settings_button.anchor_right = 1.0
+	_settings_button.offset_left = -60.0
+	_settings_button.offset_right = -14.0
+	_settings_button.offset_top = 14.0
+	_settings_button.offset_bottom = 60.0
 	_settings_button.add_theme_stylebox_override("normal", _card_sb(PAL.CARD, 14, 4))
 	_settings_button.add_theme_stylebox_override("hover", _card_sb(PAL.CARD.lightened(0.04), 14, 4))
 	_settings_button.add_theme_stylebox_override("pressed", _card_sb(PAL.CARD.darkened(0.05), 14, 1))
@@ -142,11 +146,36 @@ func _create_status_panel() -> void:
 	_name_label.add_theme_color_override("font_color", PAL.TEXT)
 	box.add_child(_name_label)
 
+	var chip := PanelContainer.new()
+	chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	var chsb := StyleBoxFlat.new()
+	chsb.bg_color = PAL.BOND_BADGE_BG
+	chsb.set_corner_radius_all(9)
+	chsb.content_margin_left = 8
+	chsb.content_margin_right = 9
+	chsb.content_margin_top = 3
+	chsb.content_margin_bottom = 3
+	chip.add_theme_stylebox_override("panel", chsb)
+	box.add_child(chip)
+
+	var chrow := HBoxContainer.new()
+	chrow.add_theme_constant_override("separation", 4)
+	chip.add_child(chrow)
+
+	var heart := TextureRect.new()
+	heart.texture = Icons.heart
+	heart.modulate = PAL.BOND_BADGE_FG
+	heart.custom_minimum_size = Vector2(11, 11)
+	heart.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	heart.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chrow.add_child(heart)
+
 	_bond_label = Label.new()
 	_bond_label.text = tr("BOND_BADGE") % _bond_level
-	_bond_label.add_theme_font_size_override("font_size", 13)
+	_bond_label.add_theme_font_size_override("font_size", 11)
 	_bond_label.add_theme_color_override("font_color", PAL.BOND_BADGE_FG)
-	box.add_child(_bond_label)
+	chrow.add_child(_bond_label)
 
 
 func _on_pet_name_changed(pet_name: String) -> void:
