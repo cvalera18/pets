@@ -48,6 +48,11 @@ signal pet_petted
 ## HUD listens to this to toggle the Sleep/Wake button label.
 signal sleeping_changed(is_sleeping: bool)
 
+# ─── Progression ──────────────────────────────────────────────────────────────
+
+## Emitted when the bond level changes, and once on load for initial HUD sync.
+signal bond_level_changed(level: int)
+
 # ─── Navigation Events ────────────────────────────────────────────────────────
 
 ## Request to navigate to a named screen (keys defined in Main.SCREENS).

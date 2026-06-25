@@ -136,3 +136,11 @@ msgstr "So sleepy..."
 
 msgid "THOUGHT_AFFECTION"
 msgstr "Pet me?"
+
+# ── Bond ──────────────────────────────────────────────────────────────────────
+
+msgid "BOND_LEVEL_UP"
+msgstr "Level %d!"
+
+msgid "BOND_BADGE"
+msgstr "Bond Lv. %d"

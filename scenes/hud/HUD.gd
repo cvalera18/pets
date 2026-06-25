@@ -13,6 +13,8 @@ const SETTINGS := preload("res://scenes/ui/Settings.tscn")
 var _cooldown_timer: float = 0.0
 var _is_sleeping: bool = false
 var _settings_button: Button
+var _bond_label: Label
+var _bond_level: int = 1
 
 # ─── Stat Bars ────────────────────────────────────────────────────────────────
 
@@ -47,8 +49,10 @@ func _ready() -> void:
 
 	EventBus.sleeping_changed.connect(_on_sleeping_changed)
 	EventBus.locale_changed.connect(_on_locale_changed)
+	EventBus.bond_level_changed.connect(_on_bond_level_changed)
 
 	_create_settings_button()
+	_create_bond_label()
 	_refresh_labels()
 	_init_bars()
 
@@ -99,10 +103,26 @@ func _on_settings_pressed() -> void:
 	add_child(SETTINGS.instantiate())
 
 
+## Small bond-level badge (top-left), updated via EventBus.bond_level_changed.
+func _create_bond_label() -> void:
+	_bond_label = Label.new()
+	_bond_label.add_theme_font_size_override("font_size", 18)
+	_bond_label.set_anchors_and_offsets_preset(
+			Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE, 12)
+	_bond_label.text = tr("BOND_BADGE") % _bond_level
+	$Control.add_child(_bond_label)
+
+
+func _on_bond_level_changed(level: int) -> void:
+	_bond_level = level
+	_bond_label.text = tr("BOND_BADGE") % level
+
+
 ## Re-translates HUD text when the locale changes while this HUD is alive.
 func _on_locale_changed() -> void:
 	_refresh_labels()
 	_settings_button.text = tr("UI_SETTINGS")
+	_bond_label.text = tr("BOND_BADGE") % _bond_level
 	sleep_button.text = tr("ACTION_WAKE") if _is_sleeping else tr("ACTION_SLEEP")
 
 

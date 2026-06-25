@@ -52,8 +52,10 @@ const REACT_STRETCH  := 0.22
 
 # ─── State ────────────────────────────────────────────────────────────────────
 
-var stats:    PetStats = PetStats.new()
-var pet_name: String   = "Mochi"
+var stats:      PetStats = PetStats.new()
+var pet_name:   String   = "Mochi"
+var bond_xp:    int      = 0
+var bond_level: int      = 1
 
 var _interaction_cooldown: float  = 0.0
 var _is_sleeping:          bool   = false
@@ -108,8 +110,10 @@ func _process(delta: float) -> void:
 
 ## Initializes the pet with full stats for a brand new game.
 func initialize_fresh(p_name: String = "Mochi") -> void:
-	stats    = PetStats.new()
-	pet_name = p_name
+	stats      = PetStats.new()
+	pet_name   = p_name
+	bond_xp    = 0
+	bond_level = 1
 	_play_anim(ANIM_IDLE)
 	_set_mood(Mood.IDLE)
 
@@ -120,6 +124,9 @@ func load_from_save(pet_data: Dictionary, offline_seconds: float) -> void:
 	stats    = PetStats.new()
 	pet_name = pet_data.get("name", "Mochi")
 	stats.from_dict(pet_data)
+	bond_xp    = int(pet_data.get("bond_xp", 0))
+	@warning_ignore("integer_division")
+	bond_level = 1 + bond_xp / GameConfig.BOND_XP_PER_LEVEL
 
 	if offline_seconds > 0.0:
 		stats.apply_offline_decay(offline_seconds)
@@ -135,6 +142,7 @@ func broadcast_stats() -> void:
 	EventBus.stat_changed.emit("happiness", stats.happiness, stats.happiness)
 	EventBus.stat_changed.emit("energy",    stats.energy,    stats.energy)
 	EventBus.stat_changed.emit("affection", stats.affection, stats.affection)
+	EventBus.bond_level_changed.emit(bond_level)
 
 
 # ─── Interaction Handlers ─────────────────────────────────────────────────────
@@ -146,6 +154,7 @@ func _on_fed() -> void:
 	_play_anim(ANIM_EAT)
 	_trigger_reaction()
 	_feedback("+%d" % int(GameConfig.FEED_HUNGER_GAIN), GameConfig.COLOR_HUNGER, "eat", 30)
+	_add_bond(GameConfig.BOND_XP_FEED)
 	_reset_cooldown()
 
 
@@ -161,6 +170,7 @@ func _on_played() -> void:
 	_play_anim(ANIM_PLAY)
 	_trigger_reaction()
 	_feedback("+%d" % int(GameConfig.PLAY_HAPPINESS_GAIN), GameConfig.COLOR_HAPPINESS, "play", 40)
+	_add_bond(GameConfig.BOND_XP_PLAY)
 	_reset_cooldown()
 
 
@@ -193,6 +203,7 @@ func _on_petted() -> void:
 	_play_anim(ANIM_HAPPY)
 	_trigger_reaction()
 	_feedback("+%d" % int(GameConfig.PET_AFFECTION_GAIN), GameConfig.COLOR_AFFECTION, "love", 25)
+	_add_bond(GameConfig.BOND_XP_PET)
 	_reset_cooldown()
 
 
@@ -269,6 +280,24 @@ func _stat_color(stat: String) -> Color:
 		"energy":    return GameConfig.COLOR_ENERGY
 		"affection": return GameConfig.COLOR_AFFECTION
 	return GameConfig.COLOR_NEUTRAL
+
+
+## Adds bond XP; celebrates and notifies the HUD when a new level is reached.
+func _add_bond(xp: int) -> void:
+	bond_xp += xp
+	@warning_ignore("integer_division")
+	var new_level := 1 + bond_xp / GameConfig.BOND_XP_PER_LEVEL
+	if new_level > bond_level:
+		bond_level = new_level
+		EventBus.bond_level_changed.emit(bond_level)
+		_celebrate_level_up()
+
+
+func _celebrate_level_up() -> void:
+	EventBus.floating_text_requested.emit(
+			tr("BOND_LEVEL_UP") % bond_level, GameConfig.COLOR_AFFECTION, global_position)
+	EventBus.burst_requested.emit("love", global_position)
+	_haptic(60)
 
 
 func _play_anim(anim_name: String) -> void:

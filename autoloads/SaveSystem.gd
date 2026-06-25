@@ -18,7 +18,8 @@
 ##      "happiness": 75.0,
 ##      "energy":    60.0,
 ##      "affection": 90.0,
-##      "name":      "Mochi"
+##      "name":      "Mochi",
+##      "bond_xp":   0
 ##    },
 ##    "settings": {
 ##      "locale":                "es",
@@ -30,7 +31,7 @@
 ##  }
 extends Node
 
-const SAVE_SCHEMA_VERSION: int = 1
+const SAVE_SCHEMA_VERSION: int = 2
 
 var _provider: BaseSaveProvider
 
@@ -48,7 +49,7 @@ func _ready() -> void:
 ## Builds the full save dictionary from current state and persists it.
 ## Includes a Unix timestamp so offline decay can be calculated on next load.
 func save_game(pet_stats: PetStats, pet_name: String,
-		settings: Dictionary, cosmetics: Dictionary) -> bool:
+		settings: Dictionary, cosmetics: Dictionary, bond_xp: int = 0) -> bool:
 
 	var data := {
 		"version":   SAVE_SCHEMA_VERSION,
@@ -59,6 +60,7 @@ func save_game(pet_stats: PetStats, pet_name: String,
 			"energy":    pet_stats.energy,
 			"affection": pet_stats.affection,
 			"name":      pet_name,
+			"bond_xp":   bond_xp,
 		},
 		"settings":  settings,
 		"cosmetics": cosmetics,
@@ -124,6 +126,10 @@ func _migrate(data: Dictionary) -> Dictionary:
 			data["cosmetics"] = {"equipped_skin": "skin_default"}
 		data["version"] = 1
 
-	# TODO v2: add v1 → v2 migration here
+	# v1 → v2: add pet.bond_xp (relationship progression)
+	if version < 2:
+		if data.has("pet") and not data["pet"].has("bond_xp"):
+			data["pet"]["bond_xp"] = 0
+		data["version"] = 2
 
 	return data

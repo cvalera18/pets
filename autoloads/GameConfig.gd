@@ -50,6 +50,13 @@ const SLEEP_DURATION: float = 8.0
 const THOUGHT_INTERVAL_MIN: float = 6.0
 const THOUGHT_INTERVAL_MAX: float = 12.0
 
+## Bond / relationship progression — XP earned per positive interaction and how
+## much XP each level costs. Bond level = 1 + bond_xp / BOND_XP_PER_LEVEL.
+const BOND_XP_PER_LEVEL: int = 100
+const BOND_XP_FEED:      int = 10
+const BOND_XP_PLAY:      int = 15
+const BOND_XP_PET:       int = 12
+
 # ─── Notification Delays (seconds) ───────────────────────────────────────────
 
 const NOTIF_HUNGER_DELAY: float = 1800.0  # 30 min

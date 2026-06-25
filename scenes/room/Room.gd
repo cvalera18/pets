@@ -94,7 +94,7 @@ func _save() -> void:
 		"equipped_skin": "skin_default",  # TODO v2: read from CosmeticManager.
 	}
 
-	SaveSystem.save_game(_pet.stats, _pet.pet_name, settings, cosmetics)
+	SaveSystem.save_game(_pet.stats, _pet.pet_name, settings, cosmetics, _pet.bond_xp)
 
 
 func _apply_settings(settings: Dictionary) -> void:

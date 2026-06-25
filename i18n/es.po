@@ -136,3 +136,11 @@ msgstr "Qué sueño..."
 
 msgid "THOUGHT_AFFECTION"
 msgstr "¿Un mimo?"
+
+# ── Vínculo ───────────────────────────────────────────────────────────────────
+
+msgid "BOND_LEVEL_UP"
+msgstr "¡Nivel %d!"
+
+msgid "BOND_BADGE"
+msgstr "Vínculo Nv. %d"
