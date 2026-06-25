@@ -72,6 +72,12 @@ const POT_B        := Color("c5774a")
 const LEAF_A       := Color("a9ce92")
 const LEAF_B       := Color("7fa86c")
 
-# ─── Time-of-day tint overlays (alpha baked in) ───────────────────────────────
+# ─── Time-of-day tint overlays ────────────────────────────────────────────────
+# Multiply-blend tints (design uses mix-blend-mode:multiply): the room is
+# multiplied by these, so values near white = subtle, lower = deeper. Day = white
+# (identity). Tuned conservatively so night deepens without going muddy.
+const TINT_DUSK_MUL  := Color(1.0, 0.88, 0.78)
+const TINT_NIGHT_MUL := Color(0.60, 0.65, 0.86)
+# Legacy alpha-blend tints (kept for reference; superseded by the *_MUL above).
 const TINT_DUSK  := Color(0.96, 0.66, 0.45, 0.12)
 const TINT_NIGHT := Color(0.30, 0.32, 0.52, 0.20)

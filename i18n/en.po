@@ -157,6 +157,9 @@ msgstr "Level %d!"
 msgid "BOND_BADGE"
 msgstr "Bond Lv. %d"
 
+msgid "BOND_CHIP"
+msgstr "Level %d"
+
 # ── Achievements ──────────────────────────────────────────────────────────────
 
 msgid "ACHIEVEMENT_UNLOCKED"

@@ -44,8 +44,9 @@ func _draw() -> void:
 	_ellipse(Vector2(0, 10), 70, 69, FUR)
 	# Subtle, CENTERED top sheen (not an off-centre disc).
 	_ellipse(Vector2(0, -16), 46, 26, SHEEN)
-	# Lighter muzzle/face patch the eyes sit on (centered, lower).
-	_ellipse(Vector2(0, 28), 45, 39, FUR_LIGHT)
+	# Soft lighter muzzle/face patch the eyes sit on — low-contrast so it blends
+	# into the body instead of leaving a visible seam.
+	_ellipse(Vector2(0, 27), 47, 40, Color(1.0, 0.94, 0.84, 0.45))
 
 	# Blush cheeks.
 	_ellipse(Vector2(-37, 34), 12, 7, CHEEK)

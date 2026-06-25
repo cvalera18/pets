@@ -8,8 +8,10 @@
 ## editor import step (matters for headless / first-run).
 extends Node
 
-var display: Font
-var body: Font
+var display: Font       # Fredoka 600 — titles, pet name, numbers
+var display_xl: Font    # Fredoka 700 — hero wordmark / screen titles
+var body: Font          # Quicksand 500 — body, captions (global fallback)
+var body_strong: Font   # Quicksand 600 — labels, buttons (design weight)
 
 
 func _ready() -> void:
@@ -17,7 +19,9 @@ func _ready() -> void:
 	var quicksand := _load("res://assets/fonts/Quicksand.ttf")
 
 	display = _weight(fredoka, 600)
+	display_xl = _weight(fredoka, 700)
 	body = _weight(quicksand, 500)
+	body_strong = _weight(quicksand, 600)
 
 	if body != null:
 		ThemeDB.fallback_font = body
