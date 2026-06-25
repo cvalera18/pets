@@ -11,10 +11,41 @@ extends CanvasLayer
 const SETTINGS := preload("res://scenes/ui/Settings.tscn")
 const PAL := preload("res://theme/Palette.gd")
 
+# Rounded horizontal-gradient progress bar, drawn in one ColorRect. The gradient
+# is fixed across the full bar width and clipped at `value` (0..1); the rest shows
+# the track. `bar_size` (px) must track the control size for correct rounded ends.
+const BAR_SHADER_CODE := """
+shader_type canvas_item;
+render_mode blend_mix;
+
+uniform vec4 fill_a : source_color = vec4(1.0);
+uniform vec4 fill_b : source_color = vec4(1.0);
+uniform vec4 track_color : source_color = vec4(0.0);
+uniform float value = 0.0;
+uniform vec2 bar_size = vec2(100.0, 8.0);
+
+void fragment() {
+	vec2 p = (UV - 0.5) * bar_size;
+	float r = bar_size.y * 0.5;
+	float half_len = max(bar_size.x * 0.5 - r, 0.0);
+	vec2 q = vec2(max(abs(p.x) - half_len, 0.0), p.y);
+	float d = length(q) - r;
+	float cov = clamp(0.5 - d, 0.0, 1.0);
+	if (cov <= 0.0) {
+		discard;
+	}
+	vec3 grad = mix(fill_a.rgb, fill_b.rgb, clamp(UV.x, 0.0, 1.0));
+	bool filled = UV.x <= value;
+	vec3 rgb = filled ? grad : track_color.rgb;
+	float a = filled ? 1.0 : track_color.a;
+	COLOR = vec4(rgb, a * cov);
+}
+"""
+
 var _cooldown_timer: float = 0.0
-var _bar_fills: Dictionary = {}
+var _bar_mats: Dictionary = {}
 var _action_labels: Dictionary = {}
-var _bars: Dictionary = {}
+var _bar_shader: Shader
 var _value_labels: Dictionary = {}
 var _stat_labels: Dictionary = {}
 var _icon_styles: Dictionary = {}
@@ -65,6 +96,9 @@ func _ready() -> void:
 	EventBus.bond_progress_changed.connect(_on_bond_progress)
 	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
 	EventBus.pet_name_changed.connect(_on_pet_name_changed)
+
+	_bar_shader = Shader.new()
+	_bar_shader.code = BAR_SHADER_CODE
 
 	_create_settings_button()
 	_create_status_panel()
@@ -180,7 +214,7 @@ func _create_status_panel() -> void:
 	chrow.add_child(heart)
 
 	_bond_label = Label.new()
-	_bond_label.text = tr("BOND_BADGE") % _bond_level
+	_bond_label.text = tr("BOND_CHIP") % _bond_level
 	_bond_label.add_theme_font_size_override("font_size", 11)
 	_bond_label.add_theme_color_override("font_color", PAL.BOND_BADGE_FG)
 	chrow.add_child(_bond_label)
@@ -207,7 +241,7 @@ func _on_pet_name_changed(pet_name: String) -> void:
 
 func _on_bond_level_changed(level: int) -> void:
 	_bond_level = level
-	_bond_label.text = tr("BOND_BADGE") % level
+	_bond_label.text = tr("BOND_CHIP") % level
 
 
 func _on_bond_progress(ratio: float) -> void:
@@ -251,7 +285,7 @@ func _on_achievement_unlocked(_id: String, title_key: String) -> void:
 ## Re-translates HUD text when the locale changes while this HUD is alive.
 func _on_locale_changed() -> void:
 	_refresh_labels()
-	_bond_label.text = tr("BOND_BADGE") % _bond_level
+	_bond_label.text = tr("BOND_CHIP") % _bond_level
 
 
 func _start_cooldown() -> void:
@@ -280,21 +314,26 @@ func _init_bars() -> void:
 
 
 func _set_bar(stat_name: String, value: float, old_value: float = value) -> void:
-	if not _bars.has(stat_name):
+	if not _bar_mats.has(stat_name):
 		return
-	var bar: ProgressBar = _bars[stat_name]
+	var mat: ShaderMaterial = _bar_mats[stat_name]
 
 	# Animate big jumps (interaction gains); apply gradual decay instantly so the
 	# bar doesn't spawn a fresh tween on every decay frame.
+	var target := value / 100.0
 	if absf(value - old_value) > 3.0:
-		var tween := create_tween()
-		tween.tween_property(bar, "value", value, 0.35) \
+		var from_v: float = mat.get_shader_parameter("value")
+		create_tween().tween_method(
+				func(v: float) -> void: mat.set_shader_parameter("value", v),
+				from_v, target, 0.35) \
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	else:
-		bar.value = value
+		mat.set_shader_parameter("value", target)
 
 	var crit := value <= GameConfig.CRITICAL_THRESHOLD
-	_bar_fills[stat_name].bg_color = _stat_color(stat_name, value)
+	var grad := _stat_grad(stat_name, value)
+	mat.set_shader_parameter("fill_a", grad[0])
+	mat.set_shader_parameter("fill_b", grad[1])
 	if _icon_styles.has(stat_name):
 		_icon_styles[stat_name].bg_color = PAL.TIER_CRIT_B if crit else _stat_base(stat_name)
 	if _value_labels.has(stat_name):
@@ -317,16 +356,16 @@ func _set_bar(stat_name: String, value: float, old_value: float = value) -> void
 			_cards[stat_name].modulate = Color.WHITE
 
 
-## Bar fill colour: the stat's own hue, turning red when critical (design rule).
-func _stat_color(stat: String, value: float) -> Color:
+## Bar gradient ends [a, b]: the stat's own hue pair, turning red when critical.
+func _stat_grad(stat: String, value: float) -> Array:
 	if value <= GameConfig.CRITICAL_THRESHOLD:
-		return PAL.TIER_CRIT_B
+		return [PAL.TIER_CRIT_A, PAL.TIER_CRIT_B]
 	match stat:
-		"hunger":    return PAL.HUNGER_B
-		"happiness": return PAL.HAPPY_B
-		"energy":    return PAL.ENERGY_B
-		"affection": return PAL.AFFECTION_B
-	return PAL.HUNGER_B
+		"hunger":    return [PAL.HUNGER_A, PAL.HUNGER_B]
+		"happiness": return [PAL.HAPPY_A, PAL.HAPPY_B]
+		"energy":    return [PAL.ENERGY_A, PAL.ENERGY_B]
+		"affection": return [PAL.AFFECTION_A, PAL.AFFECTION_B]
+	return [PAL.HUNGER_A, PAL.HUNGER_B]
 
 
 ## The stat's own icon-square hue (healthy state).
@@ -450,20 +489,21 @@ func _make_stat_card(parent: Node, stat: String, icon: Texture2D, color: Color, 
 	row.add_child(val)
 	_value_labels[stat] = val
 
-	var bar := ProgressBar.new()
-	bar.show_percentage = false
+	var bar := ColorRect.new()
+	bar.color = Color.WHITE
 	bar.custom_minimum_size = Vector2(0, 8)
-	var track := StyleBoxFlat.new()
-	track.bg_color = Color(0.35, 0.27, 0.22, 0.14)
-	track.set_corner_radius_all(4)
-	bar.add_theme_stylebox_override("background", track)
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = color
-	fill.set_corner_radius_all(4)
-	bar.add_theme_stylebox_override("fill", fill)
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mat := ShaderMaterial.new()
+	mat.shader = _bar_shader
+	mat.set_shader_parameter("fill_a", color)
+	mat.set_shader_parameter("fill_b", color)
+	mat.set_shader_parameter("track_color", Color(0.35, 0.27, 0.22, 0.14))
+	mat.set_shader_parameter("value", 0.0)
+	mat.set_shader_parameter("bar_size", Vector2(100, 8))
+	bar.material = mat
+	bar.resized.connect(func() -> void: mat.set_shader_parameter("bar_size", bar.size))
 	v.add_child(bar)
-	_bars[stat] = bar
-	_bar_fills[stat] = fill
+	_bar_mats[stat] = mat
 
 
 ## Turns a plain action Button into a cozy card: a colored circle with a white
