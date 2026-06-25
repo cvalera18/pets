@@ -64,6 +64,18 @@ signal bond_progress_changed(ratio: float)
 ## @param title_key  i18n key for the display title
 signal achievement_unlocked(id: String, title_key: String)
 
+# ─── Personality ──────────────────────────────────────────────────────────────
+
+## Emitted by Personality after every record() and once on load.
+## @param profile  {"dominant": String, "breathe"/"bob"/"react": float,
+##                  "fur_mul"/"cheek_mul": Color, "cheek_scale"/"cheek_alpha_add": float}
+## Pet/Mochi apply procedural effects; HUD shows the trait badge.
+signal personality_updated(profile: Dictionary)
+
+## One-shot the first time a trait activates — drives a discovery celebration.
+## @param trait_id  "glotona" | "juguetona" | "dormilona" | "mimosa"
+signal trait_revealed(trait_id: String)
+
 # ─── Navigation Events ────────────────────────────────────────────────────────
 
 ## Request to navigate to a named screen (keys defined in Main.SCREENS).

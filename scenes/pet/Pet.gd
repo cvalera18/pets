@@ -69,6 +69,12 @@ var _react_t:    float   = REACT_DURATION  # Starts "finished" (no active pop).
 var _base_scale: Vector2 = Vector2.ONE
 var _base_pos:   Vector2 = Vector2.ZERO
 
+# Active personality trait + its motion multipliers (1.0 = no trait).
+var _trait_id:      String = ""
+var _trait_breathe: float  = 1.0
+var _trait_bob:     float  = 1.0
+var _trait_react:   float  = 1.0
+
 
 func _ready() -> void:
 	interaction_area.input_event.connect(_on_interaction_input)
@@ -81,6 +87,8 @@ func _ready() -> void:
 	EventBus.stat_depleted.connect(_on_stat_depleted)
 	EventBus.stat_critical.connect(_on_stat_critical)
 	EventBus.stat_recovered.connect(_on_stat_recovered)
+	EventBus.personality_updated.connect(_on_personality_updated)
+	EventBus.trait_revealed.connect(_on_trait_revealed)
 
 	_play_anim(ANIM_IDLE)
 	_capture_rest_pose()
@@ -152,11 +160,15 @@ func broadcast_stats() -> void:
 func _on_fed() -> void:
 	if not _can_interact():
 		return
-	stats.hunger += GameConfig.FEED_HUNGER_GAIN
+	var before := stats.hunger
+	var gain := GameConfig.FEED_HUNGER_GAIN * Personality.gain_factor("feed")
+	stats.hunger += gain
 	_play_anim(ANIM_EAT)
 	_trigger_reaction()
-	_feedback("+%d" % int(GameConfig.FEED_HUNGER_GAIN), GameConfig.COLOR_HUNGER, "eat", 30)
-	_add_bond(GameConfig.BOND_XP_FEED)
+	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HUNGER, "eat", 30)
+	_add_bond(_bond_amount(GameConfig.BOND_XP_FEED, "feed"))
+	Personality.record("feed", before)
+	_update_mood_from_stats()  # caring for the pet cheers it up if it's healthy
 	_reset_cooldown()
 
 
@@ -167,24 +179,30 @@ func _on_played() -> void:
 		# Too tired to play — give visual feedback instead of a silent no-op.
 		_feedback(tr("PET_TOO_TIRED_TO_PLAY"), GameConfig.COLOR_NEUTRAL, "", 15)
 		return
-	stats.happiness += GameConfig.PLAY_HAPPINESS_GAIN
-	stats.energy -= GameConfig.PLAY_ENERGY_COST
+	var before := stats.happiness
+	var gain := GameConfig.PLAY_HAPPINESS_GAIN * Personality.gain_factor("play")
+	stats.happiness += gain
+	stats.energy -= GameConfig.PLAY_ENERGY_COST * Personality.play_energy_cost_factor()
 	_play_anim(ANIM_PLAY)
 	_trigger_reaction()
-	_feedback("+%d" % int(GameConfig.PLAY_HAPPINESS_GAIN), GameConfig.COLOR_HAPPINESS, "play", 40)
-	_add_bond(GameConfig.BOND_XP_PLAY)
+	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HAPPINESS, "play", 40)
+	_add_bond(_bond_amount(GameConfig.BOND_XP_PLAY, "play"))
+	Personality.record("play", before)
+	_update_mood_from_stats()
 	_reset_cooldown()
 
 
 func _on_slept() -> void:
 	if not _can_interact() or _is_sleeping:
 		return
+	var before := stats.energy
 	_is_sleeping = true
 	_sleep_timer = GameConfig.SLEEP_DURATION
-	stats.energy += GameConfig.SLEEP_ENERGY_GAIN
+	stats.energy += GameConfig.SLEEP_ENERGY_GAIN * Personality.gain_factor("sleep")
 	_play_anim(ANIM_SLEEP)
 	_set_mood(Mood.SLEEP)
 	_feedback("Zzz", GameConfig.COLOR_ENERGY, "sleep", 20)
+	Personality.record("sleep", before)
 	EventBus.sleeping_changed.emit(true)
 
 
@@ -201,11 +219,15 @@ func _on_woken() -> void:
 func _on_petted() -> void:
 	if not _can_interact():
 		return
-	stats.affection += GameConfig.PET_AFFECTION_GAIN
+	var before := stats.affection
+	var gain := GameConfig.PET_AFFECTION_GAIN * Personality.gain_factor("pet")
+	stats.affection += gain
 	_play_anim(ANIM_HAPPY)
 	_trigger_reaction()
-	_feedback("+%d" % int(GameConfig.PET_AFFECTION_GAIN), GameConfig.COLOR_AFFECTION, "love", 25)
-	_add_bond(GameConfig.BOND_XP_PET)
+	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_AFFECTION, "love", 25)
+	_add_bond(_bond_amount(GameConfig.BOND_XP_PET, "pet"))
+	Personality.record("pet", before)
+	_update_mood_from_stats()
 	_reset_cooldown()
 
 
@@ -269,10 +291,14 @@ func _haptic(ms: int) -> void:
 func _maybe_think() -> void:
 	_thought_timer = randf_range(GameConfig.THOUGHT_INTERVAL_MIN, GameConfig.THOUGHT_INTERVAL_MAX)
 	var stat := stats.get_lowest_stat()
-	if float(stats.to_dict().get(stat, GameConfig.STAT_MAX)) >= GameConfig.LOW_THRESHOLD:
-		return
-	EventBus.floating_text_requested.emit(
-			tr("THOUGHT_" + stat.to_upper()), _stat_color(stat), global_position)
+	if float(stats.to_dict().get(stat, GameConfig.STAT_MAX)) < GameConfig.LOW_THRESHOLD:
+		# A need is pressing — voice it.
+		EventBus.floating_text_requested.emit(
+				tr("THOUGHT_" + stat.to_upper()), _stat_color(stat), global_position)
+	elif _trait_id != "" and randf() < 0.5:
+		# Content and has a personality — occasionally show a flavor thought.
+		EventBus.floating_text_requested.emit(
+				tr("TRAIT_" + _trait_id.to_upper() + "_IDLE"), _trait_color(_trait_id), global_position)
 
 
 func _stat_color(stat: String) -> Color:
@@ -281,6 +307,37 @@ func _stat_color(stat: String) -> Color:
 		"happiness": return GameConfig.COLOR_HAPPINESS
 		"energy":    return GameConfig.COLOR_ENERGY
 		"affection": return GameConfig.COLOR_AFFECTION
+	return GameConfig.COLOR_NEUTRAL
+
+
+# ─── Personality ──────────────────────────────────────────────────────────────
+
+## Scales a base bond-XP amount by the active trait's bond factor.
+func _bond_amount(base: int, kind: String) -> int:
+	return int(round(base * Personality.bond_factor(kind)))
+
+
+## Syncs the active trait's motion multipliers and forwards tints to the sprite.
+func _on_personality_updated(profile: Dictionary) -> void:
+	_trait_id      = profile.get("dominant", "")
+	_trait_breathe = profile.get("breathe", 1.0)
+	_trait_bob     = profile.get("bob", 1.0)
+	_trait_react   = profile.get("react", 1.0)
+	if sprite and sprite.has_method("set_personality"):
+		sprite.set_personality(profile)
+
+
+## Celebrates the first time a trait is discovered (text + burst + haptic).
+func _on_trait_revealed(tid: String) -> void:
+	_feedback(tr("TRAIT_REVEAL_" + tid), GameConfig.COLOR_AFFECTION, "love", 60)
+
+
+func _trait_color(tid: String) -> Color:
+	match tid:
+		"glotona":   return GameConfig.COLOR_HUNGER
+		"juguetona": return GameConfig.COLOR_HAPPINESS
+		"dormilona": return GameConfig.COLOR_ENERGY
+		"mimosa":    return GameConfig.COLOR_AFFECTION
 	return GameConfig.COLOR_NEUTRAL
 
 
@@ -344,7 +401,7 @@ func _animate(delta: float) -> void:
 	if _react_t < REACT_DURATION:
 		_react_t += delta
 		var p := _react_t / REACT_DURATION
-		var wobble := sin(p * PI * 3.0) * (1.0 - p) * REACT_STRETCH
+		var wobble := sin(p * PI * 3.0) * (1.0 - p) * REACT_STRETCH * _trait_react
 		pop = Vector2(1.0 - wobble * 0.5, 1.0 + wobble)
 
 	sprite.scale = _base_scale * breathe_scale * pop
@@ -369,13 +426,13 @@ func _update_mood_from_stats() -> void:
 
 
 func _breathe_speed() -> float:
+	var base := BREATHE_SPEED_IDLE
 	match _mood:
 		Mood.SLEEP:
-			return BREATHE_SPEED_SLEEP
+			base = BREATHE_SPEED_SLEEP
 		Mood.SAD:
-			return BREATHE_SPEED_SAD
-		_:
-			return BREATHE_SPEED_IDLE
+			base = BREATHE_SPEED_SAD
+	return base * _trait_breathe
 
 
 func _breathe_amp() -> float:
@@ -389,13 +446,13 @@ func _breathe_amp() -> float:
 
 
 func _bob_amp() -> float:
+	var base := BOB_AMP_IDLE
 	match _mood:
 		Mood.SLEEP:
-			return BOB_AMP_SLEEP
+			base = BOB_AMP_SLEEP
 		Mood.SAD:
-			return BOB_AMP_SAD
-		_:
-			return BOB_AMP_IDLE
+			base = BOB_AMP_SAD
+	return base * _trait_bob
 
 
 ## Schedules a notification for the given stat. delay_factor 0.5 = half the config delay.

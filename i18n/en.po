@@ -160,6 +160,44 @@ msgstr "Bond Lv. %d"
 msgid "BOND_CHIP"
 msgstr "Level %d"
 
+# ── Personality ───────────────────────────────────────────────────────────────
+
+msgid "TRAIT_NAME_glotona"
+msgstr "Foodie"
+
+msgid "TRAIT_NAME_juguetona"
+msgstr "Playful"
+
+msgid "TRAIT_NAME_dormilona"
+msgstr "Sleepyhead"
+
+msgid "TRAIT_NAME_mimosa"
+msgstr "Cuddly"
+
+msgid "TRAIT_REVEAL_glotona"
+msgstr "A Foodie!"
+
+msgid "TRAIT_REVEAL_juguetona"
+msgstr "So Playful!"
+
+msgid "TRAIT_REVEAL_dormilona"
+msgstr "A Sleepyhead!"
+
+msgid "TRAIT_REVEAL_mimosa"
+msgstr "So Cuddly!"
+
+msgid "TRAIT_GLOTONA_IDLE"
+msgstr "Got snacks?"
+
+msgid "TRAIT_JUGUETONA_IDLE"
+msgstr "Let's play!"
+
+msgid "TRAIT_DORMILONA_IDLE"
+msgstr "So sleepy..."
+
+msgid "TRAIT_MIMOSA_IDLE"
+msgstr "Cuddle me?"
+
 # ── Achievements ──────────────────────────────────────────────────────────────
 
 msgid "ACHIEVEMENT_UNLOCKED"

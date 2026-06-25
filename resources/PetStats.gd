@@ -74,20 +74,22 @@ func apply_decay(delta: float) -> void:
 	var m := _decay_multiplier()
 	# Use self. to guarantee the setter is called and EventBus signals fire.
 	# Without self., GDScript may access the backing variable directly.
-	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * delta
-	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * delta
-	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * delta
-	self.affection = _affection - GameConfig.AFFECTION_DECAY_RATE * m * delta
+	# The per-stat Personality.decay_factor() lets a trait nudge decay (always 1.0
+	# when no trait is active).
+	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * delta * Personality.decay_factor("hunger")
+	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * delta * Personality.decay_factor("happiness")
+	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * delta * Personality.decay_factor("energy")
+	self.affection = _affection - GameConfig.AFFECTION_DECAY_RATE * m * delta * Personality.decay_factor("affection")
 
 
 ## Applies decay for time elapsed while the app was closed.
 ## Called once on load, before the pet is shown to the player.
 func apply_offline_decay(elapsed_seconds: float) -> void:
 	var m := _decay_multiplier()
-	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * elapsed_seconds
-	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * elapsed_seconds
-	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * elapsed_seconds
-	self.affection = _affection - GameConfig.AFFECTION_DECAY_RATE * m * elapsed_seconds
+	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * elapsed_seconds * Personality.decay_factor("hunger")
+	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * elapsed_seconds * Personality.decay_factor("happiness")
+	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * elapsed_seconds * Personality.decay_factor("energy")
+	self.affection = _affection - GameConfig.AFFECTION_DECAY_RATE * m * elapsed_seconds * Personality.decay_factor("affection")
 
 
 ## Returns a plain Dictionary for JSON serialization.

@@ -32,6 +32,7 @@ func _ready() -> void:
 	# Sync HUD with actual stat values — must happen after both pet and HUD
 	# are in the scene tree so HUD's stat_changed connection is active.
 	_pet.broadcast_stats()
+	Personality.emit_current()  # sync Mochi tint + HUD trait badge with loaded state
 
 	EventBus.save_requested.connect(_on_save_requested)
 
@@ -59,10 +60,12 @@ func _load_or_create_pet() -> void:
 			_pet.load_from_save(data.get("pet", {}), offline_secs)
 			_apply_settings(data.get("settings", {}))
 			Achievements.load_from(data.get("achievements", {}))
+			Personality.load_from(data.get("personality", {}))
 			return
 
 	# No valid save — start fresh with the name chosen during onboarding.
 	var chosen_name := GameState.pending_pet_name if GameState.pending_pet_name != "" else "Mochi"
+	Personality.load_from({})  # reset emergent traits for a brand-new pet
 	_pet.initialize_fresh(chosen_name)
 	_save()  # Persist immediately so the chosen name is never lost.
 
@@ -99,7 +102,7 @@ func _save() -> void:
 	}
 
 	SaveSystem.save_game(_pet.stats, _pet.pet_name, settings, cosmetics,
-			_pet.bond_xp, Achievements.to_dict())
+			_pet.bond_xp, Achievements.to_dict(), Personality.to_dict())
 
 
 func _apply_settings(settings: Dictionary) -> void:

@@ -84,6 +84,8 @@ var _name_label: Label
 var _bond_label: Label
 var _bond_bar: ColorRect
 var _bond_bar_mat: ShaderMaterial
+var _trait_chip: PanelContainer
+var _trait_label: Label
 var _bond_level: int = 1
 var _pet_name: String = ""
 
@@ -124,6 +126,7 @@ func _ready() -> void:
 	EventBus.bond_progress_changed.connect(_on_bond_progress)
 	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
 	EventBus.pet_name_changed.connect(_on_pet_name_changed)
+	EventBus.personality_updated.connect(_on_personality_updated)
 
 	_bar_shader = Shader.new()
 	_bar_shader.code = BAR_SHADER_CODE
@@ -265,6 +268,26 @@ func _create_status_panel() -> void:
 	_bond_bar.resized.connect(func() -> void: _bond_bar_mat.set_shader_parameter("bar_size", _bond_bar.size))
 	bondrow.add_child(_bond_bar)
 
+	# Personality trait badge — appears (with the discovery beat) once a trait emerges.
+	_trait_chip = PanelContainer.new()
+	_trait_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var tcsb := StyleBoxFlat.new()
+	tcsb.bg_color = PAL.ACCENT
+	tcsb.set_corner_radius_all(9)
+	tcsb.content_margin_left = 8
+	tcsb.content_margin_right = 8
+	tcsb.content_margin_top = 3
+	tcsb.content_margin_bottom = 3
+	_trait_chip.add_theme_stylebox_override("panel", tcsb)
+	_trait_label = Label.new()
+	if Fonts.body_strong != null:
+		_trait_label.add_theme_font_override("font", Fonts.body_strong)
+	_trait_label.add_theme_font_size_override("font_size", 11)
+	_trait_label.add_theme_color_override("font_color", PAL.ON_ACCENT)
+	_trait_chip.add_child(_trait_label)
+	_trait_chip.visible = false
+	bondrow.add_child(_trait_chip)
+
 
 func _on_pet_name_changed(pet_name: String) -> void:
 	_pet_name = pet_name
@@ -279,6 +302,18 @@ func _on_bond_level_changed(level: int) -> void:
 func _on_bond_progress(ratio: float) -> void:
 	if _bond_bar_mat != null:
 		_bond_bar_mat.set_shader_parameter("value", ratio)
+
+
+## Shows/updates the trait badge ("Juguetona", etc.); hidden while equilibrada.
+func _on_personality_updated(profile: Dictionary) -> void:
+	if _trait_chip == null:
+		return
+	var dom: String = profile.get("dominant", "")
+	if dom == "":
+		_trait_chip.visible = false
+	else:
+		_trait_label.text = tr("TRAIT_NAME_" + dom)
+		_trait_chip.visible = true
 
 
 ## Slides a celebratory toast in at top-center when a milestone unlocks.
