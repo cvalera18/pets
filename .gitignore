@@ -4,3 +4,6 @@
 
 # Local design-handoff reference (extracted from the Claude Design zip; not source)
 .design_ref/
+
+# Local Claude Code project guide (personal, not shared)
+/CLAUDE.md
