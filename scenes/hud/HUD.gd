@@ -17,6 +17,7 @@ var _action_labels: Dictionary = {}
 var _bars: Dictionary = {}
 var _value_labels: Dictionary = {}
 var _stat_labels: Dictionary = {}
+var _icon_styles: Dictionary = {}
 var _is_sleeping: bool = false
 var _settings_button: Button
 var _name_label: Label
@@ -266,9 +267,14 @@ func _set_bar(stat_name: String, value: float, old_value: float = value) -> void
 	else:
 		bar.value = value
 
+	var crit := value <= GameConfig.CRITICAL_THRESHOLD
 	_bar_fills[stat_name].bg_color = _stat_color(stat_name, value)
+	if _icon_styles.has(stat_name):
+		_icon_styles[stat_name].bg_color = PAL.TIER_CRIT_B if crit else _stat_base(stat_name)
 	if _value_labels.has(stat_name):
 		_value_labels[stat_name].text = str(roundi(value))
+		_value_labels[stat_name].add_theme_color_override(
+				"font_color", PAL.TIER_CRIT_B if crit else PAL.TEXT_MUTED)
 
 
 ## Bar fill colour: the stat's own hue, turning red when critical (design rule).
@@ -281,6 +287,16 @@ func _stat_color(stat: String, value: float) -> Color:
 		"energy":    return PAL.ENERGY_B
 		"affection": return PAL.AFFECTION_B
 	return PAL.HUNGER_B
+
+
+## The stat's own icon-square hue (healthy state).
+func _stat_base(stat: String) -> Color:
+	match stat:
+		"hunger":    return PAL.HUNGER
+		"happiness": return PAL.HAPPY
+		"energy":    return PAL.ENERGY
+		"affection": return PAL.AFFECTION
+	return PAL.HUNGER
 
 
 # ─── Cozy theme (StyleBoxFlat) ────────────────────────────────────────────────
@@ -364,6 +380,7 @@ func _make_stat_card(parent: Node, stat: String, icon: Texture2D, color: Color, 
 	ssb.bg_color = color
 	ssb.set_corner_radius_all(8)
 	sq.add_theme_stylebox_override("panel", ssb)
+	_icon_styles[stat] = ssb
 	row.add_child(sq)
 	var ic := TextureRect.new()
 	ic.texture = icon
