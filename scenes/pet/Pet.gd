@@ -47,7 +47,7 @@ const REACT_STRETCH  := 0.22
 
 # ─── Child references ─────────────────────────────────────────────────────────
 
-@onready var sprite:           AnimatedSprite2D = $Sprite
+@onready var sprite:           Node2D           = $Sprite
 @onready var interaction_area: Area2D           = $InteractionArea
 
 # ─── State ────────────────────────────────────────────────────────────────────
@@ -301,10 +301,8 @@ func _celebrate_level_up() -> void:
 	_haptic(60)
 
 
-func _play_anim(anim_name: String) -> void:
-	if sprite.sprite_frames and sprite.sprite_frames.has_animation(anim_name):
-		sprite.play(anim_name)
-	# If the animation doesn't exist yet (placeholder sprites), fail silently.
+func _play_anim(_anim_name: String) -> void:
+	pass  # Mochi has no SpriteFrames; its face is driven by mood (see _set_mood).
 
 
 func _update_anim_from_stats() -> void:
@@ -353,6 +351,8 @@ func _trigger_reaction() -> void:
 
 func _set_mood(mood: Mood) -> void:
 	_mood = mood
+	if sprite:
+		sprite.set_mood(mood)
 
 
 func _update_mood_from_stats() -> void:

@@ -73,5 +73,5 @@ const LEAF_A       := Color("a9ce92")
 const LEAF_B       := Color("7fa86c")
 
 # ─── Time-of-day tint overlays (alpha baked in) ───────────────────────────────
-const TINT_DUSK  := Color(0.91, 0.55, 0.36, 0.26)
-const TINT_NIGHT := Color(0.17, 0.17, 0.36, 0.42)
+const TINT_DUSK  := Color(0.96, 0.66, 0.45, 0.12)
+const TINT_NIGHT := Color(0.30, 0.32, 0.52, 0.20)
