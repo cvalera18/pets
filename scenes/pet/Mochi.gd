@@ -89,19 +89,16 @@ func _eye(c: Vector2) -> void:
 
 func _ear(side: int) -> void:
 	var s := float(side)
-	var bx := 31.0 * s          # base centre x
-	var by := -38.0             # base y (tucked under the head)
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(bx - 22, by), Vector2(bx + 22, by), Vector2(bx + 16 * s, -90),
-	]), FUR_RIM)
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(bx - 12, by - 3), Vector2(bx + 12, by - 3), Vector2(bx + 13 * s, -74),
-	]), INNER_EAR)
+	var center := Vector2(34.0 * s, -52.0)
+	var rot := deg_to_rad(18.0 * s)
+	_ellipse(center, 23, 31, FUR_RIM, rot)
+	_ellipse(center, 20, 28, FUR, rot)
+	_ellipse(center + Vector2(0, 6).rotated(rot), 11, 16, INNER_EAR, rot)
 
 
-func _ellipse(center: Vector2, rx: float, ry: float, color: Color, segs: int = 32) -> void:
+func _ellipse(center: Vector2, rx: float, ry: float, color: Color, rot: float = 0.0, segs: int = 32) -> void:
 	var pts := PackedVector2Array()
 	for i in segs:
 		var a := TAU * float(i) / float(segs)
-		pts.append(center + Vector2(cos(a) * rx, sin(a) * ry))
+		pts.append(center + Vector2(cos(a) * rx, sin(a) * ry).rotated(rot))
 	draw_colored_polygon(pts, color)
