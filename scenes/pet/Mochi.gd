@@ -1,10 +1,11 @@
 ## Mochi.gd
 ## The pet, drawn procedurally as a cozy cartoon cat (no art assets), matching
-## the Claude Design "Mochi" mockup: a front-facing peach blob with big ears,
-## blush cheeks and a mood-driven face (happy / sleep / sad).
+## the Claude Design "Mochi" mockup: a round peach blob with pointed ears, blush
+## cheeks and a mood-driven face (happy / sleep / sad). Everything is centered on
+## the node origin so the procedural breathe/bob/pop scaling stays symmetric.
 ##
-## Used as the Pet's visual ($Sprite). Pet.gd drives the transform (procedural
-## breathe / bob / pop) and calls set_mood() when the mood changes.
+## Used as the Pet's visual ($Sprite). Pet.gd drives the transform and calls
+## set_mood() when the mood changes.
 class_name Mochi
 extends Node2D
 
@@ -13,9 +14,10 @@ var _mood: int = 0
 
 const FUR_RIM   := Color("efbc8e")
 const FUR       := Color("f6cca1")
-const FUR_LIGHT := Color("ffead1")
+const FUR_LIGHT := Color("ffe7cd")
 const INNER_EAR := Color("edadb4")
-const CHEEK     := Color(0.94, 0.59, 0.65, 0.6)
+const SHEEN     := Color(1, 0.95, 0.86, 0.30)
+const CHEEK     := Color(0.94, 0.59, 0.65, 0.55)
 const DARK      := Color("5a463e")
 const MOUTH     := Color("9c6b4e")
 const TEAR      := Color("9fd0e8")
@@ -31,21 +33,23 @@ func set_mood(mood: int) -> void:
 
 func _draw() -> void:
 	# Soft contact shadow.
-	_ellipse(Vector2(0, 80), 56, 10, Color(0.47, 0.33, 0.24, 0.16))
+	_ellipse(Vector2(0, 86), 54, 9, Color(0.47, 0.33, 0.24, 0.16))
 
-	# Ears (drawn before the body so the body overlaps their base).
+	# Pointed ears (drawn first so the body overlaps their base).
 	_ear(-1)
 	_ear(1)
 
-	# Body: rim → fur → top-left highlight → belly highlight.
-	_ellipse(Vector2(0, 13), 75, 71, FUR_RIM)
-	_ellipse(Vector2(0, 13), 72, 68, FUR)
-	_ellipse(Vector2(-12, -6), 52, 44, FUR_LIGHT)
-	_ellipse(Vector2(0, 33), 40, 32, Color(1, 0.98, 0.93, 0.5))
+	# Body blob — rim then fur, all centered.
+	_ellipse(Vector2(0, 10), 73, 72, FUR_RIM)
+	_ellipse(Vector2(0, 10), 70, 69, FUR)
+	# Subtle, CENTERED top sheen (not an off-centre disc).
+	_ellipse(Vector2(0, -16), 46, 26, SHEEN)
+	# Lighter muzzle/face patch the eyes sit on (centered, lower).
+	_ellipse(Vector2(0, 28), 45, 39, FUR_LIGHT)
 
 	# Blush cheeks.
-	_ellipse(Vector2(-40, 30), 13, 8, CHEEK)
-	_ellipse(Vector2(40, 30), 13, 8, CHEEK)
+	_ellipse(Vector2(-37, 34), 12, 7, CHEEK)
+	_ellipse(Vector2(37, 34), 12, 7, CHEEK)
 
 	match _mood:
 		1: _face_sleep()
@@ -53,30 +57,27 @@ func _draw() -> void:
 		_: _face_happy()
 
 
-# ─── Faces ────────────────────────────────────────────────────────────────────
+# ─── Faces (eyes sit on the muzzle patch, ~y16; mouth ~y38) ───────────────────
 
 func _face_happy() -> void:
-	_eye(Vector2(-26, 12))
-	_eye(Vector2(26, 12))
-	draw_arc(Vector2(0, 30), 12, deg_to_rad(25), deg_to_rad(155), 18, MOUTH, 3.0, true)
+	_eye(Vector2(-23, 15))
+	_eye(Vector2(23, 15))
+	draw_arc(Vector2(0, 34), 11, deg_to_rad(28), deg_to_rad(152), 18, MOUTH, 3.0, true)
 
 
 func _face_sleep() -> void:
-	draw_arc(Vector2(-26, 12), 9, deg_to_rad(20), deg_to_rad(160), 14, DARK, 3.0, true)
-	draw_arc(Vector2(26, 12), 9, deg_to_rad(20), deg_to_rad(160), 14, DARK, 3.0, true)
-	draw_arc(Vector2(0, 32), 6, 0.0, TAU, 20, MOUTH, 2.5, true)
+	draw_arc(Vector2(-23, 16), 9, deg_to_rad(20), deg_to_rad(160), 14, DARK, 3.0, true)
+	draw_arc(Vector2(23, 16), 9, deg_to_rad(20), deg_to_rad(160), 14, DARK, 3.0, true)
+	draw_arc(Vector2(0, 36), 5, 0.0, TAU, 18, MOUTH, 2.5, true)
 
 
 func _face_sad() -> void:
-	# Worried brows.
-	draw_line(Vector2(-34, 2), Vector2(-20, 7), DARK, 3.0, true)
-	draw_line(Vector2(34, 2), Vector2(20, 7), DARK, 3.0, true)
-	_ellipse(Vector2(-26, 15), 6, 8, DARK)
-	_ellipse(Vector2(26, 15), 6, 8, DARK)
-	# Frown.
-	draw_arc(Vector2(0, 40), 11, deg_to_rad(205), deg_to_rad(335), 16, MOUTH, 3.0, true)
-	# Tear.
-	_ellipse(Vector2(40, 22), 4, 6, TEAR)
+	draw_line(Vector2(-31, 4), Vector2(-17, 9), DARK, 3.0, true)
+	draw_line(Vector2(31, 4), Vector2(17, 9), DARK, 3.0, true)
+	_ellipse(Vector2(-23, 18), 6, 8, DARK)
+	_ellipse(Vector2(23, 18), 6, 8, DARK)
+	draw_arc(Vector2(0, 44), 10, deg_to_rad(205), deg_to_rad(335), 16, MOUTH, 3.0, true)
+	_ellipse(Vector2(36, 26), 4, 6, TEAR)
 
 
 func _eye(c: Vector2) -> void:
@@ -87,16 +88,20 @@ func _eye(c: Vector2) -> void:
 # ─── Shape helpers ────────────────────────────────────────────────────────────
 
 func _ear(side: int) -> void:
-	var center := Vector2(33.0 * side, -45.0)
-	var rot := deg_to_rad(20.0 * side)
-	_ellipse(center, 21, 26, FUR_RIM, rot)
-	_ellipse(center, 19, 24, FUR, rot)
-	_ellipse(center + Vector2(0, 4).rotated(rot), 10, 14, INNER_EAR, rot)
+	var s := float(side)
+	var bx := 31.0 * s          # base centre x
+	var by := -38.0             # base y (tucked under the head)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(bx - 22, by), Vector2(bx + 22, by), Vector2(bx + 16 * s, -90),
+	]), FUR_RIM)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(bx - 12, by - 3), Vector2(bx + 12, by - 3), Vector2(bx + 13 * s, -74),
+	]), INNER_EAR)
 
 
-func _ellipse(center: Vector2, rx: float, ry: float, color: Color, rot: float = 0.0, segs: int = 32) -> void:
+func _ellipse(center: Vector2, rx: float, ry: float, color: Color, segs: int = 32) -> void:
 	var pts := PackedVector2Array()
 	for i in segs:
 		var a := TAU * float(i) / float(segs)
-		pts.append(center + Vector2(cos(a) * rx, sin(a) * ry).rotated(rot))
+		pts.append(center + Vector2(cos(a) * rx, sin(a) * ry))
 	draw_colored_polygon(pts, color)

@@ -59,10 +59,11 @@ func _build() -> void:
 	_grad(Vector2.ZERO, size, P.BG_TOP, P.BG_BOTTOM, true)
 	_grad(Vector2.ZERO, size, Color(1, 0.96, 0.91, 0.55), Color(1, 0.96, 0.91, 0.0), true, true)
 
-	# ── Floor (curved top) ──
-	var floor_h := 170.0
-	_grad(Vector2(0, h - floor_h), Vector2(w, floor_h), P.FLOOR_A, P.FLOOR_B, true)
-	_round(Vector2(-20, h - floor_h - 8), Vector2(w + 40, 26), Color(1, 0.96, 0.9, 0.35), 13)
+	# ── Floor (gentle domed top, extends past the bottom edge) ──
+	var floor_h := 184.0
+	_round(Vector2(-30, h - floor_h), Vector2(w + 60, floor_h + 60), P.FLOOR_A, 64)
+	# warm highlight strip along the floor line
+	_round(Vector2(-30, h - floor_h - 6), Vector2(w + 60, 22), Color(1, 0.96, 0.9, 0.4), 11)
 
 	# ── Rug (three stacked stadiums) ──
 	_round(Vector2(w / 2 - 120, h - 170), Vector2(240, 74), P.RUG_1, 37)
