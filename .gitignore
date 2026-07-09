@@ -7,3 +7,7 @@
 
 # Local Claude Code project guide (personal, not shared)
 /CLAUDE.md
+
+# Android debug keystore (local, regenerable) + export output
+/debug.keystore
+/build/
