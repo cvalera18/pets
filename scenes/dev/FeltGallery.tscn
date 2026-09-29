@@ -1,0 +1,1573 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/dev/PaletteSwatches.gd" id="1_qjf6i"]
+[ext_resource type="Script" path="res://theme/felt/SewingButton.gd" id="2_mc87h"]
+[ext_resource type="Script" path="res://theme/felt/FeltToggle.gd" id="3_ui5rv"]
+[ext_resource type="Script" path="res://theme/felt/FeltSlider.gd" id="4_dnk1n"]
+[ext_resource type="Script" path="res://theme/felt/StyleBoxKnit.gd" id="5_kigq5"]
+[ext_resource type="Script" path="res://theme/felt/FeltHoop.gd" id="6_6uodb"]
+[ext_resource type="Script" path="res://theme/felt/BubbleTail.gd" id="7_6hjmy"]
+[ext_resource type="Script" path="res://theme/felt/FeltRibbons.gd" id="8_trg3k"]
+[ext_resource type="Script" path="res://theme/felt/FeltCharm.gd" id="9_u7gbh"]
+[ext_resource type="Script" path="res://theme/felt/FeltCushion.gd" id="10_syy1e"]
+[ext_resource type="Script" path="res://theme/felt/FeltSeam.gd" id="11_uirum"]
+[ext_resource type="Script" path="res://theme/felt/FeltGarland.gd" id="12_jooyi"]
+[ext_resource type="Script" path="res://scenes/pet/FloorShadow.gd" id="13_hgqpb"]
+[ext_resource type="Script" path="res://scenes/pet/MochiRig.gd" id="14_lqecv"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1sj14"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_cx4n4"]
+
+[sub_resource type="StyleBox" id="StyleBox_1a458"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = -1.0
+content_margin_top = -1.0
+content_margin_right = -1.0
+content_margin_bottom = -1.0
+script = ExtResource("5_kigq5")
+bg_color = Color(0.76862746, 0.27058825, 0.22745098, 1)
+stripe_color = Color(1, 1, 1, 0.22)
+
+[node name="FeltGallery" type="Control" unique_id=746344750]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Wall" type="ColorRect" parent="." unique_id=514924381]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.9019608, 0.8392157, 0.74509805, 1)
+
+[node name="Scroll" type="ScrollContainer" parent="." unique_id=258243819]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1sj14")
+horizontal_scroll_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="Scroll" unique_id=1364571844]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Sections" type="VBoxContainer" parent="Scroll/Margin" unique_id=1596118199]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="Heading" type="Label" parent="Scroll/Margin/Sections" unique_id=1342277520]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Fieltro · galería"
+
+[node name="Colores" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=1990461368]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Colores" unique_id=1735010347]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Colores"
+uppercase = true
+
+[node name="Palette" type="Control" parent="Scroll/Margin/Sections/Colores" unique_id=1792543365]
+layout_mode = 2
+script = ExtResource("1_qjf6i")
+
+[node name="Tipografía" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=1521544029]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1966051789]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Tipografía"
+uppercase = true
+
+[node name="WordmarkLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1230706349]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"WordmarkLabel"
+text = "WordmarkLabel"
+
+[node name="TitleLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1854735930]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "TitleLabel"
+
+[node name="HeadingLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1159176830]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"HeadingLabel"
+text = "HeadingLabel"
+
+[node name="ToastTitle" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=113191645]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ToastTitle"
+text = "ToastTitle"
+
+[node name="BubbleLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1018804745]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BubbleLabel"
+text = "BubbleLabel"
+
+[node name="BodyLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=977517515]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "BodyLabel"
+
+[node name="StatLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1415377050]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"StatLabel"
+text = "StatLabel"
+
+[node name="ValueLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1591653217]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+text = "ValueLabel"
+
+[node name="TaglineLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=186007205]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"TaglineLabel"
+text = "TaglineLabel"
+
+[node name="QuoteLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=130536535]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"QuoteLabel"
+text = "QuoteLabel"
+
+[node name="ActionLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=674180705]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "ActionLabel"
+
+[node name="SettingValueLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=597354757]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SettingValueLabel"
+text = "SettingValueLabel"
+
+[node name="LevelLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=618574329]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"LevelLabel"
+text = "LevelLabel"
+
+[node name="ToastBody" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=414462206]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "ToastBody"
+
+[node name="TagLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1064386418]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"TagLabel"
+text = "TagLabel"
+
+[node name="SectionLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1571502443]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "SectionLabel"
+uppercase = true
+
+[node name="KickerLabel" type="Label" parent="Scroll/Margin/Sections/Tipografía" unique_id=1543437469]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"KickerLabel"
+text = "KickerLabel"
+uppercase = true
+
+[node name="Superficies" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=265879338]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Superficies" unique_id=2107582213]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Superficies"
+uppercase = true
+
+[node name="PanelContainer" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=568232330]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/PanelContainer" unique_id=1237769770]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "PanelContainer"
+
+[node name="HeaderPanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=830952385]
+layout_mode = 2
+theme_type_variation = &"HeaderPanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/HeaderPanel" unique_id=1112684278]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "HeaderPanel"
+
+[node name="ActionsPanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=1208951005]
+layout_mode = 2
+theme_type_variation = &"ActionsPanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/ActionsPanel" unique_id=228137187]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "ActionsPanel"
+
+[node name="CardPanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=509433916]
+layout_mode = 2
+theme_type_variation = &"CardPanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/CardPanel" unique_id=1330099434]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "CardPanel"
+
+[node name="InnerCardPadded" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=1763389369]
+layout_mode = 2
+theme_type_variation = &"InnerCardPadded"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/InnerCardPadded" unique_id=1022722607]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "InnerCardPadded"
+
+[node name="BubblePanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=234113953]
+layout_mode = 2
+theme_type_variation = &"BubblePanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/BubblePanel" unique_id=670481978]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "BubblePanel"
+
+[node name="ToastPanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=1044587151]
+layout_mode = 2
+theme_type_variation = &"ToastPanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/ToastPanel" unique_id=1444323719]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "ToastPanel"
+
+[node name="ToastRosePanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=497195532]
+layout_mode = 2
+theme_type_variation = &"ToastRosePanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/ToastRosePanel" unique_id=1278618609]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "ToastRosePanel"
+
+[node name="DialogPanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=153703637]
+layout_mode = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/DialogPanel" unique_id=886753060]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "DialogPanel"
+
+[node name="SegmentTrack" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=1262387611]
+layout_mode = 2
+theme_type_variation = &"SegmentTrack"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/SegmentTrack" unique_id=1508888544]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "SegmentTrack"
+
+[node name="TraitTag" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=422457070]
+layout_mode = 2
+theme_type_variation = &"TraitTag"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/TraitTag" unique_id=1743084993]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "TraitTag"
+
+[node name="SheetPanel" type="PanelContainer" parent="Scroll/Margin/Sections/Superficies" unique_id=1245822849]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+theme_type_variation = &"SheetPanel"
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Superficies/SheetPanel" unique_id=213881457]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+text = "SheetPanel"
+
+[node name="Botones" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=1475777483]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Botones" unique_id=126775855]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Botones"
+uppercase = true
+
+[node name="Variants" type="HFlowContainer" parent="Scroll/Margin/Sections/Botones" unique_id=1715360326]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="Primary" type="Button" parent="Scroll/Margin/Sections/Botones/Variants" unique_id=1137318365]
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+text = "Primary"
+
+[node name="Secondary" type="Button" parent="Scroll/Margin/Sections/Botones/Variants" unique_id=1739904331]
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+theme_type_variation = &"SecondaryButton"
+text = "Secondary"
+
+[node name="Danger" type="Button" parent="Scroll/Margin/Sections/Botones/Variants" unique_id=1173753688]
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+text = "Danger"
+
+[node name="Crit" type="Button" parent="Scroll/Margin/Sections/Botones/Variants" unique_id=138129769]
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+theme_type_variation = &"CritButton"
+text = "Crit"
+
+[node name="Disabled" type="Button" parent="Scroll/Margin/Sections/Botones/Variants" unique_id=1231473479]
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+disabled = true
+text = "Disabled"
+
+[node name="Segmented" type="PanelContainer" parent="Scroll/Margin/Sections/Botones" unique_id=1976564337]
+layout_mode = 2
+theme_type_variation = &"SegmentTrack"
+
+[node name="Options" type="HBoxContainer" parent="Scroll/Margin/Sections/Botones/Segmented" unique_id=473062810]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Español" type="Button" parent="Scroll/Margin/Sections/Botones/Segmented/Options" unique_id=1996532992]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SegmentButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_cx4n4")
+text = "Español"
+
+[node name="English" type="Button" parent="Scroll/Margin/Sections/Botones/Segmented/Options" unique_id=6480432]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SegmentButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_cx4n4")
+text = "English"
+
+[node name="Botonesdecostura" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=9472908]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Botonesdecostura" unique_id=743963540]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Botones de costura"
+uppercase = true
+
+[node name="Actions" type="HFlowContainer" parent="Scroll/Margin/Sections/Botonesdecostura" unique_id=1725161919]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="Feed" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Actions" unique_id=417411401]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+icon_path = "res://assets/icons/bowl.svg"
+icon_size = 26.04
+
+[node name="Play" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Actions" unique_id=1548395952]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+color = Color(0.8666667, 0.65882355, 0.2627451, 1)
+icon_path = "res://assets/icons/ball.svg"
+icon_size = 26.04
+
+[node name="Sleep" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Actions" unique_id=389528585]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+color = Color(0.43529412, 0.5764706, 0.6901961, 1)
+icon_path = "res://assets/icons/moon.svg"
+icon_size = 26.04
+
+[node name="PetAlert" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Actions" unique_id=1682549832]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+icon_path = "res://assets/icons/heart.svg"
+icon_size = 26.04
+alert = true
+
+[node name="Disabled" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Actions" unique_id=1460573968]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = true
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+icon_path = "res://assets/icons/bowl.svg"
+icon_size = 26.04
+
+[node name="Settings" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Actions" unique_id=1499048416]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(48, 48)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+color = Color(0.9137255, 0.85490197, 0.76862746, 1)
+diameter = 48.0
+icon_path = "res://assets/icons/gear.svg"
+icon_color = Color(0.43137255, 0.3372549, 0.26666668, 1)
+icon_size = 20.16
+ring_color = Color(0.72156864, 0.6039216, 0.45490196, 1)
+ring_width = 1.5
+lip = 2.0
+inner_shade = false
+
+[node name="Badges" type="HFlowContainer" parent="Scroll/Margin/Sections/Botonesdecostura" unique_id=1946330944]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="Hunger" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Badges" unique_id=818068302]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+diameter = 30.0
+icon_path = "res://assets/icons/bowl.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Happy" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Badges" unique_id=167522180]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+color = Color(0.8666667, 0.65882355, 0.2627451, 1)
+diameter = 30.0
+icon_path = "res://assets/icons/star.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Energy" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Badges" unique_id=824722989]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+color = Color(0.43529412, 0.5764706, 0.6901961, 1)
+diameter = 30.0
+icon_path = "res://assets/icons/bolt.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Affection" type="BaseButton" parent="Scroll/Margin/Sections/Botonesdecostura/Badges" unique_id=575098057]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("2_mc87h")
+color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+diameter = 30.0
+icon_path = "res://assets/icons/heart.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Controles" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=679518727]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Controles" unique_id=430924489]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Controles"
+uppercase = true
+
+[node name="Toggles" type="HBoxContainer" parent="Scroll/Margin/Sections/Controles" unique_id=1087653726]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="On" type="BaseButton" parent="Scroll/Margin/Sections/Controles/Toggles" unique_id=182509623]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(54, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 0
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = true
+button_pressed = true
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("3_ui5rv")
+
+[node name="Off" type="BaseButton" parent="Scroll/Margin/Sections/Controles/Toggles" unique_id=893598762]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(54, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 0
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = true
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("3_ui5rv")
+
+[node name="Slider" type="HSlider" parent="Scroll/Margin/Sections/Controles" unique_id=129195098]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.7
+script = ExtResource("4_dnk1n")
+
+[node name="Field" type="LineEdit" parent="Scroll/Margin/Sections/Controles" unique_id=1242637286]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+placeholder_text = "Escribe un nombre"
+alignment = 1
+
+[node name="Barras" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=199146266]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Barras" unique_id=1650914878]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Barras"
+uppercase = true
+
+[node name="HungerBar" type="ProgressBar" parent="Scroll/Margin/Sections/Barras" unique_id=1442845572]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+theme_type_variation = &"HungerBar"
+value = 64.0
+show_percentage = false
+
+[node name="HappyBar" type="ProgressBar" parent="Scroll/Margin/Sections/Barras" unique_id=193746978]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+theme_type_variation = &"HappyBar"
+value = 64.0
+show_percentage = false
+
+[node name="EnergyBar" type="ProgressBar" parent="Scroll/Margin/Sections/Barras" unique_id=623592161]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+theme_type_variation = &"EnergyBar"
+value = 64.0
+show_percentage = false
+
+[node name="AffectionBar" type="ProgressBar" parent="Scroll/Margin/Sections/Barras" unique_id=1249213661]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+theme_type_variation = &"AffectionBar"
+value = 64.0
+show_percentage = false
+
+[node name="BondBar" type="ProgressBar" parent="Scroll/Margin/Sections/Barras" unique_id=1022815355]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+theme_type_variation = &"BondBar"
+value = 64.0
+show_percentage = false
+
+[node name="Critical" type="ProgressBar" parent="Scroll/Margin/Sections/Barras" unique_id=596426483]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+theme_type_variation = &"HungerBar"
+theme_override_styles/fill = SubResource("StyleBox_1a458")
+value = 14.0
+show_percentage = false
+
+[node name="Habitación" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=1766549471]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Habitación" unique_id=85202305]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Habitación"
+uppercase = true
+
+[node name="Props" type="HFlowContainer" parent="Scroll/Margin/Sections/Habitación" unique_id=961007500]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="HoopDay" type="Control" parent="Scroll/Margin/Sections/Habitación/Props" unique_id=1390916893]
+custom_minimum_size = Vector2(70, 84)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_6uodb")
+
+[node name="HoopNight" type="Control" parent="Scroll/Margin/Sections/Habitación/Props" unique_id=488636628]
+custom_minimum_size = Vector2(70, 84)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_6uodb")
+night = true
+
+[node name="BubbleTail" type="Control" parent="Scroll/Margin/Sections/Habitación/Props" unique_id=1272323206]
+custom_minimum_size = Vector2(22, 28)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("7_6hjmy")
+
+[node name="Ribbons" type="Control" parent="Scroll/Margin/Sections/Habitación/Props" unique_id=931944243]
+custom_minimum_size = Vector2(52, 62)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("8_trg3k")
+
+[node name="CharmStar" type="Control" parent="Scroll/Margin/Sections/Habitación/Props" unique_id=61700803]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("9_u7gbh")
+
+[node name="CharmHeart" type="Control" parent="Scroll/Margin/Sections/Habitación/Props" unique_id=1396827033]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("9_u7gbh")
+shape = "heart"
+fill_color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+edge_color = Color(0.65882355, 0.36078432, 0.42352942, 1)
+
+[node name="CharmSparkle" type="Control" parent="Scroll/Margin/Sections/Habitación/Props" unique_id=1307759738]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("9_u7gbh")
+shape = "sparkle"
+fill_color = Color(0.43529412, 0.5764706, 0.6901961, 1)
+edge_color = Color(0.34509805, 0.4862745, 0.6, 1)
+
+[node name="Cushion" type="Control" parent="Scroll/Margin/Sections/Habitación" unique_id=693250986]
+custom_minimum_size = Vector2(310, 64)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("10_syy1e")
+
+[node name="Seam" type="Control" parent="Scroll/Margin/Sections/Habitación" unique_id=889046631]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("11_uirum")
+
+[node name="Garland" type="Control" parent="Scroll/Margin/Sections/Habitación" unique_id=1872160013]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("12_jooyi")
+colors = PackedColorArray(0.8235294, 0.45490196, 0.28627452, 1, 0.8666667, 0.65882355, 0.2627451, 1, 0.43529412, 0.5764706, 0.6901961, 1, 0.8117647, 0.50980395, 0.5647059, 1, 0.56078434, 0.6509804, 0.49803922, 1)
+
+[node name="Mochi" type="VBoxContainer" parent="Scroll/Margin/Sections" unique_id=1191471872]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Scroll/Margin/Sections/Mochi" unique_id=309466065]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Mochi"
+uppercase = true
+
+[node name="Moods" type="HFlowContainer" parent="Scroll/Margin/Sections/Mochi" unique_id=726823217]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="Feliz" type="VBoxContainer" parent="Scroll/Margin/Sections/Mochi/Moods" unique_id=942900765]
+layout_mode = 2
+
+[node name="Stage" type="Control" parent="Scroll/Margin/Sections/Mochi/Moods/Feliz" unique_id=573398304]
+custom_minimum_size = Vector2(160, 150)
+layout_mode = 2
+
+[node name="Shadow" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Feliz/Stage" unique_id=1811985221]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("13_hgqpb")
+
+[node name="Mochi" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Feliz/Stage" unique_id=516952751]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("14_lqecv")
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Mochi/Moods/Feliz" unique_id=558305230]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "Feliz"
+horizontal_alignment = 1
+
+[node name="Contenta" type="VBoxContainer" parent="Scroll/Margin/Sections/Mochi/Moods" unique_id=2058998940]
+layout_mode = 2
+
+[node name="Stage" type="Control" parent="Scroll/Margin/Sections/Mochi/Moods/Contenta" unique_id=1007660098]
+custom_minimum_size = Vector2(160, 150)
+layout_mode = 2
+
+[node name="Shadow" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Contenta/Stage" unique_id=1079238200]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("13_hgqpb")
+
+[node name="Mochi" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Contenta/Stage" unique_id=51427851]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("14_lqecv")
+preview_mood = 3
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Mochi/Moods/Contenta" unique_id=935850161]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "Contenta"
+horizontal_alignment = 1
+
+[node name="Dormida" type="VBoxContainer" parent="Scroll/Margin/Sections/Mochi/Moods" unique_id=255874245]
+layout_mode = 2
+
+[node name="Stage" type="Control" parent="Scroll/Margin/Sections/Mochi/Moods/Dormida" unique_id=778710959]
+custom_minimum_size = Vector2(160, 150)
+layout_mode = 2
+
+[node name="Shadow" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Dormida/Stage" unique_id=796276485]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("13_hgqpb")
+
+[node name="Mochi" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Dormida/Stage" unique_id=1445504913]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("14_lqecv")
+preview_mood = 1
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Mochi/Moods/Dormida" unique_id=1692837154]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "Dormida"
+horizontal_alignment = 1
+
+[node name="Triste" type="VBoxContainer" parent="Scroll/Margin/Sections/Mochi/Moods" unique_id=152137806]
+layout_mode = 2
+
+[node name="Stage" type="Control" parent="Scroll/Margin/Sections/Mochi/Moods/Triste" unique_id=2088153076]
+custom_minimum_size = Vector2(160, 150)
+layout_mode = 2
+
+[node name="Shadow" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Triste/Stage" unique_id=2096884582]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("13_hgqpb")
+
+[node name="Mochi" type="Node2D" parent="Scroll/Margin/Sections/Mochi/Moods/Triste/Stage" unique_id=1799448934]
+position = Vector2(80, 140)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("14_lqecv")
+preview_mood = 2
+
+[node name="Name" type="Label" parent="Scroll/Margin/Sections/Mochi/Moods/Triste" unique_id=882942644]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "Triste"
+horizontal_alignment = 1
