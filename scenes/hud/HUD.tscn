@@ -1,111 +1,1023 @@
-[gd_scene format=3 uid="uid://pets00hud001"]
+[gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://e2f53gdlpjlg" path="res://scenes/hud/HUD.gd" id="1_hud001"]
+[ext_resource type="Script" path="res://scenes/hud/HUD.gd" id="root_script"]
+[ext_resource type="Script" path="res://theme/felt/SewingButton.gd" id="1_xvj7f"]
+[ext_resource type="Script" path="res://theme/felt/BubbleTail.gd" id="2_arwy5"]
 
-[node name="HUD" type="CanvasLayer" unique_id=735260668]
-script = ExtResource("1_hud001")
+[node name="HUD" type="CanvasLayer" unique_id=408560496]
+script = ExtResource("root_script")
 
-[node name="Control" type="Control" parent="." unique_id=722712371]
+[node name="Control" type="Control" parent="." unique_id=1778444433]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+mouse_filter = 2
 
-[node name="StatsPanel" type="VBoxContainer" parent="Control" unique_id=1184077247]
+[node name="Header" type="PanelContainer" parent="Control" unique_id=939711318]
+layout_mode = 0
+anchor_right = 1.0
+offset_left = 14.0
+offset_top = 16.0
+offset_right = -14.0
+offset_bottom = 16.0
+theme_type_variation = &"HeaderPanel"
+
+[node name="Row" type="HBoxContainer" parent="Control/Header" unique_id=921598425]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="NameBox" type="VBoxContainer" parent="Control/Header/Row" unique_id=1441228663]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="Control/Header/Row/NameBox" unique_id=1080787183]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Mochi"
+
+[node name="LevelRow" type="HBoxContainer" parent="Control/Header/Row/NameBox" unique_id=2101151359]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="LevelLabel" type="Label" parent="Control/Header/Row/NameBox/LevelRow" unique_id=102677766]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"LevelLabel"
+text = "Nivel 1"
+
+[node name="BondBar" type="ProgressBar" parent="Control/Header/Row/NameBox/LevelRow" unique_id=1372272597]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 12)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"BondBar"
+value = 60.0
+show_percentage = false
+
+[node name="Right" type="HBoxContainer" parent="Control/Header/Row" unique_id=1354808975]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="TraitTag" type="PanelContainer" parent="Control/Header/Row/Right" unique_id=1165530850]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"TraitTag"
+
+[node name="TraitLabel" type="Label" parent="Control/Header/Row/Right/TraitTag" unique_id=672142530]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TagLabel"
+text = "TRAIT_NAME_glotona"
+
+[node name="SettingsButton" type="BaseButton" parent="Control/Header/Row/Right" unique_id=706349107]
+unique_name_in_owner = true
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(48, 48)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+color = Color(0.9137255, 0.85490197, 0.76862746, 1)
+diameter = 48.0
+icon_path = "res://assets/icons/gear.svg"
+icon_color = Color(0.43137255, 0.3372549, 0.26666668, 1)
+icon_size = 22.0
+ring_color = Color(0.72156864, 0.6039216, 0.45490196, 1)
+ring_inset = 4.0
+ring_width = 1.5
+ring_dash = 4.0
+ring_gap = 3.5
+lip = 2.0
+lip_color = Color(0.47, 0.35, 0.24, 0.3)
+inner_shade = false
+
+[node name="Stats" type="PanelContainer" parent="Control" unique_id=470810350]
+layout_mode = 0
+anchor_right = 1.0
+offset_left = 14.0
+offset_top = 112.0
+offset_right = -14.0
+offset_bottom = 112.0
+
+[node name="List" type="VBoxContainer" parent="Control/Stats" unique_id=1711754546]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="HungerRow" type="PanelContainer" parent="Control/Stats/List" unique_id=1627621582]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatRow"
+
+[node name="Items" type="HBoxContainer" parent="Control/Stats/List/HungerRow" unique_id=421279119]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Badge" type="BaseButton" parent="Control/Stats/List/HungerRow/Items" unique_id=1523980361]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 2
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+diameter = 30.0
+icon_path = "res://assets/icons/bowl.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Name" type="Label" parent="Control/Stats/List/HungerRow/Items" unique_id=39167847]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_type_variation = &"StatLabel"
+text = "STAT_HUNGER"
+
+[node name="HungerBar" type="ProgressBar" parent="Control/Stats/List/HungerRow/Items" unique_id=1497108780]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"HungerBar"
+value = 60.0
+show_percentage = false
+
+[node name="HungerValue" type="Label" parent="Control/Stats/List/HungerRow/Items" unique_id=955279485]
+unique_name_in_owner = true
+auto_translate_mode = 2
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+text = "0"
+horizontal_alignment = 2
+
+[node name="HappinessRow" type="PanelContainer" parent="Control/Stats/List" unique_id=958627086]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatRow"
+
+[node name="Items" type="HBoxContainer" parent="Control/Stats/List/HappinessRow" unique_id=722981150]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Badge" type="BaseButton" parent="Control/Stats/List/HappinessRow/Items" unique_id=519915710]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 2
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+color = Color(0.8666667, 0.65882355, 0.2627451, 1)
+diameter = 30.0
+icon_path = "res://assets/icons/star.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Name" type="Label" parent="Control/Stats/List/HappinessRow/Items" unique_id=1772254731]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_type_variation = &"StatLabel"
+text = "STAT_HAPPINESS"
+
+[node name="HappinessBar" type="ProgressBar" parent="Control/Stats/List/HappinessRow/Items" unique_id=947101504]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"HappyBar"
+value = 60.0
+show_percentage = false
+
+[node name="HappinessValue" type="Label" parent="Control/Stats/List/HappinessRow/Items" unique_id=1406161337]
+unique_name_in_owner = true
+auto_translate_mode = 2
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+text = "0"
+horizontal_alignment = 2
+
+[node name="EnergyRow" type="PanelContainer" parent="Control/Stats/List" unique_id=2133643151]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatRow"
+
+[node name="Items" type="HBoxContainer" parent="Control/Stats/List/EnergyRow" unique_id=1204080863]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Badge" type="BaseButton" parent="Control/Stats/List/EnergyRow/Items" unique_id=792383857]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 2
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+color = Color(0.43529412, 0.5764706, 0.6901961, 1)
+diameter = 30.0
+icon_path = "res://assets/icons/bolt.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Name" type="Label" parent="Control/Stats/List/EnergyRow/Items" unique_id=1714179504]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_type_variation = &"StatLabel"
+text = "STAT_ENERGY"
+
+[node name="EnergyBar" type="ProgressBar" parent="Control/Stats/List/EnergyRow/Items" unique_id=1962133805]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"EnergyBar"
+value = 60.0
+show_percentage = false
+
+[node name="EnergyValue" type="Label" parent="Control/Stats/List/EnergyRow/Items" unique_id=582098906]
+unique_name_in_owner = true
+auto_translate_mode = 2
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+text = "0"
+horizontal_alignment = 2
+
+[node name="AffectionRow" type="PanelContainer" parent="Control/Stats/List" unique_id=322701693]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatRow"
+
+[node name="Items" type="HBoxContainer" parent="Control/Stats/List/AffectionRow" unique_id=1522229725]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Badge" type="BaseButton" parent="Control/Stats/List/AffectionRow/Items" unique_id=286422537]
+unique_name_in_owner = false
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(30, 30)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 2
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+diameter = 30.0
+icon_path = "res://assets/icons/heart.svg"
+icon_size = 16.0
+ring_inset = 3.0
+ring_width = 1.5
+ring_dash = 3.5
+ring_gap = 3.0
+lip = 0.0
+inner_shade = false
+
+[node name="Name" type="Label" parent="Control/Stats/List/AffectionRow/Items" unique_id=1550572986]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_type_variation = &"StatLabel"
+text = "STAT_AFFECTION"
+
+[node name="AffectionBar" type="ProgressBar" parent="Control/Stats/List/AffectionRow/Items" unique_id=1751466509]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"AffectionBar"
+value = 60.0
+show_percentage = false
+
+[node name="AffectionValue" type="Label" parent="Control/Stats/List/AffectionRow/Items" unique_id=1134381865]
+unique_name_in_owner = true
+auto_translate_mode = 2
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+text = "0"
+horizontal_alignment = 2
+
+[node name="Thought" type="Control" parent="Control" unique_id=1177927851]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Bubble" type="PanelContainer" parent="Control/Thought" unique_id=1252641528]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 1.0
-anchor_right = 0.6
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -220.0
-offset_right = -16.0
-offset_bottom = -100.0
-theme_override_constants/separation = 8
+offset_left = 176.0
+offset_top = -516.0
+offset_right = 176.0
+offset_bottom = -516.0
+mouse_filter = 2
+theme_type_variation = &"BubblePanel"
 
-[node name="HungerRow" type="HBoxContainer" parent="Control/StatsPanel" unique_id=802153304]
+[node name="ThoughtLabel" type="Label" parent="Control/Thought/Bubble" unique_id=148455134]
+unique_name_in_owner = true
+auto_translate_mode = 2
 layout_mode = 2
+theme_type_variation = &"BubbleLabel"
+text = "¿Comidita?"
 
-[node name="HungerLabel" type="Label" parent="Control/StatsPanel/HungerRow" unique_id=618284491]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Hunger"
-
-[node name="HungerBar" type="ProgressBar" parent="Control/StatsPanel/HungerRow" unique_id=1561474419]
-layout_mode = 2
-size_flags_horizontal = 3
-value = 100.0
-
-[node name="HappinessRow" type="HBoxContainer" parent="Control/StatsPanel" unique_id=1679905999]
-layout_mode = 2
-
-[node name="HappinessLabel" type="Label" parent="Control/StatsPanel/HappinessRow" unique_id=1642834417]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Happiness"
-
-[node name="HappinessBar" type="ProgressBar" parent="Control/StatsPanel/HappinessRow" unique_id=181298095]
-layout_mode = 2
-size_flags_horizontal = 3
-value = 100.0
-
-[node name="EnergyRow" type="HBoxContainer" parent="Control/StatsPanel" unique_id=1876359625]
-layout_mode = 2
-
-[node name="EnergyLabel" type="Label" parent="Control/StatsPanel/EnergyRow" unique_id=1991352692]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Energy"
-
-[node name="EnergyBar" type="ProgressBar" parent="Control/StatsPanel/EnergyRow" unique_id=1929096964]
-layout_mode = 2
-size_flags_horizontal = 3
-value = 100.0
-
-[node name="AffectionRow" type="HBoxContainer" parent="Control/StatsPanel" unique_id=256687481]
-layout_mode = 2
-
-[node name="AffectionLabel" type="Label" parent="Control/StatsPanel/AffectionRow" unique_id=920465486]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-text = "Affection"
-
-[node name="AffectionBar" type="ProgressBar" parent="Control/StatsPanel/AffectionRow" unique_id=127303971]
-layout_mode = 2
-size_flags_horizontal = 3
-value = 100.0
-
-[node name="ActionButtons" type="HBoxContainer" parent="Control" unique_id=1917108536]
+[node name="Tail" type="Control" parent="Control/Thought" unique_id=211317948]
+custom_minimum_size = Vector2(22, 28)
 layout_mode = 1
-anchors_preset = 12
+anchors_preset = -1
+offset_left = 160.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -472.0
+offset_right = 182.0
+offset_bottom = -444.0
+mouse_filter = 2
+script = ExtResource("2_arwy5")
+
+[node name="Actions" type="PanelContainer" parent="Control" unique_id=476417762]
+layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -88.0
-offset_right = -16.0
-offset_bottom = -16.0
-theme_override_constants/separation = 12
-alignment = 1
+offset_left = 14.0
+offset_top = -18.0
+offset_right = -14.0
+offset_bottom = -18.0
+grow_vertical = 0
+theme_type_variation = &"ActionsPanel"
 
-[node name="FeedButton" type="Button" parent="Control/ActionButtons" unique_id=1146281236]
+[node name="Row" type="HBoxContainer" parent="Control/Actions" unique_id=403777315]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Feed" type="VBoxContainer" parent="Control/Actions/Row" unique_id=520194393]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Feed"
+mouse_filter = 2
+theme_override_constants/separation = 7
 
-[node name="PlayButton" type="Button" parent="Control/ActionButtons" unique_id=784420997]
+[node name="FeedButton" type="BaseButton" parent="Control/Actions/Row/Feed" unique_id=918447977]
+unique_name_in_owner = true
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+icon_path = "res://assets/icons/bowl.svg"
+
+[node name="FeedLabel" type="Label" parent="Control/Actions/Row/Feed" unique_id=544880177]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "ACTION_FEED"
+horizontal_alignment = 1
+
+[node name="Play" type="VBoxContainer" parent="Control/Actions/Row" unique_id=373629525]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Play"
+mouse_filter = 2
+theme_override_constants/separation = 7
 
-[node name="SleepButton" type="Button" parent="Control/ActionButtons" unique_id=1316590511]
+[node name="PlayButton" type="BaseButton" parent="Control/Actions/Row/Play" unique_id=1811353008]
+unique_name_in_owner = true
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+color = Color(0.8666667, 0.65882355, 0.2627451, 1)
+icon_path = "res://assets/icons/ball.svg"
+
+[node name="PlayLabel" type="Label" parent="Control/Actions/Row/Play" unique_id=1035873941]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "ACTION_PLAY"
+horizontal_alignment = 1
+
+[node name="Sleep" type="VBoxContainer" parent="Control/Actions/Row" unique_id=551378941]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Sleep"
+mouse_filter = 2
+theme_override_constants/separation = 7
 
-[node name="PetButton" type="Button" parent="Control/ActionButtons" unique_id=959066084]
+[node name="SleepButton" type="BaseButton" parent="Control/Actions/Row/Sleep" unique_id=526295686]
+unique_name_in_owner = true
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+color = Color(0.43529412, 0.5764706, 0.6901961, 1)
+icon_path = "res://assets/icons/moon.svg"
+
+[node name="SleepLabel" type="Label" parent="Control/Actions/Row/Sleep" unique_id=1250682939]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "ACTION_SLEEP"
+horizontal_alignment = 1
+
+[node name="Pet" type="VBoxContainer" parent="Control/Actions/Row" unique_id=461216122]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Pet"
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="PetButton" type="BaseButton" parent="Control/Actions/Row/Pet" unique_id=1200170624]
+unique_name_in_owner = true
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+clip_contents = false
+custom_minimum_size = Vector2(62, 62)
+layout_direction = 0
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+localize_numeral_system = true
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("1_xvj7f")
+color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+icon_path = "res://assets/icons/heart.svg"
+
+[node name="PetLabel" type="Label" parent="Control/Actions/Row/Pet" unique_id=526312624]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "ACTION_PET"
+horizontal_alignment = 1
+
+[node name="Toasts" type="VBoxContainer" parent="Control" unique_id=1649046935]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = 18.0
+mouse_filter = 2
+theme_override_constants/separation = 8

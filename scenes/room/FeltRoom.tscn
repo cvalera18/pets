@@ -1,0 +1,76 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/room/FeltRoom.gd" id="1_d2utu"]
+[ext_resource type="Script" path="res://theme/felt/FeltSeam.gd" id="2_or7v5"]
+[ext_resource type="Script" path="res://theme/felt/FeltHoop.gd" id="3_2aya8"]
+[ext_resource type="Script" path="res://theme/felt/FeltCushion.gd" id="4_xv22v"]
+[ext_resource type="Script" path="res://scenes/effects/TimeTint.gd" id="5_pt6q7"]
+
+[node name="FeltRoom" type="Control" unique_id=2126515877]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 390.0
+offset_bottom = 844.0
+mouse_filter = 2
+script = ExtResource("1_d2utu")
+
+[node name="Wall" type="ColorRect" parent="." unique_id=1016862364]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.9019608, 0.8392157, 0.74509805, 1)
+
+[node name="Floor" type="ColorRect" parent="." unique_id=1915840265]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -232.0
+mouse_filter = 2
+color = Color(0.8627451, 0.78039217, 0.65882355, 1)
+
+[node name="FloorSeam" type="Control" parent="." unique_id=1173829163]
+anchors_preset = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -226.0
+offset_bottom = -222.0
+mouse_filter = 2
+script = ExtResource("2_or7v5")
+
+[node name="Hoop" type="Control" parent="." unique_id=1672989553]
+custom_minimum_size = Vector2(70, 84)
+anchors_preset = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -90.0
+offset_top = 304.0
+offset_right = -20.0
+offset_bottom = 388.0
+mouse_filter = 2
+script = ExtResource("3_2aya8")
+follow_clock = true
+
+[node name="Cushion" type="Control" parent="." unique_id=2034129256]
+anchors_preset = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -155.0
+offset_top = -216.0
+offset_right = 155.0
+offset_bottom = -152.0
+mouse_filter = 2
+script = ExtResource("4_xv22v")
+
+[node name="TimeTint" type="ColorRect" parent="." unique_id=736435174]
+z_index = 40
+z_as_relative = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("5_pt6q7")

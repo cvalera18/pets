@@ -27,7 +27,6 @@ AudioManager="*res://autoloads/AudioManager.gd"
 Achievements="*res://autoloads/Achievements.gd"
 Personality="*res://autoloads/Personality.gd"
 Fonts="*res://autoloads/Fonts.gd"
-Icons="*res://autoloads/Icons.gd"
 
 [display]
 
@@ -36,6 +35,10 @@ window/size/viewport_height=844
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
+
+[gui]
+
+theme/custom="res://theme/felt_theme.tres"
 
 [internationalization]
 
