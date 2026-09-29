@@ -28,7 +28,7 @@ const ANIM_CRITICAL := "critical"
 # ─── Procedural animation tuning ──────────────────────────────────────────────
 # Drives the "alive" motion layered on top of the SpriteFrames (see _animate).
 
-enum Mood { IDLE, SLEEP, SAD }
+enum Mood { IDLE, SLEEP, SAD, CONTENT }
 
 const BREATHE_SPEED_IDLE  := 2.2
 const BREATHE_SPEED_SLEEP := 1.1
@@ -43,11 +43,15 @@ const BOB_AMP_SLEEP := 1.0
 const BOB_AMP_SAD   := 0.8
 
 const REACT_DURATION := 0.55
+
+## How long Mochi keeps the content face (^ ^) after being cared for.
+const CONTENT_DURATION := 2.5
 const REACT_STRETCH  := 0.22
 
 # ─── Child references ─────────────────────────────────────────────────────────
 
 @onready var sprite:           Node2D           = $Sprite
+@onready var shadow:           Node2D           = $Shadow
 @onready var interaction_area: Area2D           = $InteractionArea
 
 # ─── State ────────────────────────────────────────────────────────────────────
@@ -66,8 +70,10 @@ var _thought_timer:        float  = 0.0
 var _mood:       Mood    = Mood.IDLE
 var _anim_time:  float   = 0.0
 var _react_t:    float   = REACT_DURATION  # Starts "finished" (no active pop).
+var _content_t:  float   = 0.0
 var _base_scale: Vector2 = Vector2.ONE
 var _base_pos:   Vector2 = Vector2.ZERO
+var _shadow_scale: Vector2 = Vector2.ONE
 
 # Active personality trait + its motion multipliers (1.0 = no trait).
 var _trait_id:      String = ""
@@ -77,6 +83,10 @@ var _trait_react:   float  = 1.0
 
 
 func _ready() -> void:
+	# Area2D.input_event only fires while the viewport is doing physics picking,
+	# which is OFF by default — without this, tapping/clicking the pet silently
+	# does nothing (the InteractionArea never sees the touch).
+	get_viewport().physics_object_picking = true
 	interaction_area.input_event.connect(_on_interaction_input)
 
 	EventBus.pet_fed.connect(_on_fed)
@@ -97,6 +107,11 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_animate(delta)  # Procedural "alive" motion — runs even while sleeping.
+
+	if _content_t > 0.0:
+		_content_t -= delta
+		if _content_t <= 0.0 and _mood == Mood.CONTENT:
+			_update_mood_from_stats()
 
 	if _is_sleeping:
 		_sleep_timer -= delta
@@ -168,7 +183,7 @@ func _on_fed() -> void:
 	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HUNGER, "eat", 30)
 	_add_bond(_bond_amount(GameConfig.BOND_XP_FEED, "feed"))
 	Personality.record("feed", before)
-	_update_mood_from_stats()  # caring for the pet cheers it up if it's healthy
+	_cheer_up()
 	_reset_cooldown()
 
 
@@ -188,7 +203,7 @@ func _on_played() -> void:
 	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HAPPINESS, "play", 40)
 	_add_bond(_bond_amount(GameConfig.BOND_XP_PLAY, "play"))
 	Personality.record("play", before)
-	_update_mood_from_stats()
+	_cheer_up()
 	_reset_cooldown()
 
 
@@ -227,7 +242,7 @@ func _on_petted() -> void:
 	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_AFFECTION, "love", 25)
 	_add_bond(_bond_amount(GameConfig.BOND_XP_PET, "pet"))
 	Personality.record("pet", before)
-	_update_mood_from_stats()
+	_cheer_up()
 	_reset_cooldown()
 
 
@@ -286,28 +301,17 @@ func _haptic(ms: int) -> void:
 		Input.vibrate_handheld(ms)
 
 
-## Periodically voices the pet's neediest stat as a floating "thought" bubble.
+## Periodically voices the pet's neediest stat as a "thought" bubble (shown by the HUD).
 ## Stays quiet while the pet is content (lowest stat still above LOW_THRESHOLD).
 func _maybe_think() -> void:
 	_thought_timer = randf_range(GameConfig.THOUGHT_INTERVAL_MIN, GameConfig.THOUGHT_INTERVAL_MAX)
 	var stat := stats.get_lowest_stat()
 	if float(stats.to_dict().get(stat, GameConfig.STAT_MAX)) < GameConfig.LOW_THRESHOLD:
 		# A need is pressing — voice it.
-		EventBus.floating_text_requested.emit(
-				tr("THOUGHT_" + stat.to_upper()), _stat_color(stat), global_position)
+		EventBus.pet_thought.emit(tr("THOUGHT_" + stat.to_upper()), stat)
 	elif _trait_id != "" and randf() < 0.5:
 		# Content and has a personality — occasionally show a flavor thought.
-		EventBus.floating_text_requested.emit(
-				tr("TRAIT_" + _trait_id.to_upper() + "_IDLE"), _trait_color(_trait_id), global_position)
-
-
-func _stat_color(stat: String) -> Color:
-	match stat:
-		"hunger":    return GameConfig.COLOR_HUNGER
-		"happiness": return GameConfig.COLOR_HAPPINESS
-		"energy":    return GameConfig.COLOR_ENERGY
-		"affection": return GameConfig.COLOR_AFFECTION
-	return GameConfig.COLOR_NEUTRAL
+		EventBus.pet_thought.emit(tr("TRAIT_" + _trait_id.to_upper() + "_IDLE"), _trait_id)
 
 
 # ─── Personality ──────────────────────────────────────────────────────────────
@@ -327,18 +331,10 @@ func _on_personality_updated(profile: Dictionary) -> void:
 		sprite.set_personality(profile)
 
 
-## Celebrates the first time a trait is discovered (text + burst + haptic).
-func _on_trait_revealed(tid: String) -> void:
-	_feedback(tr("TRAIT_REVEAL_" + tid), GameConfig.COLOR_AFFECTION, "love", 60)
-
-
-func _trait_color(tid: String) -> Color:
-	match tid:
-		"glotona":   return GameConfig.COLOR_HUNGER
-		"juguetona": return GameConfig.COLOR_HAPPINESS
-		"dormilona": return GameConfig.COLOR_ENERGY
-		"mimosa":    return GameConfig.COLOR_AFFECTION
-	return GameConfig.COLOR_NEUTRAL
+## Celebrates the first time a trait is discovered (the HUD shows the toast).
+func _on_trait_revealed(_tid: String) -> void:
+	EventBus.burst_requested.emit("love", global_position)
+	_haptic(60)
 
 
 ## Adds bond XP; celebrates and notifies the HUD when a new level is reached.
@@ -361,8 +357,6 @@ func _bond_ratio() -> float:
 
 
 func _celebrate_level_up() -> void:
-	EventBus.floating_text_requested.emit(
-			tr("BOND_LEVEL_UP") % bond_level, GameConfig.COLOR_AFFECTION, global_position)
 	EventBus.burst_requested.emit("love", global_position)
 	_haptic(60)
 
@@ -381,7 +375,8 @@ func _update_anim_from_stats() -> void:
 # ─── Procedural animation ─────────────────────────────────────────────────────
 # Brings the (otherwise static) sprite to life without any new art:
 #   • a volume-preserving squash-and-stretch "breathing" loop
-#   • a soft vertical bob
+#   • a soft bob that lifts off the floor (never sinks into it), with the floor
+#     shadow staying put and shrinking/fading a touch as the body rises
 #   • a one-shot "pop" reaction on interactions
 # Everything is composed each frame from the rest pose captured in _ready, so it
 # layers cleanly on top of whatever SpriteFrames animation is (or isn't) playing.
@@ -389,6 +384,7 @@ func _update_anim_from_stats() -> void:
 func _capture_rest_pose() -> void:
 	_base_scale = sprite.scale
 	_base_pos = sprite.position
+	_shadow_scale = shadow.scale
 
 
 func _animate(delta: float) -> void:
@@ -406,9 +402,13 @@ func _animate(delta: float) -> void:
 
 	sprite.scale = _base_scale * breathe_scale * pop
 
-	var bob := cos(_anim_time) * _bob_amp()
-	var droop := 2.0 if _mood == Mood.SAD else 0.0
-	sprite.position = _base_pos + Vector2(0.0, bob + droop)
+	var bob := (cos(_anim_time) - 1.0) * _bob_amp()
+	sprite.position = _base_pos + Vector2(0.0, bob)
+
+	var lift := clampf(-bob / (2.0 * BOB_AMP_IDLE), 0.0, 1.0)
+	var spread := 1.0 - lift * 0.08
+	shadow.scale = _shadow_scale * Vector2(breathe_scale.x * pop.x * spread, spread)
+	shadow.modulate.a = 1.0 - lift * 0.3
 
 
 func _trigger_reaction() -> void:
@@ -423,6 +423,15 @@ func _set_mood(mood: Mood) -> void:
 
 func _update_mood_from_stats() -> void:
 	_set_mood(Mood.IDLE if stats.is_healthy() else Mood.SAD)
+
+
+## After a successful care action a healthy pet shows its content face for a bit.
+func _cheer_up() -> void:
+	if stats.is_healthy():
+		_content_t = CONTENT_DURATION
+		_set_mood(Mood.CONTENT)
+	else:
+		_update_mood_from_stats()
 
 
 func _breathe_speed() -> float:

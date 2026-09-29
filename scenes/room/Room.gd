@@ -14,7 +14,7 @@ extends Node2D
 const PET_SCENE: PackedScene = preload("res://scenes/pet/Pet.tscn")
 const HUD_SCENE: PackedScene = preload("res://scenes/hud/HUD.tscn")
 const EFFECTS_LAYER: GDScript = preload("res://scenes/effects/EffectsLayer.gd")
-const COZY_ROOM:     GDScript = preload("res://scenes/effects/CozyRoom.gd")
+const FELT_ROOM:     PackedScene = preload("res://scenes/room/FeltRoom.tscn")
 
 @onready var pet_spawn_point:   Marker2D = $PetSpawnPoint
 @onready var decoration_layer:  Node2D   = $DecorationLayer
@@ -51,7 +51,7 @@ func _process(delta: float) -> void:
 func _load_or_create_pet() -> void:
 	_pet = PET_SCENE.instantiate()
 	add_child(_pet)
-	_pet.global_position = pet_spawn_point.global_position
+	_pet.global_position = pet_spawn_point.global_position + Vector2(0.0, _floor_offset())
 
 	if SaveSystem.has_save():
 		var data := SaveSystem.load_game()
@@ -80,10 +80,17 @@ func _spawn_effects_layer() -> void:
 	add_child(EFFECTS_LAYER.new())
 
 
-## Adds the cozy room backdrop (gradient wall, window, floor, rug, plant)
-## behind everything, with a time-of-day tint.
+## On screens taller than the 844 px design (stretch "expand") the floor and
+## cushion hug the bottom edge, so the pet shifts down by the same amount.
+func _floor_offset() -> float:
+	var design_h := float(ProjectSettings.get_setting("display/window/size/viewport_height"))
+	return get_viewport_rect().size.y - design_h
+
+
+## Adds the felt room backdrop (wall, floor seam, hoop, cushion) behind
+## everything, with a time-of-day tint over the room and the pet.
 func _spawn_room() -> void:
-	add_child(COZY_ROOM.new())
+	add_child(FELT_ROOM.instantiate())
 
 
 func _save() -> void:

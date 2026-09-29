@@ -128,3 +128,8 @@ signal floating_text_requested(text: String, color: Color, world_pos: Vector2)
 ## @param kind       "love" | "play" | "eat" | "sleep" (see EffectsLayer.BURSTS)
 ## @param world_pos  global position to emit from
 signal burst_requested(kind: String, world_pos: Vector2)
+
+## The pet voices a need or a trait flavor line; the HUD shows it in a bubble.
+## @param text  already-translated line (e.g. "¿Comidita?")
+## @param kind  stat name ("hunger", …) or trait id ("glotona", …)
+signal pet_thought(text: String, kind: String)

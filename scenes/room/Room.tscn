@@ -11,4 +11,4 @@ position = Vector2(195, 422)
 [node name="DecorationLayer" type="Node2D" parent="." unique_id=515282388]
 
 [node name="PetSpawnPoint" type="Marker2D" parent="." unique_id=482913848]
-position = Vector2(195, 500)
+position = Vector2(196, 656)

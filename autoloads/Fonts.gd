@@ -1,46 +1,24 @@
 ## Fonts.gd
-## Autoload — loads the redesign's typefaces and exposes them, and sets Quicksand
-## as the global fallback so every Control picks it up without per-node wiring.
-##   • display  → Fredoka  (titles, pet name, numbers)
-##   • body     → Quicksand (labels, body, buttons)
+## Autoload — exposes the Mali weights for text built in code (floating texts,
+## etc.). Controls get Mali from the felt Theme (theme/felt_theme.tres) instead.
 ##
-## Loaded via load_dynamic_font so the .ttf works straight from disk without the
-## editor import step (matters for headless / first-run).
+## The fonts are native FontFile resources (.res) generated from the OFL Mali
+## TTFs, so they load without the editor import step (headless / first run).
 extends Node
 
-var display: Font       # Fredoka 600 — titles, pet name, numbers
-var display_xl: Font    # Fredoka 700 — hero wordmark / screen titles
-var body: Font          # Quicksand 500 — body, captions (global fallback)
-var body_strong: Font   # Quicksand 600 — labels, buttons (design weight)
+var medium: Font     # Mali Medium — soft body copy
+var semibold: Font   # Mali SemiBold — labels, body (Theme default)
+var bold: Font       # Mali Bold — titles, numbers, buttons
 
 
 func _ready() -> void:
-	var fredoka := _load("res://assets/fonts/Fredoka.ttf")
-	var quicksand := _load("res://assets/fonts/Quicksand.ttf")
-
-	display = _weight(fredoka, 600)
-	display_xl = _weight(fredoka, 700)
-	body = _weight(quicksand, 500)
-	body_strong = _weight(quicksand, 600)
-
-	if body != null:
-		ThemeDB.fallback_font = body
-		ThemeDB.fallback_font_size = 15
+	medium = _load("res://assets/fonts/Mali-Medium.res")
+	semibold = _load("res://assets/fonts/Mali-SemiBold.res")
+	bold = _load("res://assets/fonts/Mali-Bold.res")
 
 
-func _load(path: String) -> FontFile:
-	var f := FontFile.new()
-	if f.load_dynamic_font(path) != OK:
+func _load(path: String) -> Font:
+	var f := load(path) as Font
+	if f == null:
 		push_warning("Fonts: could not load %s" % path)
-		return null
 	return f
-
-
-## Wraps a variable font at a given weight (600 = semibold, etc.).
-func _weight(base: FontFile, w: int) -> Font:
-	if base == null:
-		return null
-	var fv := FontVariation.new()
-	fv.base_font = base
-	fv.variation_opentype = {"wght": float(w)}
-	return fv

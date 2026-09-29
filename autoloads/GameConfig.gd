@@ -94,11 +94,11 @@ const FEATURE_SHOP:        bool = false  # TODO v2
 # Shared hues for floating text + particle effects, so each stat reads
 # consistently across the UI. Tweak here to recolor all juice at once.
 
-const COLOR_HUNGER:    Color = Color(1.0, 0.7, 0.35)   # warm orange
-const COLOR_HAPPINESS: Color = Color(1.0, 0.85, 0.3)   # sunny yellow
-const COLOR_ENERGY:    Color = Color(0.6, 0.8, 1.0)    # soft blue
-const COLOR_AFFECTION: Color = Color(1.0, 0.45, 0.6)   # pink
-const COLOR_NEUTRAL:   Color = Color(0.9, 0.9, 0.95)   # near-white
+const COLOR_HUNGER:    Color = Color("c0653e")   # terracotta
+const COLOR_HAPPINESS: Color = Color("b8871f")   # mustard
+const COLOR_ENERGY:    Color = Color("587c99")   # denim
+const COLOR_AFFECTION: Color = Color("b85e72")   # rose
+const COLOR_NEUTRAL:   Color = Color("7e6652")   # muted brown
 
 # ─── Localization ─────────────────────────────────────────────────────────────
 

@@ -1,10 +1,182 @@
-[gd_scene load_steps=2 format=3 uid="uid://pets0ui0onboard1"]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://scenes/ui/Onboarding.gd" id="1_onboard"]
+[ext_resource type="Script" path="res://scenes/pet/FloorShadow.gd" id="floor_shadow"]
+[ext_resource type="Script" path="res://scenes/ui/Onboarding.gd" id="root_script"]
+[ext_resource type="Script" path="res://theme/felt/FeltSeam.gd" id="1_cp7he"]
+[ext_resource type="Script" path="res://theme/felt/FeltGarland.gd" id="2_qoblp"]
+[ext_resource type="Script" path="res://theme/felt/FeltCushion.gd" id="3_t5gjx"]
+[ext_resource type="Script" path="res://scenes/pet/MochiRig.gd" id="4_xofut"]
+[ext_resource type="Script" path="res://scenes/effects/TimeTint.gd" id="5_rpg7w"]
+[ext_resource type="Script" path="res://theme/felt/FeltCharm.gd" id="6_w4hm5"]
 
-[node name="Onboarding" type="Control"]
+[node name="Onboarding" type="Control" unique_id=520574980]
 layout_mode = 3
-anchors_preset = 15
+anchors_preset = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource("1_onboard")
+script = ExtResource("root_script")
+
+[node name="Wall" type="ColorRect" parent="." unique_id=1675830911]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.9019608, 0.8392157, 0.74509805, 1)
+
+[node name="Floor" type="ColorRect" parent="." unique_id=878654921]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 470.0
+mouse_filter = 2
+color = Color(0.8627451, 0.78039217, 0.65882355, 1)
+
+[node name="FloorSeam" type="Control" parent="." unique_id=1394103773]
+anchors_preset = 0
+anchor_right = 1.0
+offset_top = 476.0
+offset_bottom = 480.0
+mouse_filter = 2
+script = ExtResource("1_cp7he")
+
+[node name="Garland" type="Control" parent="." unique_id=322772635]
+anchors_preset = 0
+anchor_right = 1.0
+offset_bottom = 80.0
+mouse_filter = 2
+script = ExtResource("2_qoblp")
+colors = PackedColorArray(0.8235294, 0.45490196, 0.28627452, 1, 0.8666667, 0.65882355, 0.2627451, 1, 0.43529412, 0.5764706, 0.6901961, 1, 0.8117647, 0.50980395, 0.5647059, 1, 0.56078434, 0.6509804, 0.49803922, 1)
+
+[node name="Cushion" type="Control" parent="." unique_id=1209741633]
+anchors_preset = 0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 478.0
+offset_right = 140.0
+offset_bottom = 534.0
+mouse_filter = 2
+script = ExtResource("3_t5gjx")
+
+[node name="Shadow" type="Node2D" parent="."]
+position = Vector2(195, 505)
+scale = Vector2(0.966667, 0.966667)
+script = ExtResource("floor_shadow")
+
+[node name="Mochi" type="Node2D" parent="." unique_id=1899372523]
+unique_name_in_owner = true
+position = Vector2(195, 505)
+scale = Vector2(0.96666664, 0.96666664)
+script = ExtResource("4_xofut")
+
+[node name="TimeTint" type="ColorRect" parent="." unique_id=759645314]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("5_rpg7w")
+
+[node name="Wordmark" type="VBoxContainer" parent="." unique_id=560795613]
+layout_mode = 0
+anchor_right = 1.0
+offset_top = 98.0
+offset_bottom = 98.0
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Title" type="Label" parent="Wordmark" unique_id=1599274030]
+auto_translate_mode = 2
+layout_mode = 2
+theme_type_variation = &"WordmarkLabel"
+text = "PetBond"
+horizontal_alignment = 1
+
+[node name="Underline" type="Control" parent="Wordmark" unique_id=1021420420]
+custom_minimum_size = Vector2(132, 4)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+script = ExtResource("1_cp7he")
+color = Color(0.8117647, 0.5411765, 0.3882353, 1)
+
+[node name="Tagline" type="Label" parent="Wordmark" unique_id=642380768]
+layout_mode = 2
+theme_type_variation = &"TaglineLabel"
+text = "ONBOARDING_TAGLINE"
+horizontal_alignment = 1
+
+[node name="CharmStar" type="Control" parent="." unique_id=244935940]
+anchors_preset = 0
+offset_left = 38.0
+offset_top = 300.0
+offset_right = 58.0
+offset_bottom = 320.0
+mouse_filter = 2
+script = ExtResource("6_w4hm5")
+
+[node name="CharmHeart" type="Control" parent="." unique_id=1903004128]
+anchors_preset = 0
+offset_left = 316.0
+offset_top = 262.0
+offset_right = 334.0
+offset_bottom = 280.0
+mouse_filter = 2
+script = ExtResource("6_w4hm5")
+shape = "heart"
+fill_color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+edge_color = Color(0.65882355, 0.36078432, 0.42352942, 1)
+bob_period = 3.8
+bob_delay = 0.6
+
+[node name="CharmStarSmall" type="Control" parent="." unique_id=1802878108]
+anchors_preset = 0
+offset_left = 330.0
+offset_top = 372.0
+offset_right = 344.0
+offset_bottom = 386.0
+mouse_filter = 2
+script = ExtResource("6_w4hm5")
+fill_color = Color(0.43529412, 0.5764706, 0.6901961, 1)
+edge_color = Color(0.34509805, 0.4862745, 0.6, 1)
+bob_period = 3.0
+bob_delay = 1.2
+
+[node name="Card" type="PanelContainer" parent="." unique_id=853615972]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = -24.0
+offset_right = -14.0
+offset_bottom = -24.0
+grow_vertical = 0
+theme_type_variation = &"CardPanel"
+
+[node name="Box" type="VBoxContainer" parent="Card" unique_id=2057736647]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Card/Box" unique_id=422318670]
+layout_mode = 2
+theme_type_variation = &"HeadingLabel"
+text = "ONBOARDING_TITLE"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="NameInput" type="LineEdit" parent="Card/Box" unique_id=401723555]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+placeholder_text = "ONBOARDING_PLACEHOLDER"
+alignment = 1
+max_length = 16
+
+[node name="GoButton" type="Button" parent="Card/Box" unique_id=894779524]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+focus_mode = 0
+text = "ONBOARDING_CONFIRM"
