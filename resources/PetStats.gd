@@ -83,13 +83,28 @@ func apply_decay(delta: float) -> void:
 
 
 ## Applies decay for time elapsed while the app was closed.
-## Called once on load, before the pet is shown to the player.
+## Called once on load, before the pet is shown to the player. Stats settle at
+## offline_floor() instead of emptying; a stat already below it is never raised.
 func apply_offline_decay(elapsed_seconds: float) -> void:
-	var m := _decay_multiplier()
-	self.hunger    = _hunger    - GameConfig.HUNGER_DECAY_RATE    * m * elapsed_seconds * Personality.decay_factor("hunger")
-	self.happiness = _happiness - GameConfig.HAPPINESS_DECAY_RATE * m * elapsed_seconds * Personality.decay_factor("happiness")
-	self.energy    = _energy    - GameConfig.ENERGY_DECAY_RATE    * m * elapsed_seconds * Personality.decay_factor("energy")
-	self.affection = _affection - GameConfig.AFFECTION_DECAY_RATE * m * elapsed_seconds * Personality.decay_factor("affection")
+	var m := _decay_multiplier() * elapsed_seconds
+	var calm := offline_floor(elapsed_seconds)
+	self.hunger    = _settle(_hunger,    GameConfig.HUNGER_DECAY_RATE    * m * Personality.decay_factor("hunger"), calm)
+	self.happiness = _settle(_happiness, GameConfig.HAPPINESS_DECAY_RATE * m * Personality.decay_factor("happiness"), calm)
+	self.energy    = _settle(_energy,    GameConfig.ENERGY_DECAY_RATE    * m * Personality.decay_factor("energy"), calm)
+	self.affection = _settle(_affection, GameConfig.AFFECTION_DECAY_RATE * m * Personality.decay_factor("affection"), calm)
+
+
+## The lowest a stat can fall while you're away: OFFLINE_FLOOR ("calm") for the
+## first NEGLECT_AFTER seconds, then easing down to NEGLECT_FLOOR over NEGLECT_SPAN.
+static func offline_floor(elapsed_seconds: float) -> float:
+	var over := elapsed_seconds - GameConfig.NEGLECT_AFTER
+	if over <= 0.0:
+		return GameConfig.OFFLINE_FLOOR
+	return lerpf(GameConfig.OFFLINE_FLOOR, GameConfig.NEGLECT_FLOOR, minf(over / GameConfig.NEGLECT_SPAN, 1.0))
+
+
+static func _settle(value: float, loss: float, calm: float) -> float:
+	return maxf(value - loss, minf(value, calm))
 
 
 ## Returns a plain Dictionary for JSON serialization.

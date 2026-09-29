@@ -15,6 +15,10 @@ const PET_SCENE: PackedScene = preload("res://scenes/pet/Pet.tscn")
 const HUD_SCENE: PackedScene = preload("res://scenes/hud/HUD.tscn")
 const EFFECTS_LAYER: GDScript = preload("res://scenes/effects/EffectsLayer.gd")
 const FELT_ROOM:     PackedScene = preload("res://scenes/room/FeltRoom.tscn")
+const FEATHER_WAND:  GDScript = preload("res://scenes/play/FeatherWand.gd")
+
+## Where the wand's feather rests, from Mochi's feet: beside her face, clear of the hoop.
+const WAND_REST := Vector2(125.0, -175.0)
 
 @onready var pet_spawn_point:   Marker2D = $PetSpawnPoint
 @onready var decoration_layer:  Node2D   = $DecorationLayer
@@ -27,6 +31,7 @@ var _auto_save_timer:  float = 0.0
 func _ready() -> void:
 	_spawn_room()
 	_load_or_create_pet()
+	_spawn_wand()
 	_spawn_hud()
 	_spawn_effects_layer()
 	# Sync HUD with actual stat values — must happen after both pet and HUD
@@ -73,6 +78,14 @@ func _load_or_create_pet() -> void:
 func _spawn_hud() -> void:
 	_hud = HUD_SCENE.instantiate()
 	add_child(_hud)  # CanvasLayer renders on top automatically.
+
+
+## The feather wand toy, hidden until "Jugar".
+func _spawn_wand() -> void:
+	var wand = FEATHER_WAND.new()
+	add_child(wand)
+	wand.rest_point = _pet.global_position + WAND_REST
+	wand.focus_x = _pet.global_position.x
 
 
 ## Spawns the EffectsLayer that turns EventBus juice requests into visuals.

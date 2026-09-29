@@ -34,6 +34,13 @@ const GRUMPY_TIME := 1.5
 
 @export var rig: Node2D
 
+## Off while the finger holds the feather wand; a stroke in progress ends.
+var enabled := true:
+	set(v):
+		enabled = v
+		if not v and _down:
+			finish()
+
 var _down := false
 var _pointer := Vector2.ZERO
 var _start := Vector2.ZERO
@@ -150,7 +157,7 @@ func _annoy(reason: String, c: Vector2) -> void:
 # ─── Input plumbing ───────────────────────────────────────────────────────────
 
 func _unhandled_input(event: InputEvent) -> void:
-	if rig == null:
+	if rig == null or not enabled:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_pointer = event.position

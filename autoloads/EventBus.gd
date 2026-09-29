@@ -32,13 +32,26 @@ signal stat_recovered(stat_name: String, value: float)
 ## Player fed the pet.
 signal pet_fed
 
-## Player initiated a play session.
+## Emitted by Pet each time Mochi catches the feather wand (a play moment).
 signal pet_played
 
-## Player put the pet to sleep.
+## HUD's "Jugar" button: take the feather wand out, or put it away.
+signal play_requested
+
+## The feather wand appeared (true) or was put away (false).
+signal play_mode_changed(active: bool)
+
+## Where the wand's feather is (viewport coordinates) while the wand is out, and
+## whether a finger is holding it.
+signal wand_moved(screen_pos: Vector2, held: bool)
+
+## Mochi caught the feather; the wand gives a little tug.
+signal wand_caught
+
+## Emitted by Pet when Mochi dozes off on her own (she's tired, or it's night).
 signal pet_slept
 
-## Player woke the pet up.
+## Emitted by Pet when Mochi wakes up, rested or woken by the player.
 signal pet_woken
 
 ## Emitted by Pet each time a caress earns an award (a few seconds of good strokes).

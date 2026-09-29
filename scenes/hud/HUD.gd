@@ -22,11 +22,9 @@ const StyleBoxKnit := preload("res://theme/felt/StyleBoxKnit.gd")
 ## stat → node-name prefix in HUD.tscn.
 const STATS := {"hunger": "Hunger", "happiness": "Happiness", "energy": "Energy", "affection": "Affection"}
 ## stat → the action button that fixes it (gets an alert ring while critical).
-## Affection has none: it comes from stroking Mochi.
-const FIXES := {"hunger": "FeedButton", "happiness": "PlayButton", "energy": "SleepButton"}
+## Affection and energy have none: she's stroked, and she sleeps on her own.
+const FIXES := {"hunger": "FeedButton", "happiness": "PlayButton"}
 const THOUGHT_HOLD := 3.5
-const ICON_MOON := "res://assets/icons/moon.svg"
-const ICON_SUN := "res://assets/icons/sun.svg"
 const PEEK_HOLD := 2.5      # seconds a rising stat's row stays after its last rise
 const EXPAND_HOLD := 8.0    # the open card folds back on its own after this
 const STATS_GAP := 6.0
@@ -58,8 +56,9 @@ func _ready() -> void:
 
 	# Buttons emit straight to the EventBus — no Pet reference needed.
 	%FeedButton.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_fed))
-	%PlayButton.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_played))
-	%SleepButton.pressed.connect(_on_sleep_button_pressed)
+	# Jugar takes the feather wand out and puts it away; no cooldown for that.
+	%PlayButton.pressed.connect(func() -> void: EventBus.play_requested.emit())
+	EventBus.play_mode_changed.connect(_on_play_mode_changed)
 	%SettingsButton.pressed.connect(_on_settings_pressed)
 
 	_crit_fill = StyleBoxKnit.new()
@@ -101,21 +100,15 @@ func _on_action_button_pressed(signal_to_emit: Signal) -> void:
 	_start_cooldown()
 
 
-func _on_sleep_button_pressed() -> void:
-	if _is_sleeping:
-		EventBus.pet_woken.emit()
-	else:
-		EventBus.pet_slept.emit()
-		_start_cooldown()
+func _on_play_mode_changed(active: bool) -> void:
+	%PlayLabel.text = "ACTION_PUT_AWAY" if active else "ACTION_PLAY"
 
 
+## While Mochi sleeps you can't feed her or play; you can stroke her gently or
+## wake her with a tap (she'll be grumpy).
 func _on_sleeping_changed(is_sleeping: bool) -> void:
 	_is_sleeping = is_sleeping
-	%SleepLabel.text = "ACTION_WAKE" if is_sleeping else "ACTION_SLEEP"
-	%SleepButton.icon_path = ICON_SUN if is_sleeping else ICON_MOON
-	# While sleeping, only the sleep button (now "wake") stays usable.
-	%FeedButton.disabled = is_sleeping
-	%PlayButton.disabled = is_sleeping
+	_set_buttons_disabled(_cooldown_timer > 0.0)
 	if is_sleeping:
 		_hide_thought()
 
@@ -126,11 +119,8 @@ func _start_cooldown() -> void:
 
 
 func _set_buttons_disabled(disabled: bool) -> void:
-	# The sleep button is managed by _on_sleeping_changed while asleep.
 	%FeedButton.disabled = disabled or _is_sleeping
 	%PlayButton.disabled = disabled or _is_sleeping
-	if not _is_sleeping:
-		%SleepButton.disabled = disabled
 
 
 func _on_settings_pressed() -> void:

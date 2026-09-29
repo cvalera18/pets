@@ -8,6 +8,7 @@ extends Node
 
 const PetStatsScript := preload("res://resources/PetStats.gd")
 const PetTouchScript := preload("res://scenes/pet/PetTouch.gd")
+const PetPlayScript := preload("res://scenes/pet/PetPlay.gd")
 
 var _passed: int = 0
 var _failed: int = 0
@@ -20,6 +21,7 @@ func _ready() -> void:
 	_test_achievements_persistence()
 	_test_personality()
 	_test_pet_touch()
+	_test_pet_play()
 	print("=== RESULT: %d passed, %d failed ===" % [_passed, _failed])
 	if _failed > 0:
 		push_error("Test suite has %d failing assertion(s)." % _failed)
@@ -60,10 +62,25 @@ func _test_petstats() -> void:
 	_check("apply_decay reduces hunger by its rate", _approx(decayer.hunger, expected))
 	GameState.decay_test_mode = false
 
-	var offliner: PetStats = PetStatsScript.new()
-	offliner.apply_offline_decay(100000.0)
-	_check("offline decay floors at STAT_MIN",
-			_approx(offliner.hunger, GameConfig.STAT_MIN) and _approx(offliner.energy, GameConfig.STAT_MIN))
+	var brief: PetStats = PetStatsScript.new()
+	brief.apply_offline_decay(600.0)
+	var brief_expected := GameConfig.STAT_MAX - GameConfig.HUNGER_DECAY_RATE * GameConfig.DECAY_MULTIPLIER_NORMAL * 600.0
+	_check("short absence decays normally", _approx(brief.hunger, brief_expected))
+
+	var overnight: PetStats = PetStatsScript.new()
+	overnight.apply_offline_decay(100000.0)
+	_check("a day away settles at the calm floor, not zero",
+			_approx(overnight.hunger, GameConfig.OFFLINE_FLOOR) and _approx(overnight.energy, GameConfig.OFFLINE_FLOOR))
+	_check("the calm floor keeps her healthy on return", overnight.is_healthy())
+
+	var neglected: PetStats = PetStatsScript.new()
+	neglected.apply_offline_decay(GameConfig.NEGLECT_AFTER + GameConfig.NEGLECT_SPAN * 2.0)
+	_check("days of neglect sink to the neglect floor", _approx(neglected.affection, GameConfig.NEGLECT_FLOOR))
+
+	var low: PetStats = PetStatsScript.new()
+	low.hunger = 30.0
+	low.apply_offline_decay(3600.0)
+	_check("absence never raises a stat that was already low", _approx(low.hunger, 30.0))
 
 	var src: PetStats = PetStatsScript.new()
 	src.hunger = 42.0
@@ -208,3 +225,56 @@ func _test_pet_touch() -> void:
 	t.finish()
 	_check("quick touch is a tap", got["tap"] == "head")
 	t.free()
+
+
+# ─── Play (PetPlay) ───────────────────────────────────────────────────────────
+
+func _test_pet_play() -> void:
+	var dt := 1.0 / 60.0
+	var near := Vector2(200, 60)   # beside her face, within reach
+	var got := {"caught": 0, "missed": 0, "pounced": 0}
+	var p: Node = PetPlayScript.new()
+	p.caught.connect(func(_a: Vector2) -> void: got["caught"] += 1)
+	p.missed.connect(func(_a: Vector2) -> void: got["missed"] += 1)
+	p.pounced.connect(func() -> void: got["pounced"] += 1)
+
+	p.set_active(true)
+	p.set_feather(near)
+	for i in 120:
+		p.update(dt)
+	_check("feather held still in reach gets caught", got["caught"] >= 1 and got["missed"] == 0)
+
+	got["pounced"] = 0
+	p.set_active(true)
+	p.set_feather(Vector2(330, -60))
+	for i in 180:
+		p.update(dt)
+	_check("feather out of reach: no pounce", got["pounced"] == 0)
+
+	p.set_active(true)
+	p.set_feather(near, false)
+	for i in 180:
+		p.update(dt)
+	_check("a dangling feather nobody holds is only watched", got["pounced"] == 0)
+
+	p.set_active(true)
+	p.can_hunt = false
+	p.set_feather(near)
+	for i in 180:
+		p.update(dt)
+	_check("too tired to hunt: no pounce", got["pounced"] == 0)
+
+	got["caught"] = 0
+	p.can_hunt = true
+	p.set_active(true)
+	p.set_feather(near)
+	var frames := 0
+	while got["pounced"] == 0 and frames < 200:
+		p.update(dt)
+		frames += 1
+	_check("mid-leap she's busy (won't doze off)", p.is_busy())
+	p.set_feather(near + Vector2(0, -120))   # whisked away mid-leap
+	for i in 40:
+		p.update(dt)
+	_check("feather whisked away mid-leap is a miss", got["missed"] == 1 and got["caught"] == 0)
+	p.free()

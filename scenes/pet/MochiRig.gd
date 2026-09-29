@@ -6,7 +6,8 @@
 ## Mochi's feet, which keeps Pet.gd's breathe/pop scaling grounded.
 ##
 ## Pet.gd drives the whole-body motion and calls set_mood() / set_personality(),
-## set_torso_lift(), look_at_canvas() / release_look() and flinch().
+## set_torso_lift(), look_at_canvas() / release_look(), flinch(), set_leap() and
+## set_excited().
 ## The contact shadow is a separate FloorShadow node so it can stay on the floor.
 ## Runs as a tool so the rig also shows in the editor (without idle motion).
 @tool
@@ -49,6 +50,8 @@ var _nodes := {}
 var _idle: Array[Tween] = []
 var _flinches: Array[Tween] = []
 var _ear_tilt := 0.0
+var _tail_tween: Tween
+var _excite := 1.0
 
 var _torso_base := {}
 
@@ -80,6 +83,23 @@ func set_mood(mood: int) -> void:
 	_nodes["EarR"].rotation_degrees = _ear_tilt
 	if not Engine.is_editor_hint():
 		_start_idle()
+
+
+## Leap pose, 0..1: front legs reach forward and back legs push back.
+func set_leap(amount: float) -> void:
+	if _nodes.is_empty():
+		return
+	for key in ["LegFF", "LegFN"]:
+		_nodes[key].rotation_degrees = 35.0 * amount
+	for key in ["LegBF", "LegBN"]:
+		_nodes[key].rotation_degrees = -30.0 * amount
+
+
+## Excitement speeds up the tail (1 = calm); she lashes it while hunting.
+func set_excited(k: float) -> void:
+	_excite = k
+	if _tail_tween:
+		_tail_tween.set_speed_scale(k)
 
 
 ## Breathing lift: body, head and tail rise `px` while the legs stay planted.
@@ -245,9 +265,12 @@ func _start_idle() -> void:
 		_nodes[key].rotation = 0.0
 		_nodes[key].scale = Vector2.ONE
 
+	_tail_tween = null
 	if _mood != 1:
 		_nodes["Tail"].rotation_degrees = -6.0
 		_loop([["Tail", "rotation_degrees", 7.0, 1.3], ["Tail", "rotation_degrees", -6.0, 1.3]])
+		_tail_tween = _idle.back()
+		_tail_tween.set_speed_scale(_excite)
 		_loop([["Head", "rotation_degrees", -3.5, 1.56], ["Head", "rotation_degrees", 2.0, 1.66],
 				["Head", "rotation_degrees", 0.0, 1.98]])
 	if _mood == 0 or _mood == 2:

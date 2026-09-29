@@ -29,11 +29,8 @@ msgstr "Feed"
 msgid "ACTION_PLAY"
 msgstr "Play"
 
-msgid "ACTION_SLEEP"
-msgstr "Sleep"
-
-msgid "ACTION_WAKE"
-msgstr "Wake up"
+msgid "ACTION_PUT_AWAY"
+msgstr "Put away"
 
 # ── Notifications ─────────────────────────────────────────────────────────────
 
@@ -165,6 +162,12 @@ msgstr "Gotcha!"
 
 msgid "TOUCH_TAIL"
 msgstr "Not the tail!"
+
+msgid "PET_WOKEN_GRUMPY"
+msgstr "I was sleeping!"
+
+msgid "PLAY_MISS"
+msgstr "So close!"
 
 # ── Bond ──────────────────────────────────────────────────────────────────────
 
