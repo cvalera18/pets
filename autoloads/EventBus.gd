@@ -29,8 +29,23 @@ signal stat_recovered(stat_name: String, value: float)
 
 # ─── Pet Interaction Events ───────────────────────────────────────────────────
 
-## Player fed the pet.
+## Emitted by Pet when Mochi finishes a meal from her bowl.
 signal pet_fed
+
+## The food tray dropped a food at a screen point; the bowl takes it if it landed on it.
+signal food_dropped(food: String, screen_pos: Vector2)
+
+## The bowl accepted a food (the tray closes).
+signal food_served(food: String)
+
+## What's in the bowl now: a food id ("" when empty) and how much is left, 0..1.
+signal bowl_changed(food: String, amount: float)
+
+## Mochi took a mouthful from the bowl.
+signal bowl_bite
+
+## First time the player learns what Mochi thinks of a food ("love"|"like"|"dislike").
+signal taste_discovered(food: String, taste: String)
 
 ## Emitted by Pet each time Mochi catches the feather wand (a play moment).
 signal pet_played

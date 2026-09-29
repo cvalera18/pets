@@ -19,7 +19,8 @@
 ##      "energy":    60.0,
 ##      "affection": 90.0,
 ##      "name":      "Mochi",
-##      "bond_xp":   0
+##      "bond_xp":   0,
+##      "tastes":    {"taste": {"tuna": "love", "carrot": "dislike", …}, "known": ["tuna"]}
 ##    },
 ##    "settings": {
 ##      "locale":                "es",
@@ -41,7 +42,7 @@
 ##  }
 extends Node
 
-const SAVE_SCHEMA_VERSION: int = 4
+const SAVE_SCHEMA_VERSION: int = 5
 
 var _provider: BaseSaveProvider
 
@@ -58,22 +59,25 @@ func _ready() -> void:
 
 ## Builds the full save dictionary from current state and persists it.
 ## Includes a Unix timestamp so offline decay can be calculated on next load.
+## pet_extra adds pet-owned fields to the "pet" block (e.g. "tastes").
 func save_game(pet_stats: PetStats, pet_name: String,
 		settings: Dictionary, cosmetics: Dictionary,
 		bond_xp: int = 0, achievements: Dictionary = {},
-		personality: Dictionary = {}) -> bool:
+		personality: Dictionary = {}, pet_extra: Dictionary = {}) -> bool:
 
+	var pet := {
+		"hunger":    pet_stats.hunger,
+		"happiness": pet_stats.happiness,
+		"energy":    pet_stats.energy,
+		"affection": pet_stats.affection,
+		"name":      pet_name,
+		"bond_xp":   bond_xp,
+	}
+	pet.merge(pet_extra)
 	var data := {
 		"version":   SAVE_SCHEMA_VERSION,
 		"saved_at":  Time.get_unix_time_from_system(),
-		"pet": {
-			"hunger":    pet_stats.hunger,
-			"happiness": pet_stats.happiness,
-			"energy":    pet_stats.energy,
-			"affection": pet_stats.affection,
-			"name":      pet_name,
-			"bond_xp":   bond_xp,
-		},
+		"pet":       pet,
 		"settings":     settings,
 		"cosmetics":    cosmetics,
 		"achievements": achievements,
@@ -160,5 +164,11 @@ func _migrate(data: Dictionary) -> Dictionary:
 				"eff_total": 0, "dominant": "", "revealed": [],
 			}
 		data["version"] = 4
+
+	# v4 → v5: add pet.tastes (food likes; empty = rolled on load)
+	if version < 5:
+		if data.has("pet") and not data["pet"].has("tastes"):
+			data["pet"]["tastes"] = {}
+		data["version"] = 5
 
 	return data

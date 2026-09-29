@@ -35,7 +35,18 @@ const DECAY_MULTIPLIER_TEST:   float = 1.0
 
 # ─── Interaction Gains ────────────────────────────────────────────────────────
 
-const FEED_HUNGER_GAIN:       float = 30.0
+# ─── Food (bowl) ──────────────────────────────────────────────────────────────
+
+## Hunger a full bowl restores, per food; she eats it in three mouthfuls.
+const FOOD_HUNGER: Dictionary = {"tuna": 35.0, "chicken": 30.0, "kibble": 25.0, "carrot": 15.0}
+## She goes to eat food she likes when her hunger is below this; her favorite
+## tempts her almost always. A food she dislikes she only eats when starving.
+const EAT_BELOW:       float = 75.0
+const EAT_LOVED_BELOW: float = 95.0
+## Extra happiness from a meal of her favorite food.
+const LOVED_FOOD_HAPPINESS: float = 10.0
+## Where the bowl sits on the floor, from Mochi's feet (left of her front paws).
+const BOWL_OFFSET := Vector2(-128.0, 4.0)
 
 # ─── Play (feather wand) ──────────────────────────────────────────────────────
 
@@ -96,8 +107,6 @@ const STROKE_ZONE_FACTOR: Dictionary = {
 const PURR_RISE: float = 2.5
 const PURR_FALL: float = 1.2
 
-## Seconds between allowed interactions. Prevents button spam.
-const INTERACTION_COOLDOWN: float = 2.0
 
 ## Idle "thought" bubbles — the pet voices its neediest stat now and then.
 const THOUGHT_INTERVAL_MIN: float = 6.0

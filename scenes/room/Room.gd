@@ -16,6 +16,7 @@ const HUD_SCENE: PackedScene = preload("res://scenes/hud/HUD.tscn")
 const EFFECTS_LAYER: GDScript = preload("res://scenes/effects/EffectsLayer.gd")
 const FELT_ROOM:     PackedScene = preload("res://scenes/room/FeltRoom.tscn")
 const FEATHER_WAND:  GDScript = preload("res://scenes/play/FeatherWand.gd")
+const FOOD_BOWL:     GDScript = preload("res://scenes/play/FoodBowl.gd")
 
 ## Where the wand's feather rests, from Mochi's feet: beside her face, clear of the hoop.
 const WAND_REST := Vector2(125.0, -175.0)
@@ -31,6 +32,7 @@ var _auto_save_timer:  float = 0.0
 func _ready() -> void:
 	_spawn_room()
 	_load_or_create_pet()
+	_spawn_bowl()
 	_spawn_wand()
 	_spawn_hud()
 	_spawn_effects_layer()
@@ -66,6 +68,9 @@ func _load_or_create_pet() -> void:
 			_apply_settings(data.get("settings", {}))
 			Achievements.load_from(data.get("achievements", {}))
 			Personality.load_from(data.get("personality", {}))
+			# Persist right away: offline decay is applied and tastes rolled for an
+			# older save must not be rolled again on the next launch.
+			_save()
 			return
 
 	# No valid save — start fresh with the name chosen during onboarding.
@@ -78,6 +83,13 @@ func _load_or_create_pet() -> void:
 func _spawn_hud() -> void:
 	_hud = HUD_SCENE.instantiate()
 	add_child(_hud)  # CanvasLayer renders on top automatically.
+
+
+## Mochi's food bowl, on the floor beside her.
+func _spawn_bowl() -> void:
+	var bowl: Node2D = FOOD_BOWL.new()
+	add_child(bowl)
+	bowl.position = _pet.position + GameConfig.BOWL_OFFSET
 
 
 ## The feather wand toy, hidden until "Jugar".
@@ -123,7 +135,8 @@ func _save() -> void:
 	}
 
 	SaveSystem.save_game(_pet.stats, _pet.pet_name, settings, cosmetics,
-			_pet.bond_xp, Achievements.to_dict(), Personality.to_dict())
+			_pet.bond_xp, Achievements.to_dict(), Personality.to_dict(),
+			{"tastes": _pet.tastes.to_dict()})
 
 
 func _apply_settings(settings: Dictionary) -> void:

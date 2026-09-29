@@ -169,6 +169,32 @@ msgstr "¡Estaba durmiendo!"
 msgid "PLAY_MISS"
 msgstr "¡Casi!"
 
+# ── Comida ────────────────────────────────────────────────────────────────────
+
+msgid "FOOD_TUNA"
+msgstr "Atún"
+
+msgid "FOOD_CHICKEN"
+msgstr "Pollo"
+
+msgid "FOOD_KIBBLE"
+msgstr "Croquetas"
+
+msgid "FOOD_CARROT"
+msgstr "Zanahoria"
+
+msgid "HINT_DRAG_FOOD"
+msgstr "Ponla en mi plato"
+
+msgid "TASTE_LOVE"
+msgstr "¡Me encanta!"
+
+msgid "TASTE_DISLIKE"
+msgstr "Eso no me gusta..."
+
+msgid "FOOD_YUCK"
+msgstr "¡Puaj!"
+
 # ── Vínculo ───────────────────────────────────────────────────────────────────
 
 msgid "BOND_LEVEL_UP"

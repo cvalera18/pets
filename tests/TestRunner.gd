@@ -9,6 +9,7 @@ extends Node
 const PetStatsScript := preload("res://resources/PetStats.gd")
 const PetTouchScript := preload("res://scenes/pet/PetTouch.gd")
 const PetPlayScript := preload("res://scenes/pet/PetPlay.gd")
+const TastesScript := preload("res://resources/Tastes.gd")
 
 var _passed: int = 0
 var _failed: int = 0
@@ -22,6 +23,7 @@ func _ready() -> void:
 	_test_personality()
 	_test_pet_touch()
 	_test_pet_play()
+	_test_tastes()
 	print("=== RESULT: %d passed, %d failed ===" % [_passed, _failed])
 	if _failed > 0:
 		push_error("Test suite has %d failing assertion(s)." % _failed)
@@ -124,6 +126,46 @@ func _test_migrations() -> void:
 	var m4: Dictionary = SaveSystem._migrate(v4)
 	_check("current version is unchanged", m4.get("version") == SaveSystem.SAVE_SCHEMA_VERSION)
 	_check("migration preserves existing personality", m4["personality"]["dominant"] == "glotona")
+
+	var v4p: Dictionary = {"version": 4, "pet": {"name": "Z", "bond_xp": 3}}
+	var m4p: Dictionary = SaveSystem._migrate(v4p)
+	_check("v4 backfills pet.tastes", m4p["pet"].has("tastes"))
+
+
+# ─── Food tastes ──────────────────────────────────────────────────────────────
+
+func _test_tastes() -> void:
+	var t = TastesScript.new()
+	t.roll()
+	var values: Array = t.taste.values()
+	_check("tastes: one favorite, one disliked, the rest liked",
+			values.count("love") == 1 and values.count("dislike") == 1 and values.count("like") == 2)
+
+	var a = TastesScript.new()
+	var b = TastesScript.new()
+	var rng_a := RandomNumberGenerator.new()
+	var rng_b := RandomNumberGenerator.new()
+	rng_a.seed = 42
+	rng_b.seed = 42
+	a.roll(rng_a)
+	b.roll(rng_b)
+	_check("tastes roll is deterministic with a seed", a.taste == b.taste)
+
+	var fav: String = t.taste.find_key("love")
+	var yuck: String = t.taste.find_key("dislike")
+	var liked: String = t.taste.find_key("like")
+	_check("favorite tempts her even when nearly full", t.wants(fav, 90.0) and not t.wants(fav, 97.0))
+	_check("liked food only when hungry", t.wants(liked, 70.0) and not t.wants(liked, 80.0))
+	_check("disliked food only when starving", t.wants(yuck, 15.0) and not t.wants(yuck, 50.0))
+
+	t.known[fav] = true
+	var restored = TastesScript.new()
+	restored.load_from(t.to_dict())
+	_check("tastes round-trip", restored.taste == t.taste and restored.known.has(fav))
+
+	var broken = TastesScript.new()
+	broken.load_from({"taste": {"tuna": "love", "carrot": "love"}})
+	_check("broken tastes are rolled anew", broken.taste.values().count("love") == 1 and broken.taste.size() == 4)
 
 
 # ─── Achievements persistence ─────────────────────────────────────────────────

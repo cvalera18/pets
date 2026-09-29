@@ -53,6 +53,7 @@ const REACT_STRETCH  := 0.22
 
 const PetTouch := preload("res://scenes/pet/PetTouch.gd")
 const PetPlay := preload("res://scenes/pet/PetPlay.gd")
+const Tastes := preload("res://resources/Tastes.gd")
 const Haptics := preload("res://systems/Haptics.gd")
 
 # ─── Caress tuning ────────────────────────────────────────────────────────────
@@ -65,6 +66,11 @@ const HINT_COOLDOWN := 8.0
 
 const SLEEP_CHECK_EVERY := 3.0
 const ZZZ_EVERY := 5.0
+
+const FOOD_CHECK_EVERY := 1.0   # how often she glances at the bowl
+const BITES := 3
+const BITE_TIME := 0.9
+const SNIFF_TIME := 1.0
 
 # ─── Child references ─────────────────────────────────────────────────────────
 
@@ -80,7 +86,8 @@ var pet_name:   String   = "Mochi"
 var bond_xp:    int      = 0
 var bond_level: int      = 1
 
-var _interaction_cooldown: float  = 0.0
+var tastes: Tastes = Tastes.new()
+
 var _is_sleeping:          bool   = false
 var _thought_timer:        float  = 0.0
 
@@ -89,6 +96,20 @@ var _sleep_check: float = 0.0   # seconds to the next "am I sleepy?" look
 var _doze_grace:  float = GameConfig.OPEN_GRACE
 var _sulk:        float = 0.0   # grumpy after being woken
 var _zzz_t:       float = 0.0
+
+# Bowl runtime state (she eats when she wants; see the Food section).
+var _bowl_food:   String = ""
+var _bowl_amount: float  = 0.0
+var _refused:     String = ""   # the food in the bowl she already turned down
+var _meal:        String = ""   # the food she's eating now
+var _bites_left:  int    = 0
+var _bite_t:      float  = 0.0
+var _meal_gain:   float  = 0.0
+var _sniff_t:     float  = 0.0
+var _food_check:  float  = 0.0
+var _eat_t:       float  = 0.0
+var _eat_tilt:    float  = 0.0
+var _eat_dip:     float  = 0.0
 
 # Procedural animation runtime state.
 var _mood:       Mood    = Mood.IDLE
@@ -127,7 +148,7 @@ func _ready() -> void:
 	play.caught.connect(_on_play_caught)
 	play.missed.connect(_on_play_missed)
 
-	EventBus.pet_fed.connect(_on_fed)
+	EventBus.bowl_changed.connect(_on_bowl_changed)
 	EventBus.play_mode_changed.connect(_on_play_mode_changed)
 	EventBus.wand_moved.connect(_on_wand_moved)
 	EventBus.stat_depleted.connect(_on_stat_depleted)
@@ -154,12 +175,11 @@ func _process(delta: float) -> void:
 		_sleep_tick(delta)
 		return  # Only energy changes while she sleeps.
 
-	play.can_hunt = stats.energy > GameConfig.CRITICAL_THRESHOLD and _sulk <= 0.0
+	play.can_hunt = stats.energy > GameConfig.CRITICAL_THRESHOLD and _sulk <= 0.0 and not _is_eating()
 	play.update(delta)
 	stats.apply_decay(delta)
+	_eat_tick(delta)
 
-	if _interaction_cooldown > 0.0:
-		_interaction_cooldown -= delta
 	if _sulk > 0.0:
 		_sulk -= delta
 	if _doze_grace > 0.0:
@@ -184,6 +204,7 @@ func initialize_fresh(p_name: String = "Mochi") -> void:
 	pet_name   = p_name
 	bond_xp    = 0
 	bond_level = 1
+	tastes.roll()
 	_play_anim(ANIM_IDLE)
 	_set_mood(Mood.IDLE)
 
@@ -197,6 +218,7 @@ func load_from_save(pet_data: Dictionary, offline_seconds: float) -> void:
 	bond_xp    = int(pet_data.get("bond_xp", 0))
 	@warning_ignore("integer_division")
 	bond_level = 1 + bond_xp / GameConfig.BOND_XP_PER_LEVEL
+	tastes.load_from(pet_data.get("tastes", {}))
 
 	if offline_seconds > 0.0:
 		stats.apply_offline_decay(offline_seconds)
@@ -216,23 +238,122 @@ func broadcast_stats() -> void:
 	EventBus.bond_level_changed.emit(bond_level)
 	EventBus.bond_progress_changed.emit(_bond_ratio())
 	EventBus.pet_name_changed.emit(pet_name)
+	for food in tastes.known:
+		EventBus.taste_discovered.emit(food, tastes.of(food))
 
 
-# ─── Interaction Handlers ─────────────────────────────────────────────────────
+# ─── Food (bowl) ──────────────────────────────────────────────────────────────
+# You fill the bowl (FoodBowl); she eats when she wants. She has tastes (Tastes):
+# her favorite she can't resist, one food she sniffs and turns down unless she's
+# starving, the rest she eats when hungry. Each food's taste is discovered the
+# first time she tries (or refuses) it.
 
-func _on_fed() -> void:
-	if not _can_interact():
+func _on_bowl_changed(food: String, amount: float) -> void:
+	if food != _bowl_food:
+		_refused = ""
+		if _meal != "" and food != "":
+			_finish_meal()   # a new food replaced the one she was eating
+	_bowl_food = food
+	_bowl_amount = amount
+
+
+func _is_eating() -> bool:
+	return _meal != "" or _sniff_t > 0.0
+
+
+func _consider_bowl() -> void:
+	if _bowl_food == "" or _bowl_food == _refused or play.active or _stroking > 0.0 or _sulk > 0.0:
 		return
+	if tastes.wants(_bowl_food, stats.hunger):
+		_start_meal()
+	elif tastes.of(_bowl_food) == "dislike" and stats.hunger < GameConfig.EAT_BELOW:
+		_sniff_t = SNIFF_TIME   # hungry enough to check it out, not enough to eat it
+		_eat_t = 0.0
+
+
+func _start_meal() -> void:
+	_meal = _bowl_food
+	_bites_left = BITES
+	_bite_t = BITE_TIME * 0.5
+	_meal_gain = 0.0
+	_eat_t = 0.0
+	_discover(_meal)
+	if tastes.of(_meal) != "dislike":
+		_content_t = BITES * BITE_TIME
+		_set_mood(Mood.CONTENT)
+
+
+func _eat_tick(delta: float) -> void:
+	if not _is_eating():
+		_eat_tilt = 0.0
+		_eat_dip = 0.0
+		_food_check -= delta
+		if _food_check <= 0.0:
+			_food_check = FOOD_CHECK_EVERY
+			_consider_bowl()
+		return
+	# Head down toward the bowl; chewing steps at 12 fps like the other poses.
+	_eat_t += delta
+	var step := floorf(_eat_t * 12.0) / 12.0
+	_eat_tilt = deg_to_rad(-5.0)
+	_eat_dip = -10.0 - (3.0 if _meal != "" and int(step * 6.0) % 2 == 0 else 0.0)
+	sprite.look_at_canvas(GameConfig.BOWL_OFFSET / _base_scale + PetTouch.ORIGIN)
+	if _sniff_t > 0.0:
+		_sniff_t -= delta
+		if _sniff_t <= 0.0:
+			_refuse()
+		return
+	_bite_t -= delta
+	if _bite_t <= 0.0:
+		_bite_t = BITE_TIME
+		_bite()
+
+
+func _bite() -> void:
+	var factor := 0.5 if tastes.of(_meal) == "dislike" else 1.0
 	var before := stats.hunger
-	var gain := GameConfig.FEED_HUNGER_GAIN * Personality.gain_factor("feed")
-	stats.hunger += gain
-	_play_anim(ANIM_EAT)
-	_trigger_reaction()
-	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HUNGER, "eat", 30)
-	_add_bond(_bond_amount(GameConfig.BOND_XP_FEED, "feed"))
-	Personality.record("feed", before)
-	_cheer_up()
-	_reset_cooldown()
+	stats.hunger += float(GameConfig.FOOD_HUNGER.get(_meal, 25.0)) / BITES * factor * Personality.gain_factor("feed")
+	_meal_gain += stats.hunger - before
+	_bites_left -= 1
+	_haptic(10)
+	EventBus.bowl_bite.emit()
+	if _bites_left <= 0 or _bowl_food == "":
+		_finish_meal()
+
+
+func _finish_meal() -> void:
+	var taste := tastes.of(_meal)
+	_feedback("+%d" % roundi(_meal_gain), GameConfig.COLOR_HUNGER, "eat", 30)
+	var bond := _bond_amount(GameConfig.BOND_XP_FEED, "feed")
+	if taste == "love":
+		stats.happiness += GameConfig.LOVED_FOOD_HAPPINESS
+		bond = roundi(bond * 1.5)
+		EventBus.burst_requested.emit("love", global_position)
+		EventBus.pet_thought.emit(tr("TASTE_LOVE"), "hunger")
+	_add_bond(bond)
+	Personality.record("feed")
+	if taste != "dislike":
+		_cheer_up()
+	_meal = ""
+	sprite.release_look()
+	EventBus.pet_fed.emit()
+
+
+func _refuse() -> void:
+	_refused = _bowl_food
+	_discover(_bowl_food)
+	sprite.release_look()
+	sprite.flinch()
+	EventBus.floating_text_requested.emit(tr("FOOD_YUCK"), GameConfig.COLOR_NEUTRAL, global_position)
+	EventBus.pet_thought.emit(tr("TASTE_DISLIKE"), "hunger")
+	EventBus.sound_requested.emit("grumble")
+
+
+func _discover(food: String) -> void:
+	if food == "" or tastes.known.has(food):
+		return
+	tastes.known[food] = true
+	EventBus.taste_discovered.emit(food, tastes.of(food))
 
 
 # ─── Play (feather wand) ──────────────────────────────────────────────────────
@@ -284,7 +405,7 @@ func _on_play_missed(_at: Vector2) -> void:
 # wakes once rested. Waking her early makes her grumpy for a while.
 
 func _wants_to_sleep() -> bool:
-	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy():
+	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy() or _is_eating():
 		return false
 	return stats.energy < (GameConfig.SLEEPY_ENERGY_NIGHT if _is_night() else GameConfig.SLEEPY_ENERGY)
 
@@ -486,14 +607,6 @@ func _on_stat_recovered(_stat_name: String, _value: float) -> void:
 
 # ─── Private Helpers ──────────────────────────────────────────────────────────
 
-func _can_interact() -> bool:
-	return _interaction_cooldown <= 0.0
-
-
-func _reset_cooldown() -> void:
-	_interaction_cooldown = GameConfig.INTERACTION_COOLDOWN
-
-
 ## Emits a floating text + optional particle burst at the pet, plus haptics.
 ## Centralizes the juice so interaction handlers stay one-liners.
 func _feedback(text: String, color: Color, burst_kind: String, haptic_ms: int) -> void:
@@ -608,9 +721,9 @@ func _animate(delta: float) -> void:
 	sprite.scale = _base_scale * breathe_scale * pop * play.pose_scale
 	# Moving the whole sprite lifted the feet off the rug and read as floating;
 	# only a pounce (PetPlay's pose) takes her off the floor.
-	sprite.set_torso_lift((1.0 - cos(_anim_time)) * 0.5 * _bob_amp() + play.torso_dip)
+	sprite.set_torso_lift((1.0 - cos(_anim_time)) * 0.5 * _bob_amp() + play.torso_dip + _eat_dip)
 	sprite.position = play.pose_offset * _base_scale
-	sprite.rotation = play.pose_tilt
+	sprite.rotation = play.pose_tilt + _eat_tilt
 	sprite.set_leap(play.leap)
 	var height := clampf(-play.pose_offset.y / 150.0, 0.0, 1.0)
 	shadow.position.x = sprite.position.x

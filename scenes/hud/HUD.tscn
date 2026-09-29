@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/hud/HUD.gd" id="root_script"]
 [ext_resource type="Script" path="res://theme/felt/SewingButton.gd" id="1_xvj7f"]
 [ext_resource type="Script" path="res://theme/felt/BubbleTail.gd" id="2_arwy5"]
+[ext_resource type="Script" path="res://theme/felt/FeltFood.gd" id="3_food"]
 
 [node name="HUD" type="CanvasLayer" unique_id=408560496]
 script = ExtResource("root_script")
@@ -862,6 +863,122 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"ActionLabel"
 text = "ACTION_PLAY"
+horizontal_alignment = 1
+
+[node name="Foods" type="HBoxContainer" parent="Control/Actions" unique_id=921749420]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Back" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=1211923443]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="FoodsBack" type="BaseButton" parent="Control/Actions/Foods/Back" unique_id=1679960136]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("1_xvj7f")
+color = Color(0.9137255, 0.85490197, 0.76862746, 1)
+diameter = 44.0
+icon_path = "res://assets/icons/chevron.svg"
+icon_color = Color(0.43137255, 0.3372549, 0.26666668, 1)
+icon_size = 20.0
+ring_color = Color(0.72156864, 0.6039216, 0.45490196, 1)
+ring_inset = 4.0
+ring_width = 1.5
+ring_dash = 4.0
+ring_gap = 3.5
+lip = 2.0
+lip_color = Color(0.47, 0.35, 0.24, 0.3)
+inner_shade = false
+
+[node name="Tuna" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=724105206]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="TunaFood" type="Control" parent="Control/Actions/Foods/Tuna" unique_id=1529398641]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("3_food")
+food = "tuna"
+
+[node name="Label" type="Label" parent="Control/Actions/Foods/Tuna" unique_id=1094346005]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+theme_override_font_sizes/font_size = 12
+text = "FOOD_TUNA"
+horizontal_alignment = 1
+
+[node name="Chicken" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=415720487]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="ChickenFood" type="Control" parent="Control/Actions/Foods/Chicken" unique_id=1036536277]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("3_food")
+food = "chicken"
+
+[node name="Label" type="Label" parent="Control/Actions/Foods/Chicken" unique_id=607517643]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+theme_override_font_sizes/font_size = 12
+text = "FOOD_CHICKEN"
+horizontal_alignment = 1
+
+[node name="Kibble" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=1387850211]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="KibbleFood" type="Control" parent="Control/Actions/Foods/Kibble" unique_id=885952264]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("3_food")
+food = "kibble"
+
+[node name="Label" type="Label" parent="Control/Actions/Foods/Kibble" unique_id=1135805342]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+theme_override_font_sizes/font_size = 12
+text = "FOOD_KIBBLE"
+horizontal_alignment = 1
+
+[node name="Carrot" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=1855466823]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="CarrotFood" type="Control" parent="Control/Actions/Foods/Carrot" unique_id=246484577]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("3_food")
+food = "carrot"
+
+[node name="Label" type="Label" parent="Control/Actions/Foods/Carrot" unique_id=1190147508]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+theme_override_font_sizes/font_size = 12
+text = "FOOD_CARROT"
 horizontal_alignment = 1
 
 [node name="Toasts" type="VBoxContainer" parent="Control" unique_id=1649046935]

@@ -24,6 +24,10 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
   descuido. Jugar = una varita con pluma que sostienes del mango: Mochi la acecha, se
   agacha y salta cuando la dejas quieta (`scenes/pet/PetPlay.gd`,
   `scenes/play/FeatherWand.gd`). En Modo de prueba la siesta dura ~30 s.
+  Alimentar = la barra muestra 4 comidas de fieltro (atún, pollo, croquetas, zanahoria)
+  que arrastras al plato; Mochi come cuando quiere. Cada gata ama una comida, rechaza
+  otra («¡Puaj!») y le gustan las demás; los gustos se descubren y quedan marcados
+  (`resources/Tastes.gd`, `scenes/play/FoodBowl.gd`, `theme/felt/FeltFood.gd`).
 - **Caricias táctiles (Fase 1 del rediseño de juego)** — el afecto se gana acariciando
   a Mochi, no con un botón: zonas (mejillas, cabeza, lomo a favor del pelo), cosas que
   le molestan (a contrapelo, brusco, panza trampa, cola), ronroneo con sonido y
@@ -91,9 +95,9 @@ mantener barras a **una gata con vida propia**, pensada para criarse de a dos.
 
 1. **✋ Fase 1 · Tocar** ✅ — caricias por zonas, ronroneo con vibración, mirada.
 2. **🐾 Fase 2 · Mochi decide** 🟡 — hecho: barras a demanda, dormir como consecuencia
-   (sin botón Dormir), piso en vez de cero al estar ausente, jugar con la varita.
-   Falta: comer desde el plato (en curso), rutina con el reloj real, lenguaje corporal,
-   notificaciones con su voz.
+   (sin botón Dormir), piso en vez de cero al estar ausente, jugar con la varita, comer
+   desde el plato con gustos por gata. Falta: rutina con el reloj real, lenguaje
+   corporal, notificaciones con su voz.
 3. **🎁 Fase 3 · Razones para volver** — "mientras no estabas", regalos, visitas en la
    ventana, sueños, álbum de fotos.
 4. **🏠 Fase 4 · La casa** — skins y accesorios (rig por piezas), muro de logros de
@@ -191,6 +195,7 @@ persistencia OK, estados sad/critical, "no muere".
 | Sueño (cuándo se duerme/despierta)     | `scenes/pet/Pet.gd` (sección Sleep) + `GameConfig` |
 | Juego con la varita                    | `scenes/pet/PetPlay.gd` (caza) · `scenes/play/FeatherWand.gd` (varita) |
 | Piso de stats al estar ausente         | `resources/PetStats.gd` (`offline_floor`) + `GameConfig` |
+| Comida, plato y gustos                 | `resources/Tastes.gd` · `scenes/play/FoodBowl.gd` · `Pet.gd` (sección Food) |
 | Tocar colores                          | `theme/Palette.gd`                  |
 | Tocar paneles, botones, barras, fuentes | `theme/felt_theme.tres` (editor de temas) · `theme/felt/` |
 | Tocar a Mochi (forma, caras, pivotes)  | `assets/mochi/*.svg` · `scenes/pet/MochiRig.gd` |
