@@ -9,6 +9,7 @@ extends Node
 const PetStatsScript := preload("res://resources/PetStats.gd")
 const PetTouchScript := preload("res://scenes/pet/PetTouch.gd")
 const PetPlayScript := preload("res://scenes/pet/PetPlay.gd")
+const PetGesturesScript := preload("res://scenes/pet/PetGestures.gd")
 const TastesScript := preload("res://resources/Tastes.gd")
 
 var _passed: int = 0
@@ -23,6 +24,7 @@ func _ready() -> void:
 	_test_personality()
 	_test_pet_touch()
 	_test_pet_play()
+	_test_pet_gestures()
 	_test_tastes()
 	print("=== RESULT: %d passed, %d failed ===" % [_passed, _failed])
 	if _failed > 0:
@@ -266,7 +268,82 @@ func _test_pet_touch() -> void:
 	t.advance(Vector2(99, 51), 0.1)
 	t.finish()
 	_check("quick touch is a tap", got["tap"] == "head")
+
+	# A finger held still on her head: she rubs against it (not a tap).
+	got["tap"] = ""
+	var rests := [0]
+	t.resting.connect(func(_z: String, _d: float, _a: Vector2) -> void: rests[0] += 1)
+	t.begin(Vector2(97, 50))
+	for i in 40:
+		t.advance(Vector2(97, 50), dt)
+	t.finish()
+	_check("finger resting on her head gets rubbed", rests[0] > 5 and got["tap"] == "")
+
+	rests[0] = 0
+	t.begin(Vector2(200, 150))
+	for i in 40:
+		t.advance(Vector2(200, 150), dt)
+	t.finish()
+	_check("a finger resting on her back isn't rubbed", rests[0] == 0)
 	t.free()
+
+
+# ─── Body language (PetGestures) ──────────────────────────────────────────────
+
+func _test_pet_gestures() -> void:
+	var dt := 1.0 / 60.0
+	var got := {"pawed": 0, "meowed": 0, "out": 0, "dropped": 0, "done": 0}
+	var g: Node = PetGesturesScript.new()
+	g.pawed.connect(func() -> void: got["pawed"] += 1)
+	g.meowed.connect(func() -> void: got["meowed"] += 1)
+	g.went_out.connect(func() -> void: got["out"] += 1)
+	g.dropped.connect(func() -> void: got["dropped"] += 1)
+	g.done.connect(func(_k: int) -> void: got["done"] += 1)
+
+	g.ask_food()
+	var paw_seen := false
+	for i in 180:
+		g.update(dt)
+		paw_seen = paw_seen or g.paw > 0.5
+	_check("hungry: paws at the bowl twice and meows once", got["pawed"] == 2 and got["meowed"] == 1 and paw_seen)
+	_check("ask for food ends back in her pose", not g.busy() and g.paw == 0.0 and got["done"] == 1)
+
+	got["meowed"] = 0
+	g.fetch()
+	var went_right := false
+	var max_x := 0.0
+	var carried := false
+	for i in 900:
+		g.update(dt)
+		max_x = maxf(max_x, g.offset.x)
+		went_right = went_right or (g.facing < 0.0 and g.offset.x > 0.0)
+		carried = carried or g.carrying
+		if not g.busy():
+			break
+	_check("fetch: trots out of sight facing right", went_right and max_x >= PetGesturesScript.AWAY_X)
+	_check("fetch: comes back carrying and drops the wand", carried and got["out"] == 1 and got["dropped"] == 1)
+	_check("fetch: ends home, facing her way, after a meow",
+			not g.busy() and g.offset == Vector2.ZERO and g.facing == 1.0 and got["meowed"] == 1)
+
+	got["dropped"] = 0
+	g.fetch()
+	for i in 30:
+		g.update(dt)
+	g.cancel()
+	for i in 600:
+		g.update(dt)
+		if not g.busy():
+			break
+	_check("wand taken out mid-fetch: she comes back empty-mouthed",
+			not g.busy() and got["dropped"] == 0 and not g.carrying and g.offset == Vector2.ZERO)
+
+	g.ask_pet()
+	var rubbed := false
+	for i in 150:
+		g.update(dt)
+		rubbed = rubbed or g.rub > 0.9
+	_check("wanting cuddles: rubs her head against the air", rubbed and not g.busy() and g.rub == 0.0)
+	g.free()
 
 
 # ─── Play (PetPlay) ───────────────────────────────────────────────────────────

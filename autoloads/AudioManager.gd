@@ -45,6 +45,8 @@ func _ready() -> void:
 		"achieve": _make_achieve(),
 		"mrrp":    _make_mrrp(),
 		"grumble": _make_grumble(),
+		"meow":    _make_meow(),
+		"tap":     _make_tap(),
 	}
 
 	_purr_player = AudioStreamPlayer.new()
@@ -232,4 +234,27 @@ func _make_grumble() -> AudioStreamWAV:
 		var flutter := 0.5 + 0.5 * sin(TAU * 18.0 * t)
 		var env := minf(1.0, t / 0.02) * pow(1.0 - p, 1.5)
 		b.append((sin(phase) + 0.5 * sin(2.0 * phase) + 0.25 * sin(3.0 * phase)) * env * flutter * 0.3)
+	return _to_stream(b)
+
+
+## "Mi-au": the pitch rises and falls while the vowel opens and then rounds.
+func _make_meow() -> AudioStreamWAV:
+	var b := PackedFloat32Array()
+	var dur := 0.55
+	var phase := 0.0
+	for i in int(dur * RATE):
+		var t := float(i) / float(RATE)
+		var p := t / dur
+		var f := lerpf(520.0, 780.0, smoothstep(0.0, 0.3, p)) if p < 0.3 else lerpf(780.0, 470.0, smoothstep(0.3, 1.0, p))
+		phase += TAU * f * (1.0 + 0.012 * sin(TAU * 6.0 * t)) / float(RATE)
+		var open := sin(PI * minf(p * 1.4, 1.0))
+		var v := sin(phase) + open * (0.55 * sin(2.0 * phase) + 0.3 * sin(3.0 * phase))
+		var env := minf(1.0, t / 0.04) * pow(1.0 - p, 0.6)
+		b.append(v * env * 0.3)
+	return _to_stream(b)
+
+
+func _make_tap() -> AudioStreamWAV:
+	var b := PackedFloat32Array()  # a soft paw on the felt bowl
+	_note(b, 240.0, 0.07, 0.45, 35.0)
 	return _to_stream(b)

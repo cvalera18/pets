@@ -166,8 +166,14 @@ msgstr "Not the tail!"
 msgid "PET_WOKEN_GRUMPY"
 msgstr "I was sleeping!"
 
+msgid "PET_MEOW"
+msgstr "Meow!"
+
 msgid "PLAY_MISS"
 msgstr "So close!"
+
+msgid "HINT_WAND"
+msgstr "Hold it still near me"
 
 # ── Food ──────────────────────────────────────────────────────────────────────
 

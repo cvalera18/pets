@@ -28,6 +28,10 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
   que arrastras al plato; Mochi come cuando quiere. Cada gata ama una comida, rechaza
   otra («¡Puaj!») y le gustan las demás; los gustos se descubren y quedan marcados
   (`resources/Tastes.gd`, `scenes/play/FoodBowl.gd`, `theme/felt/FeltFood.gd`).
+  Lenguaje corporal: con hambre le da zarpazos al plato y maúlla; aburrida se va
+  trotando y vuelve con la varita en la boca, la deja en el piso y la levantas
+  tocándola; con ganas de mimos se restriega en el aire, y se restriega contra tu dedo
+  si lo dejas quieto en su cabeza (`scenes/pet/PetGestures.gd`).
 - **Caricias táctiles (Fase 1 del rediseño de juego)** — el afecto se gana acariciando
   a Mochi, no con un botón: zonas (mejillas, cabeza, lomo a favor del pelo), cosas que
   le molestan (a contrapelo, brusco, panza trampa, cola), ronroneo con sonido y
@@ -59,7 +63,7 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
 - **Android (Fase 4)** — export headless, instalación por adb inalámbrico, verificado
   en dispositivo real.
 - **Tests** — `tests/TestRunner.tscn` (PetStats, migraciones de save, logros,
-  personalidad): 33/33.
+  personalidad, caricias, caza, gustos, lenguaje corporal): 71/71.
 - **i18n** — `es.po` + `en.po`, español neutro latinoamericano.
 
 **Stats definitivas:** hambre · felicidad · energía · afecto
@@ -96,8 +100,9 @@ mantener barras a **una gata con vida propia**, pensada para criarse de a dos.
 1. **✋ Fase 1 · Tocar** ✅ — caricias por zonas, ronroneo con vibración, mirada.
 2. **🐾 Fase 2 · Mochi decide** 🟡 — hecho: barras a demanda, dormir como consecuencia
    (sin botón Dormir), piso en vez de cero al estar ausente, jugar con la varita, comer
-   desde el plato con gustos por gata. Falta: rutina con el reloj real, lenguaje
-   corporal, notificaciones con su voz.
+   desde el plato con gustos por gata, lenguaje corporal (pide comida, trae la varita,
+   pide mimos, se restriega contra el dedo). Falta: rutina con el reloj real,
+   notificaciones con su voz.
 3. **🎁 Fase 3 · Razones para volver** — "mientras no estabas", regalos, visitas en la
    ventana, sueños, álbum de fotos.
 4. **🏠 Fase 4 · La casa** — skins y accesorios (rig por piezas), muro de logros de

@@ -19,9 +19,9 @@ enum State { WATCH, STALK, CROUCH, POUNCE, LAND, REST }
 const HEAD := Vector2(97, 90)        # the canvas point that leads the pounce
 const FLOOR_Y := 275.0
 const REACH := 200.0                 # farthest the feather can be from her head
-const STILL_SPEED := 60.0            # canvas px/s below which the feather is "still"
-const STALK_TIME := 0.5
-const CROUCH_TIME := 0.7
+const STILL_SPEED := 90.0            # canvas px/s below which the feather is "still" (fingers tremble)
+const STALK_TIME := 0.35
+const CROUCH_TIME := 0.55
 const POUNCE_TIME := 0.55
 const LAND_TIME := 0.25
 const REST_TIME := 0.6
@@ -73,6 +73,23 @@ func set_feather(c: Vector2, held: bool = true) -> void:
 ## Mid-hunt: she shouldn't doze off or be interrupted.
 func is_busy() -> bool:
 	return active and state in [State.CROUCH, State.POUNCE, State.LAND]
+
+
+## The feather is where she'd hunt it: held, within reach, and she's up for it.
+func feather_huntable() -> bool:
+	return active and _has_feather and can_hunt and _held and _in_reach(_feather)
+
+
+## How close she is to pouncing, 0..1: it fills while the feather stays still.
+func progress() -> float:
+	match state:
+		State.STALK:
+			return _t / (STALK_TIME + CROUCH_TIME)
+		State.CROUCH:
+			return (STALK_TIME + _t) / (STALK_TIME + CROUCH_TIME)
+		State.POUNCE, State.LAND:
+			return 1.0
+	return 0.0
 
 
 func update(delta: float) -> void:

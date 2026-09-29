@@ -6,8 +6,8 @@
 ## Mochi's feet, which keeps Pet.gd's breathe/pop scaling grounded.
 ##
 ## Pet.gd drives the whole-body motion and calls set_mood() / set_personality(),
-## set_torso_lift(), look_at_canvas() / release_look(), flinch(), set_leap() and
-## set_excited().
+## set_torso_lift(), look_at_canvas() / release_look(), flinch(), set_legs(),
+## set_rub(), meow() and set_excited(); mouth_screen() tells where to hold a toy.
 ## The contact shadow is a separate FloorShadow node so it can stay on the floor.
 ## Runs as a tool so the rig also shows in the editor (without idle motion).
 @tool
@@ -39,6 +39,14 @@ const EYE_TRAVEL := 3.2
 const HEAD_TURN := 0.16
 const LOOK_LINGER := 1.0
 
+# Rubbing: the head sways side to side, leaning toward the finger if there is one.
+const RUB_SWING := 0.11
+const RUB_LEAN := 0.2
+const RUB_HZ := 1.7
+
+const MOUTH := Vector2(97, 121)
+const MEOW_TIME := 0.55
+
 @export_enum("Feliz:0", "Dormida:1", "Triste:2", "Contenta:3") var preview_mood := 0:
 	set(v):
 		preview_mood = v
@@ -54,6 +62,13 @@ var _tail_tween: Tween
 var _excite := 1.0
 
 var _torso_base := {}
+var _leg_base := {}
+
+var _rub_goal := 0.0
+var _rub_w := 0.0
+var _rub_at := Vector2.INF
+var _rub_phase := 0.0
+var _meow_t := 0.0
 
 var _look_at := Vector2.ZERO
 var _look_on := false
@@ -73,9 +88,7 @@ func set_mood(mood: int) -> void:
 	if mood == _mood or _nodes.is_empty():
 		return
 	_mood = mood
-	var shown: Array = FACES.get(mood, FACES[0])
-	for p in FACE_PIECES:
-		(_nodes[p] as CanvasItem).visible = p in shown
+	_apply_face()
 	_ear_tilt = 18.0 if mood == 2 else 6.0 if mood == 1 else 0.0
 	for t in _flinches:
 		t.kill()
@@ -85,14 +98,36 @@ func set_mood(mood: int) -> void:
 		_start_idle()
 
 
-## Leap pose, 0..1: front legs reach forward and back legs push back.
-func set_leap(amount: float) -> void:
+## Leg pose. leap 0..1: front legs reach forward and back legs push back.
+## stride -1..1: trotting, the diagonal pairs swinging opposite ways.
+## paw 0..1: the far front paw reaches forward and up (pawing at the bowl).
+func set_legs(leap: float, stride := 0.0, paw := 0.0) -> void:
 	if _nodes.is_empty():
 		return
-	for key in ["LegFF", "LegFN"]:
-		_nodes[key].rotation_degrees = 35.0 * amount
-	for key in ["LegBF", "LegBN"]:
-		_nodes[key].rotation_degrees = -30.0 * amount
+	var swing := 22.0 * stride
+	_nodes["LegFF"].rotation_degrees = 35.0 * leap + swing + 72.0 * paw
+	_nodes["LegFN"].rotation_degrees = 35.0 * leap - swing
+	_nodes["LegBF"].rotation_degrees = -30.0 * leap - swing
+	_nodes["LegBN"].rotation_degrees = -30.0 * leap + swing
+	_nodes["LegFF"].position = _leg_base["LegFF"] - Vector2(0.0, 16.0 * paw)
+
+
+## Rubs her head, weight 0..1 (eased): side to side, leaning toward `at` (a
+## design-canvas point such as your finger) when one is given.
+func set_rub(weight: float, at := Vector2.INF) -> void:
+	_rub_goal = weight
+	_rub_at = at
+
+
+## Opens her mouth for a meow.
+func meow(time := MEOW_TIME) -> void:
+	_meow_t = time
+	_apply_face()
+
+
+## Her mouth in viewport coordinates, where she holds what she carries.
+func mouth_screen() -> Vector2:
+	return (_nodes["Head"] as Node2D).get_global_transform_with_canvas() * (MOUTH - NECK)
 
 
 ## Excitement speeds up the tail (1 = calm); she lashes it while hunting.
@@ -144,6 +179,10 @@ func _process(delta: float) -> void:
 		return
 	if _look_linger > 0.0:
 		_look_linger -= delta
+	if _meow_t > 0.0:
+		_meow_t -= delta
+		if _meow_t <= 0.0:
+			_apply_face()
 	_look_w = move_toward(_look_w, 1.0 if _look_on or _look_linger > 0.0 else 0.0, delta * 3.0)
 
 	var eye_target := Vector2.ZERO
@@ -152,6 +191,15 @@ func _process(delta: float) -> void:
 		var d := _look_at - EYES_CENTER
 		eye_target = d.normalized() * minf(EYE_TRAVEL, d.length() * 0.05) * _look_w
 		head_target = clampf(Vector2.UP.angle_to(_look_at - NECK) * 0.35, -HEAD_TURN, HEAD_TURN) * _look_w
+	_rub_w = move_toward(_rub_w, _rub_goal, delta * 4.0)
+	if _rub_w > 0.0:
+		_rub_phase += delta * TAU * RUB_HZ
+		var lean := 0.0
+		if _rub_at.is_finite():
+			lean = clampf(Vector2.UP.angle_to(_rub_at - NECK) * 0.6, -RUB_LEAN, RUB_LEAN)
+		head_target = lerpf(head_target, lean + sin(_rub_phase) * RUB_SWING, _rub_w)
+	else:
+		_rub_phase = 0.0
 	_eye_off = _eye_off.lerp(eye_target, 1.0 - exp(-14.0 * delta))
 	for key in _eye_base:
 		_nodes[key].position = _eye_base[key] + _eye_off
@@ -171,6 +219,16 @@ func set_personality(profile: Dictionary) -> void:
 	for key in ["CheekL", "CheekR"]:
 		_nodes[key].modulate = cheek
 		_nodes[key].scale = Vector2.ONE * cheek_scale
+
+
+func _apply_face() -> void:
+	if _nodes.is_empty():
+		return
+	var shown: Array = FACES.get(_mood, FACES[0])
+	var meowing := _meow_t > 0.0
+	for p in FACE_PIECES:
+		(_nodes[p] as CanvasItem).visible = p in shown and not (meowing and p.begins_with("mouth_"))
+	(_nodes["mouth_miau"] as CanvasItem).visible = meowing
 
 
 # ─── Construction ─────────────────────────────────────────────────────────────
@@ -218,10 +276,13 @@ func _build() -> void:
 	for key in ["EyeL", "EyeR"]:
 		_eye_base[key] = _nodes[key].position
 	for p in ["lashes", "eyes_contenta", "eyes_dormida", "face_triste",
-			"mouth_feliz", "mouth_dormida", "mouth_triste", "snout"]:
+			"mouth_feliz", "mouth_dormida", "mouth_triste", "mouth_miau", "snout"]:
 		_piece(head, p)
+	_nodes["mouth_miau"].visible = false
 	for key in ["body", "Tail", "HeadLook"]:
 		_torso_base[key] = _nodes[key].position
+	for key in ["LegFF", "LegFN", "LegBF", "LegBN"]:
+		_leg_base[key] = _nodes[key].position
 
 
 func _pivot(parent: Node, node_name: String, abs_pivot: Vector2) -> Node2D:

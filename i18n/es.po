@@ -166,8 +166,14 @@ msgstr "¡La cola no!"
 msgid "PET_WOKEN_GRUMPY"
 msgstr "¡Estaba durmiendo!"
 
+msgid "PET_MEOW"
+msgstr "¡Miau!"
+
 msgid "PLAY_MISS"
 msgstr "¡Casi!"
+
+msgid "HINT_WAND"
+msgstr "Déjala quieta cerca"
 
 # ── Comida ────────────────────────────────────────────────────────────────────
 

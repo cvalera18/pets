@@ -20,6 +20,8 @@ const FOOD_BOWL:     GDScript = preload("res://scenes/play/FoodBowl.gd")
 
 ## Where the wand's feather rests, from Mochi's feet: beside her face, clear of the hoop.
 const WAND_REST := Vector2(125.0, -175.0)
+## How far in front of her feet the wand she brings lands on the floor.
+const WAND_DROP_Y := 26.0
 
 @onready var pet_spawn_point:   Marker2D = $PetSpawnPoint
 @onready var decoration_layer:  Node2D   = $DecorationLayer
@@ -98,6 +100,7 @@ func _spawn_wand() -> void:
 	add_child(wand)
 	wand.rest_point = _pet.global_position + WAND_REST
 	wand.focus_x = _pet.global_position.x
+	wand.floor_y = _pet.global_position.y + WAND_DROP_Y
 
 
 ## Spawns the EffectsLayer that turns EventBus juice requests into visuals.

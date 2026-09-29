@@ -2,7 +2,8 @@
 ## Mochi's felt food bowl, on the floor beside her. Drop a food from the tray onto
 ## it to fill it (EventBus.food_dropped → food_served); she eats in her own time,
 ## one mouthful per EventBus.bowl_bite, and the mound goes down as she does. A new
-## food replaces whatever is left.
+## food replaces whatever is left. When she paws at it asking for food
+## (EventBus.bowl_nudged) it rocks on its base.
 extends Node2D
 
 const P := preload("res://theme/Palette.gd")
@@ -18,6 +19,7 @@ const BITES := 3.0
 var food := ""
 var amount := 0.0
 var _pop := 0.0
+var _wobble := 0.0
 
 
 func _ready() -> void:
@@ -25,6 +27,7 @@ func _ready() -> void:
 	set_process(false)
 	EventBus.food_dropped.connect(_on_food_dropped)
 	EventBus.bowl_bite.connect(_on_bite)
+	EventBus.bowl_nudged.connect(_on_nudged)
 
 
 func _on_food_dropped(which: String, screen_pos: Vector2) -> void:
@@ -40,6 +43,11 @@ func _on_food_dropped(which: String, screen_pos: Vector2) -> void:
 	queue_redraw()
 
 
+func _on_nudged() -> void:
+	_wobble = 1.0
+	set_process(true)
+
+
 func _on_bite() -> void:
 	if food == "":
 		return
@@ -53,14 +61,16 @@ func _on_bite() -> void:
 
 func _process(delta: float) -> void:
 	_pop = move_toward(_pop, 0.0, delta * 3.0)
-	if _pop <= 0.0:
+	_wobble = move_toward(_wobble, 0.0, delta * 2.2)
+	if _pop <= 0.0 and _wobble <= 0.0:
 		set_process(false)
 	queue_redraw()
 
 
 func _draw() -> void:
 	var bounce := 1.0 + 0.12 * sin(_pop * PI)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(bounce, 2.0 - bounce))
+	var rock := sin(_wobble * PI * 4.0) * 0.09 * _wobble
+	draw_set_transform(Vector2.ZERO, rock, Vector2(bounce, 2.0 - bounce))
 	var rim_y := -DEPTH
 	FeltDraw.fill(self, FeltDraw.ellipse(Vector2(0, 2), Vector2(HALF_W + 4.0, 7.0)), Color(P.HOOP_NAIL, 0.25))
 
