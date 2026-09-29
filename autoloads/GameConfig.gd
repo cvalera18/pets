@@ -39,7 +39,23 @@ const FEED_HUNGER_GAIN:       float = 30.0
 const PLAY_HAPPINESS_GAIN:    float = 25.0
 const PLAY_ENERGY_COST:   float = 10.0  # Playing costs energy
 const SLEEP_ENERGY_GAIN:  float = 50.0
-const PET_AFFECTION_GAIN: float = 20.0
+
+# ─── Caresses (touch) ─────────────────────────────────────────────────────────
+
+## Affection per second of good stroking, before the zone and trait factors.
+const STROKE_AFFECTION_RATE: float = 8.0
+
+## Seconds of good stroking that earn one award (bond XP, hearts, "+N").
+const STROKE_AWARD_TIME: float = 2.5
+
+## How much each part of Mochi enjoys being stroked (see PetTouch zones).
+const STROKE_ZONE_FACTOR: Dictionary = {
+	"cheeks": 1.4, "head": 1.15, "back": 1.0, "body": 0.6, "belly": 0.6,
+}
+
+## Seconds for the purr to swell to full while stroking, and to fade once you stop.
+const PURR_RISE: float = 2.5
+const PURR_FALL: float = 1.2
 
 ## Seconds between allowed interactions. Prevents button spam.
 const INTERACTION_COOLDOWN: float = 2.0

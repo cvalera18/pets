@@ -41,8 +41,11 @@ signal pet_slept
 ## Player woke the pet up.
 signal pet_woken
 
-## Player tapped / petted the pet.
+## Emitted by Pet each time a caress earns an award (a few seconds of good strokes).
 signal pet_petted
+
+## Mochi's purr intensity while being stroked: 0 = silent, 1 = full purr.
+signal purr_changed(intensity: float)
 
 ## Emitted when the pet's sleeping state changes.
 ## HUD listens to this to toggle the Sleep/Wake button label.
@@ -128,6 +131,9 @@ signal floating_text_requested(text: String, color: Color, world_pos: Vector2)
 ## @param kind       "love" | "play" | "eat" | "sleep" (see EffectsLayer.BURSTS)
 ## @param world_pos  global position to emit from
 signal burst_requested(kind: String, world_pos: Vector2)
+
+## A one-shot sound with no particles (see AudioManager): "mrrp" | "grumble".
+signal sound_requested(key: String)
 
 ## The pet voices a need or a trait flavor line; the HUD shows it in a bubble.
 ## @param text  already-translated line (e.g. "¿Comidita?")

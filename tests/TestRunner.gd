@@ -7,6 +7,7 @@
 extends Node
 
 const PetStatsScript := preload("res://resources/PetStats.gd")
+const PetTouchScript := preload("res://scenes/pet/PetTouch.gd")
 
 var _passed: int = 0
 var _failed: int = 0
@@ -18,6 +19,7 @@ func _ready() -> void:
 	_test_migrations()
 	_test_achievements_persistence()
 	_test_personality()
+	_test_pet_touch()
 	print("=== RESULT: %d passed, %d failed ===" % [_passed, _failed])
 	if _failed > 0:
 		push_error("Test suite has %d failing assertion(s)." % _failed)
@@ -148,3 +150,61 @@ func _test_personality() -> void:
 	_check("sustained play switches to juguetona", Personality.trait_id() == "juguetona")
 
 	Personality.load_from({})  # reset global state after the test
+
+
+# ─── Caresses (PetTouch) ──────────────────────────────────────────────────────
+
+func _test_pet_touch() -> void:
+	_check("zone: forehead is head", PetTouchScript.zone_at(Vector2(97, 50)) == "head")
+	_check("zone: cheek is cheeks", PetTouchScript.zone_at(Vector2(60, 120)) == "cheeks")
+	_check("zone: back", PetTouchScript.zone_at(Vector2(200, 150)) == "back")
+	_check("zone: belly", PetTouchScript.zone_at(Vector2(160, 225)) == "belly")
+	_check("zone: tail tip", PetTouchScript.zone_at(Vector2(255, 80)) == "tail")
+	_check("zone: empty corner misses Mochi", PetTouchScript.zone_at(Vector2(10, 10)) == "")
+
+	var dt := 1.0 / 60.0
+	var got := {"pet": 0, "annoyed": "", "tap": ""}
+	var t: Node = PetTouchScript.new()
+	t.petting.connect(func(_z: String, _d: float, _a: Vector2) -> void: got["pet"] += 1)
+	t.annoyed.connect(func(r: String, _a: Vector2) -> void: got["annoyed"] = r)
+	t.tapped.connect(func(z: String, _a: Vector2) -> void: got["tap"] = z)
+
+	# Head → tail along the back, 300 px/s: good strokes, no complaint.
+	t.begin(Vector2(140, 150))
+	for i in 30:
+		t.advance(Vector2(140 + 5 * (i + 1), 150), dt)
+	t.finish()
+	_check("stroke with the fur pets", got["pet"] > 10 and got["annoyed"] == "")
+
+	# Tail → head across the whole back, deliberate (240 px/s): against the fur.
+	t.begin(Vector2(264, 150))
+	for i in 40:
+		t.advance(Vector2(264 - 4 * (i + 1), 150), dt)
+	t.finish()
+	_check("stroke against the fur annoys", got["annoyed"] == "against")
+
+	# Belly rubs are welcome for a moment, then it's a trap. (Skips the grumpy wait.)
+	got["annoyed"] = ""
+	t._grumpy = 0.0
+	t.begin(Vector2(110, 220))
+	for i in 80:
+		t.advance(Vector2(110 + (i + 1), 220), dt)
+	t.finish()
+	_check("belly rub springs the trap", got["annoyed"] == "belly")
+
+	# Holding the tail.
+	got["annoyed"] = ""
+	t._grumpy = 0.0
+	t.begin(Vector2(255, 80))
+	for i in 30:
+		t.advance(Vector2(255, 80), dt)
+	t.finish()
+	_check("holding the tail annoys", got["annoyed"] == "tail")
+
+	# A quick touch that barely moves is a tap on that zone.
+	t._grumpy = 0.0
+	t.begin(Vector2(97, 50))
+	t.advance(Vector2(99, 51), 0.1)
+	t.finish()
+	_check("quick touch is a tap", got["tap"] == "head")
+	t.free()

@@ -1,7 +1,7 @@
 # PetBond — Roadmap
 
 > Nombre provisional en el repo: "Pets" · Nombre real del producto: **PetBond**
-> Última actualización: 2026-09-29
+> Última actualización: 2026-09-29 (Fase 1 del análisis de juego: caricias)
 > Rama activa: `main`
 
 ---
@@ -16,8 +16,15 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
 
 **Implementado y funcionando:**
 - **Loop core** — 4 stats (hambre · felicidad · energía · afecto) con decaimiento en
-  tiempo real, 4 acciones (alimentar/jugar/dormir/mimar), "no muere" (triste en vez
-  de game over), persistencia con autosave. Tocar a Mochi también la mima.
+  tiempo real, 3 acciones (alimentar/jugar/dormir), "no muere" (triste en vez de game
+  over), persistencia con autosave.
+- **Caricias táctiles (Fase 1 del rediseño de juego)** — el afecto se gana acariciando
+  a Mochi, no con un botón: zonas (mejillas, cabeza, lomo a favor del pelo), cosas que
+  le molestan (a contrapelo, brusco, panza trampa, cola), ronroneo con sonido y
+  vibración por el canal multimedia, y ojos/cabeza que siguen tu dedo
+  (`scenes/pet/PetTouch.gd`, `systems/Haptics.gd`). Ajuste "Vibración" en Ajustes.
+- **HUD despejado** — las barras se abren desde una pestaña de íconos (con alerta si
+  algo está crítico) y la stat que sube asoma sola un momento.
 - **Mochi (la mascota)** — gata naranja atigrada con collar y cascabel, armada como
   **rig de recorte**: 22 piezas SVG (`assets/mochi/`) colgadas de pivotes
   (`scenes/pet/MochiRig.gd`) con acabado de fieltro por shader. Caras por ánimo
@@ -72,18 +79,23 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
 ## Lo que sigue — re-priorizado
 
 El loop core (v0.1), la personalidad (v0.2, primera parte), el rediseño y la build de
-Android están **hechos**. Lo que falta, en el orden recomendado:
+Android están **hechos**. Desde el 2026-09-29 el orden lo marca el análisis de juego
+(documento "PetBond — Análisis y ideas de juego", con tablero de ideas): pasar de
+mantener barras a **una gata con vida propia**, pensada para criarse de a dos.
 
-1. **🎨 Skins procedurales (v0.3)** — con el rig por piezas: paletas de pelaje y
-   patrones (recolorear piezas) y accesorios (piezas nuevas: moños, gorros,
-   collares). Suma customización + siembra el modelo de negocio.
-2. **🔔 Notificaciones en device (Fase 5)** — retención. Ya no está bloqueado: hay
-   build de Android.
-3. **🎞️ Más animaciones de Mochi** — comer, jugar, dormir acostada, reacciones por
-   rasgo; y spritesheets renderizados desde el rig si hacen falta.
-4. **🎵 Música ambient cozy** — los SFX existen; falta la música de fondo.
-5. **v1.0** — evolución por rasgos, tienda in-app, eventos de temporada.
-6. **v2.0** — social/backend (Supabase; hay stub en `SaveSystem`).
+1. **✋ Fase 1 · Tocar** ✅ — caricias por zonas, ronroneo con vibración, mirada.
+2. **🐾 Fase 2 · Mochi decide** 🟡 — barras a demanda (hecho); dormir como consecuencia
+   (sin botón Dormir), piso en vez de cero al estar ausente, rutina con el reloj real,
+   comer y jugar con objetos, notificaciones con su voz.
+3. **🎁 Fase 3 · Razones para volver** — "mientras no estabas", regalos, visitas en la
+   ventana, sueños, álbum de fotos.
+4. **🏠 Fase 4 · La casa** — skins y accesorios (rig por piezas), muro de logros de
+   fieltro, habitación panorámica, botones de costura como moneda.
+5. **💞 Fase 5 · De a dos** — backend (Supabase; stub en `SaveSystem`), rastros del
+   otro, Mochi mensajera, momento juntos. Se apoya en un registro de eventos con autor.
+
+Transversal: notificaciones en device, música ambient, más poses del rig (animación
+estilo stop-motion a 12 fps).
 
 ---
 
@@ -167,6 +179,8 @@ persistencia OK, estados sad/critical, "no muere".
 | Añadir una señal global nueva          | `autoloads/EventBus.gd`             |
 | Cambiar cómo se guarda / migraciones   | `systems/save/LocalSaveProvider.gd` + `SaveSystem.gd` |
 | Añadir una interacción nueva           | `scenes/pet/Pet.gd` + `scenes/hud/HUD.tscn` / `HUD.gd` |
+| Zonas y gestos de caricia              | `scenes/pet/PetTouch.gd` (+ tuning en `GameConfig`) |
+| Vibración                              | `systems/Haptics.gd` (no `Input.vibrate_handheld`) |
 | Tocar colores                          | `theme/Palette.gd`                  |
 | Tocar paneles, botones, barras, fuentes | `theme/felt_theme.tres` (editor de temas) · `theme/felt/` |
 | Tocar a Mochi (forma, caras, pivotes)  | `assets/mochi/*.svg` · `scenes/pet/MochiRig.gd` |

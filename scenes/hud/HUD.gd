@@ -3,6 +3,10 @@
 ## thought bubble, toasts and the sewing-button action bar. Layout and styling
 ## live in HUD.tscn + the felt Theme; this script only wires state to it.
 ##
+## The stat bars stay out of the way: a small tab of stat badges (alert ring when
+## critical) opens the full card on tap, and a stat that goes up peeks its own
+## row for a moment, so caring shows its effect without a wall of bars.
+##
 ## HUD subscribes to EventBus signals to update in real time and emits EventBus
 ## signals from its buttons — it holds no reference to Pet whatsoever.
 ##
@@ -18,10 +22,14 @@ const StyleBoxKnit := preload("res://theme/felt/StyleBoxKnit.gd")
 ## stat → node-name prefix in HUD.tscn.
 const STATS := {"hunger": "Hunger", "happiness": "Happiness", "energy": "Energy", "affection": "Affection"}
 ## stat → the action button that fixes it (gets an alert ring while critical).
-const FIXES := {"hunger": "FeedButton", "happiness": "PlayButton", "energy": "SleepButton", "affection": "PetButton"}
+## Affection has none: it comes from stroking Mochi.
+const FIXES := {"hunger": "FeedButton", "happiness": "PlayButton", "energy": "SleepButton"}
 const THOUGHT_HOLD := 3.5
 const ICON_MOON := "res://assets/icons/moon.svg"
 const ICON_SUN := "res://assets/icons/sun.svg"
+const PEEK_HOLD := 2.5      # seconds a rising stat's row stays after its last rise
+const EXPAND_HOLD := 8.0    # the open card folds back on its own after this
+const STATS_GAP := 6.0
 
 var _cooldown_timer: float = 0.0
 var _is_sleeping: bool = false
@@ -29,6 +37,11 @@ var _bond_level: int = 0   # 0 until the first broadcast, so loading never toast
 var _crit_fill: StyleBox
 var _crit_row: StyleBoxFlat
 var _thought_tween: Tween
+
+var _expanded := false
+var _expand_left := 0.0
+var _peek := {}         # stat -> seconds its row keeps peeking
+var _tab_badges := {}   # stat -> the tab's copy of that row's badge
 
 
 func _ready() -> void:
@@ -47,7 +60,6 @@ func _ready() -> void:
 	%FeedButton.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_fed))
 	%PlayButton.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_played))
 	%SleepButton.pressed.connect(_on_sleep_button_pressed)
-	%PetButton.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_petted))
 	%SettingsButton.pressed.connect(_on_settings_pressed)
 
 	_crit_fill = StyleBoxKnit.new()
@@ -62,8 +74,19 @@ func _ready() -> void:
 	for stat in STATS:
 		_bar(stat).value = 0.0
 
+	# The tab reuses each row's badge so the look lives in one place (HUD.tscn).
+	for stat in STATS:
+		var badge: Control = _row(stat).get_node("Items/Badge").duplicate()
+		%TabBadges.add_child(badge)
+		_tab_badges[stat] = badge
+	%StatsTab.gui_input.connect(_on_stats_input)
+	%Stats.gui_input.connect(_on_stats_input)
+	%StatsTab.resized.connect(_place_stats)
+	_refresh_stats()
+
 
 func _process(delta: float) -> void:
+	_tick_stats(delta)
 	if _cooldown_timer <= 0.0:
 		return
 	_cooldown_timer -= delta
@@ -93,7 +116,6 @@ func _on_sleeping_changed(is_sleeping: bool) -> void:
 	# While sleeping, only the sleep button (now "wake") stays usable.
 	%FeedButton.disabled = is_sleeping
 	%PlayButton.disabled = is_sleeping
-	%PetButton.disabled = is_sleeping
 	if is_sleeping:
 		_hide_thought()
 
@@ -107,7 +129,6 @@ func _set_buttons_disabled(disabled: bool) -> void:
 	# The sleep button is managed by _on_sleeping_changed while asleep.
 	%FeedButton.disabled = disabled or _is_sleeping
 	%PlayButton.disabled = disabled or _is_sleeping
-	%PetButton.disabled = disabled or _is_sleeping
 	if not _is_sleeping:
 		%SleepButton.disabled = disabled
 
@@ -122,9 +143,71 @@ func _bar(stat: String) -> ProgressBar:
 	return get_node("%" + STATS[stat] + "Bar")
 
 
+func _row(stat: String) -> PanelContainer:
+	return get_node("%" + STATS[stat] + "Row")
+
+
+func _on_stats_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_expanded = not _expanded
+		_expand_left = EXPAND_HOLD
+		_refresh_stats()
+
+
+## Stats only ever fall on their own, so any rise is care: show that row a moment.
+func _peek_stat(stat: String) -> void:
+	var fresh := not _peek.has(stat)
+	_peek[stat] = PEEK_HOLD
+	if fresh and not _expanded:
+		_refresh_stats()
+
+
+func _tick_stats(delta: float) -> void:
+	var changed := false
+	if _expanded:
+		_expand_left -= delta
+		if _expand_left <= 0.0:
+			_expanded = false
+			changed = true
+	for stat in _peek.keys():
+		_peek[stat] -= delta
+		if _peek[stat] <= 0.0:
+			_peek.erase(stat)
+			changed = true
+	if changed:
+		_refresh_stats()
+
+
+## Collapsed: only the tab. Peeking: the tab plus the rising rows under it.
+## Open: the full card in the tab's place (tap it to fold it back).
+func _refresh_stats() -> void:
+	var any := false
+	for stat in STATS:
+		var shown := _expanded or _peek.has(stat)
+		_row(stat).visible = shown
+		any = any or shown
+	%StatsTab.visible = not _expanded
+	var was_visible: bool = %Stats.visible
+	%Stats.visible = any
+	if any and not was_visible:
+		%Stats.modulate.a = 0.0
+		create_tween().tween_property(%Stats, "modulate:a", 1.0, 0.18)
+	_place_stats()
+
+
+func _place_stats() -> void:
+	var top: float = %StatsTab.offset_top
+	if not _expanded:
+		top += %StatsTab.size.y + STATS_GAP
+	%Stats.offset_top = top
+	%Stats.offset_bottom = top
+
+
 func _on_stat_changed(stat_name: String, new_value: float, old_value: float) -> void:
 	if not STATS.has(stat_name):
 		return
+	if new_value > old_value:
+		_peek_stat(stat_name)
 	var key: String = STATS[stat_name]
 	var bar := _bar(stat_name)
 	# Animate big jumps (interaction gains); apply gradual decay instantly so the
@@ -147,7 +230,9 @@ func _on_stat_changed(stat_name: String, new_value: float, old_value: float) -> 
 		bar.remove_theme_stylebox_override("fill")
 		value_label.remove_theme_color_override("font_color")
 		row.remove_theme_stylebox_override("panel")
-	get_node("%" + FIXES[stat_name]).alert = crit
+	_tab_badges[stat_name].alert = crit
+	if FIXES.has(stat_name):
+		get_node("%" + FIXES[stat_name]).alert = crit
 
 
 # ─── Header ───────────────────────────────────────────────────────────────────

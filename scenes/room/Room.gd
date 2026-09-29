@@ -102,6 +102,7 @@ func _save() -> void:
 		"notifications_enabled": GameState.notifications_enabled,
 		"sfx_enabled":           GameState.sfx_enabled,
 		"sfx_volume":            GameState.sfx_volume,
+		"haptics_enabled":       GameState.haptics_enabled,
 		"decay_test_mode":       GameState.decay_test_mode,
 	}
 	var cosmetics := {
@@ -120,6 +121,7 @@ func _apply_settings(settings: Dictionary) -> void:
 	GameState.notifications_enabled = bool(settings.get("notifications_enabled", true))
 	GameState.sfx_enabled = bool(settings.get("sfx_enabled", true))
 	GameState.sfx_volume = float(settings.get("sfx_volume", 0.8))
+	GameState.haptics_enabled = bool(settings.get("haptics_enabled", true))
 	GameState.decay_test_mode = bool(settings.get("decay_test_mode", false))
 
 

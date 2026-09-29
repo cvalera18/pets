@@ -35,9 +35,6 @@ msgstr "Dormir"
 msgid "ACTION_WAKE"
 msgstr "Despertar"
 
-msgid "ACTION_PET"
-msgstr "Mimar"
-
 # ── Notificaciones ────────────────────────────────────────────────────────────
 
 msgid "NOTIF_HUNGRY_TITLE"
@@ -129,6 +126,9 @@ msgstr "Sonido"
 msgid "SETTINGS_VOLUME"
 msgstr "Volumen"
 
+msgid "SETTINGS_VIBRATION"
+msgstr "Vibración"
+
 msgid "SETTINGS_TEST_MODE"
 msgstr "Modo de prueba"
 
@@ -147,7 +147,24 @@ msgid "THOUGHT_ENERGY"
 msgstr "Qué sueño..."
 
 msgid "THOUGHT_AFFECTION"
-msgstr "¿Un mimo?"
+msgstr "¿Me acaricias?"
+
+msgid "THOUGHT_STROKE_HINT"
+msgstr "Acaríciame el lomo"
+
+# ── Caricias ──────────────────────────────────────────────────────────────────
+
+msgid "TOUCH_AGAINST"
+msgstr "¡A contrapelo no!"
+
+msgid "TOUCH_ROUGH"
+msgstr "¡Más suave!"
+
+msgid "TOUCH_BELLY"
+msgstr "¡Trampa!"
+
+msgid "TOUCH_TAIL"
+msgstr "¡La cola no!"
 
 # ── Vínculo ───────────────────────────────────────────────────────────────────
 

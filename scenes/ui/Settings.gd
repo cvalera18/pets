@@ -4,6 +4,7 @@
 ## in Settings.tscn; this wires it to GameState. Self-frees on "Listo"/back.
 extends CanvasLayer
 
+const Haptics := preload("res://systems/Haptics.gd")
 
 func _ready() -> void:
 	var cur := TranslationServer.get_locale().split("_")[0]
@@ -16,6 +17,8 @@ func _ready() -> void:
 	%Notifications.toggled.connect(_on_notifications_toggled)
 	%Sound.set_on(GameState.sfx_enabled)
 	%Sound.toggled.connect(_on_sfx_toggled)
+	%Vibration.set_on(GameState.haptics_enabled)
+	%Vibration.toggled.connect(_on_vibration_toggled)
 	%TestMode.set_on(GameState.decay_test_mode)
 	%TestMode.toggled.connect(_on_test_mode_toggled)
 
@@ -49,6 +52,15 @@ func _on_notifications_toggled(enabled: bool) -> void:
 
 func _on_sfx_toggled(enabled: bool) -> void:
 	GameState.sfx_enabled = enabled
+	_persist()
+
+
+func _on_vibration_toggled(enabled: bool) -> void:
+	GameState.haptics_enabled = enabled
+	if enabled:
+		Haptics.vibrate(40)
+	else:
+		Haptics.stop()
 	_persist()
 
 
