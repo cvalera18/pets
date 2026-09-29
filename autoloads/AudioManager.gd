@@ -8,16 +8,25 @@
 ##
 ## Decoupled like everything else: it listens to EventBus.burst_requested (the
 ## same signal the particle juice uses, so a sound only plays on a *successful*
-## interaction) plus pet_woken, and respects GameState.sfx_enabled.
+## interaction), sound_requested, pet_woken and purr_changed, and respects
+## GameState.sfx_enabled.
 extends Node
 
 const RATE: int       = 22050
 const POOL_SIZE: int  = 5
 const VOLUME_DB: float = -4.0
 
+## One purr "breath" (inhale + exhale), replayed while Mochi purrs.
+const PURR_LOOP: float = 2.4
+const PURR_GAIN: float = 0.8
+
 var _sfx: Dictionary = {}
 var _players: Array[AudioStreamPlayer] = []
 var _next: int = 0
+
+var _purr_player: AudioStreamPlayer
+var _purr_level: float = 0.0
+var _purr_target: float = 0.0
 
 
 func _ready() -> void:
@@ -34,11 +43,32 @@ func _ready() -> void:
 		"sleep":   _make_sleep(),
 		"wake":    _make_wake(),
 		"achieve": _make_achieve(),
+		"mrrp":    _make_mrrp(),
+		"grumble": _make_grumble(),
 	}
 
+	_purr_player = AudioStreamPlayer.new()
+	_purr_player.stream = _make_purr()
+	add_child(_purr_player)
+
 	EventBus.burst_requested.connect(_on_burst_requested)
+	EventBus.sound_requested.connect(_play)
 	EventBus.pet_woken.connect(_on_pet_woken)
 	EventBus.achievement_unlocked.connect(_on_achievement_unlocked)
+	EventBus.purr_changed.connect(func(intensity: float) -> void: _purr_target = intensity)
+
+
+## Eases the purr's volume toward the pet's purr intensity and replays it while
+## she purrs.
+func _process(delta: float) -> void:
+	_purr_level = move_toward(_purr_level, _purr_target, delta * 2.0)
+	if _purr_level <= 0.01 or not GameState.sfx_enabled:
+		if _purr_player.playing:
+			_purr_player.stop()
+		return
+	_purr_player.volume_db = linear_to_db(_purr_level * PURR_GAIN * clampf(GameState.sfx_volume, 0.0, 1.0))
+	if not _purr_player.playing:
+		_purr_player.play()
 
 
 # ─── Playback ─────────────────────────────────────────────────────────────────
@@ -148,4 +178,58 @@ func _make_achieve() -> AudioStreamWAV:
 	_note(b, 659.25, 0.10, 0.4)
 	_note(b, 783.99, 0.10, 0.4)
 	_note(b, 1046.50, 0.22, 0.4, 4.0)
+	return _to_stream(b)
+
+
+## A purr: dark noise chopped into ~25 rumbles per second, swelling on the exhale.
+## 25 Hz and the breath both complete whole cycles in PURR_LOOP and the chop is
+## silent at both ends, so replaying it back to back has no click. It is not a WAV
+## loop on purpose: Godot's looped WAV playback crashed Android's audio thread
+## (SIGSEGV in AudioTrack) at the seam; _process restarts it instead.
+func _make_purr() -> AudioStreamWAV:
+	var n := int(PURR_LOOP * RATE)
+	var b := PackedFloat32Array()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var lp1 := 0.0
+	var lp2 := 0.0
+	var peak := 0.0
+	for i in n:
+		var t := float(i) / float(RATE)
+		lp1 += (rng.randf_range(-1.0, 1.0) - lp1) * 0.16
+		lp2 += (lp1 - lp2) * 0.16
+		var chop := pow(maxf(0.0, sin(TAU * 25.0 * t)), 2.0)
+		var breath := 0.6 + 0.4 * sin(TAU * t / PURR_LOOP)
+		var v := lp2 * chop * breath
+		b.append(v)
+		peak = maxf(peak, absf(v))
+	for i in n:
+		b[i] = b[i] / peak * 0.7
+	return _to_stream(b)
+
+
+func _make_mrrp() -> AudioStreamWAV:
+	var b := PackedFloat32Array()  # short rising trill, a cat's "hi"
+	var dur := 0.22
+	var phase := 0.0
+	for i in int(dur * RATE):
+		var t := float(i) / float(RATE)
+		var p := t / dur
+		phase += TAU * lerpf(380.0, 640.0, sqrt(p)) / float(RATE)
+		var trill := 0.65 + 0.35 * sin(TAU * 32.0 * t)
+		b.append((sin(phase) + 0.3 * sin(2.0 * phase)) * sin(PI * p) * trill * 0.35)
+	return _to_stream(b)
+
+
+func _make_grumble() -> AudioStreamWAV:
+	var b := PackedFloat32Array()  # low falling "mrrr", rough with a slow flutter
+	var dur := 0.28
+	var phase := 0.0
+	for i in int(dur * RATE):
+		var t := float(i) / float(RATE)
+		var p := t / dur
+		phase += TAU * lerpf(230.0, 150.0, p) / float(RATE)
+		var flutter := 0.5 + 0.5 * sin(TAU * 18.0 * t)
+		var env := minf(1.0, t / 0.02) * pow(1.0 - p, 1.5)
+		b.append((sin(phase) + 0.5 * sin(2.0 * phase) + 0.25 * sin(3.0 * phase)) * env * flutter * 0.3)
 	return _to_stream(b)

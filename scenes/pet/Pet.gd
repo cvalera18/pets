@@ -3,7 +3,9 @@
 ##
 ## Responsibilities:
 ##   • Ticking PetStats via apply_decay(delta) every frame
-##   • Responding to player interactions (fed, played, slept, petted)
+##   • Responding to player interactions (fed) and hunting the feather wand (PetPlay)
+##   • Sleeping on her own when tired and waking when rested (no sleep button)
+##   • Caresses: turning PetTouch's gestures into affection, purring and reactions
 ##   • Playing animations via AnimatedSprite2D
 ##   • Scheduling local notifications when stats drop to critical / zero
 ##
@@ -38,6 +40,7 @@ const BREATHE_AMP_IDLE  := 0.035
 const BREATHE_AMP_SLEEP := 0.06
 const BREATHE_AMP_SAD   := 0.02
 
+# Pixels the torso rises per breath; the feet never leave the rug.
 const BOB_AMP_IDLE  := 2.5
 const BOB_AMP_SLEEP := 1.0
 const BOB_AMP_SAD   := 0.8
@@ -48,11 +51,27 @@ const REACT_DURATION := 0.55
 const CONTENT_DURATION := 2.5
 const REACT_STRETCH  := 0.22
 
+const PetTouch := preload("res://scenes/pet/PetTouch.gd")
+const PetPlay := preload("res://scenes/pet/PetPlay.gd")
+const Haptics := preload("res://systems/Haptics.gd")
+
+# ─── Caress tuning ────────────────────────────────────────────────────────────
+
+const PURR_GRACE := 0.35        # seconds the purr keeps swelling after the last stroke
+const PURR_BREATH := 2.4        # seconds per purr breath, same as AudioManager's loop
+const PURR_HAPTIC_STEP := 0.09
+const HINT_AFTER := 20.0        # a tap hints at stroking only if none happened this recently
+const HINT_COOLDOWN := 8.0
+
+const SLEEP_CHECK_EVERY := 3.0
+const ZZZ_EVERY := 5.0
+
 # ─── Child references ─────────────────────────────────────────────────────────
 
-@onready var sprite:           Node2D           = $Sprite
-@onready var shadow:           Node2D           = $Shadow
-@onready var interaction_area: Area2D           = $InteractionArea
+@onready var sprite: Node2D   = $Sprite
+@onready var shadow: Node2D   = $Shadow
+@onready var touch:  PetTouch = $Touch
+@onready var play:   PetPlay  = $Play
 
 # ─── State ────────────────────────────────────────────────────────────────────
 
@@ -63,8 +82,13 @@ var bond_level: int      = 1
 
 var _interaction_cooldown: float  = 0.0
 var _is_sleeping:          bool   = false
-var _sleep_timer:          float  = 0.0
 var _thought_timer:        float  = 0.0
+
+# Sleep runtime state (she decides when; see the Sleep section).
+var _sleep_check: float = 0.0   # seconds to the next "am I sleepy?" look
+var _doze_grace:  float = GameConfig.OPEN_GRACE
+var _sulk:        float = 0.0   # grumpy after being woken
+var _zzz_t:       float = 0.0
 
 # Procedural animation runtime state.
 var _mood:       Mood    = Mood.IDLE
@@ -72,7 +96,6 @@ var _anim_time:  float   = 0.0
 var _react_t:    float   = REACT_DURATION  # Starts "finished" (no active pop).
 var _content_t:  float   = 0.0
 var _base_scale: Vector2 = Vector2.ONE
-var _base_pos:   Vector2 = Vector2.ZERO
 var _shadow_scale: Vector2 = Vector2.ONE
 
 # Active personality trait + its motion multipliers (1.0 = no trait).
@@ -81,19 +104,32 @@ var _trait_breathe: float  = 1.0
 var _trait_bob:     float  = 1.0
 var _trait_react:   float  = 1.0
 
+# Caress runtime state.
+var _purr:         float = 0.0
+var _purr_sent:    float = 0.0
+var _purr_clock:   float = 0.0
+var _haptic_t:     float = 0.0
+var _purr_buzzing: bool  = false
+var _stroking:     float = 0.0
+var _stroke_time:  float = 0.0
+var _stroke_gain:  float = 0.0
+var _since_stroke: float = HINT_AFTER
+var _hint_cd:      float = 0.0
+
 
 func _ready() -> void:
-	# Area2D.input_event only fires while the viewport is doing physics picking,
-	# which is OFF by default — without this, tapping/clicking the pet silently
-	# does nothing (the InteractionArea never sees the touch).
-	get_viewport().physics_object_picking = true
-	interaction_area.input_event.connect(_on_interaction_input)
+	touch.tapped.connect(_on_tapped)
+	touch.petting.connect(_on_petting)
+	touch.annoyed.connect(_on_annoyed)
+	touch.looked.connect(_on_looked)
+	touch.released.connect(func() -> void: sprite.release_look())
+	play.pounced.connect(func() -> void: _haptic(15))
+	play.caught.connect(_on_play_caught)
+	play.missed.connect(_on_play_missed)
 
 	EventBus.pet_fed.connect(_on_fed)
-	EventBus.pet_played.connect(_on_played)
-	EventBus.pet_slept.connect(_on_slept)
-	EventBus.pet_woken.connect(_on_woken)
-	EventBus.pet_petted.connect(_on_petted)
+	EventBus.play_mode_changed.connect(_on_play_mode_changed)
+	EventBus.wand_moved.connect(_on_wand_moved)
 	EventBus.stat_depleted.connect(_on_stat_depleted)
 	EventBus.stat_critical.connect(_on_stat_critical)
 	EventBus.stat_recovered.connect(_on_stat_recovered)
@@ -107,6 +143,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_animate(delta)  # Procedural "alive" motion — runs even while sleeping.
+	_update_purr(delta)  # She can be stroked while asleep too.
 
 	if _content_t > 0.0:
 		_content_t -= delta
@@ -114,19 +151,29 @@ func _process(delta: float) -> void:
 			_update_mood_from_stats()
 
 	if _is_sleeping:
-		_sleep_timer -= delta
-		if _sleep_timer <= 0.0:
-			EventBus.pet_woken.emit()  # Auto-wake after the nap finishes.
-		return  # Decay is paused while the pet sleeps.
+		_sleep_tick(delta)
+		return  # Only energy changes while she sleeps.
 
+	play.can_hunt = stats.energy > GameConfig.CRITICAL_THRESHOLD and _sulk <= 0.0
+	play.update(delta)
 	stats.apply_decay(delta)
 
 	if _interaction_cooldown > 0.0:
 		_interaction_cooldown -= delta
+	if _sulk > 0.0:
+		_sulk -= delta
+	if _doze_grace > 0.0:
+		_doze_grace -= delta
 
 	_thought_timer -= delta
 	if _thought_timer <= 0.0:
 		_maybe_think()
+
+	_sleep_check -= delta
+	if _sleep_check <= 0.0:
+		_sleep_check = SLEEP_CHECK_EVERY
+		if _wants_to_sleep():
+			_fall_asleep()
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
@@ -154,6 +201,7 @@ func load_from_save(pet_data: Dictionary, offline_seconds: float) -> void:
 	if offline_seconds > 0.0:
 		stats.apply_offline_decay(offline_seconds)
 
+	_doze_grace = GameConfig.OPEN_GRACE
 	_update_anim_from_stats()
 	_update_mood_from_stats()
 
@@ -187,93 +235,253 @@ func _on_fed() -> void:
 	_reset_cooldown()
 
 
-func _on_played() -> void:
-	if not _can_interact():
-		return
-	if stats.energy <= GameConfig.CRITICAL_THRESHOLD:
-		# Too tired to play — give visual feedback instead of a silent no-op.
+# ─── Play (feather wand) ──────────────────────────────────────────────────────
+# "Jugar" takes out the wand (FeatherWand); PetPlay decides when she pounces and
+# these handlers pay out each catch. A long session tires her until she dozes off.
+
+func _on_play_mode_changed(active: bool) -> void:
+	play.set_active(active)
+	touch.enabled = not active
+	sprite.set_excited(1.8 if active else 1.0)
+	if active and stats.energy <= GameConfig.CRITICAL_THRESHOLD:
 		_feedback(tr("PET_TOO_TIRED_TO_PLAY"), GameConfig.COLOR_NEUTRAL, "", 15)
+	if not active:
+		sprite.release_look()
+
+
+func _on_wand_moved(screen_pos: Vector2, held: bool) -> void:
+	if not play.active or _is_sleeping:
 		return
+	# The hunt measures from her resting pose; her eyes use the rig as it is now.
+	var rest := (get_global_transform_with_canvas().affine_inverse() * screen_pos) / _base_scale + PetTouch.ORIGIN
+	play.set_feather(rest, held)
+	sprite.look_at_canvas(touch.to_canvas(screen_pos))
+
+
+func _on_play_caught(_at: Vector2) -> void:
 	var before := stats.happiness
-	var gain := GameConfig.PLAY_HAPPINESS_GAIN * Personality.gain_factor("play")
+	var gain := GameConfig.PLAY_CATCH_HAPPINESS * Personality.gain_factor("play")
 	stats.happiness += gain
-	stats.energy -= GameConfig.PLAY_ENERGY_COST * Personality.play_energy_cost_factor()
+	stats.energy -= GameConfig.PLAY_CATCH_ENERGY * Personality.play_energy_cost_factor()
 	_play_anim(ANIM_PLAY)
-	_trigger_reaction()
 	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HAPPINESS, "play", 40)
 	_add_bond(_bond_amount(GameConfig.BOND_XP_PLAY, "play"))
 	Personality.record("play", before)
 	_cheer_up()
-	_reset_cooldown()
+	EventBus.pet_played.emit()
+	EventBus.wand_caught.emit()
 
 
-func _on_slept() -> void:
-	if not _can_interact() or _is_sleeping:
-		return
-	var before := stats.energy
+func _on_play_missed(_at: Vector2) -> void:
+	stats.happiness += GameConfig.PLAY_MISS_HAPPINESS * Personality.gain_factor("play")
+	stats.energy -= GameConfig.PLAY_MISS_ENERGY * Personality.play_energy_cost_factor()
+	EventBus.floating_text_requested.emit(tr("PLAY_MISS"), GameConfig.COLOR_NEUTRAL, global_position)
+	_haptic(10)
+
+
+# ─── Sleep ────────────────────────────────────────────────────────────────────
+# Nobody puts Mochi to bed: she dozes off when she's tired (sooner at night) and
+# wakes once rested. Waking her early makes her grumpy for a while.
+
+func _wants_to_sleep() -> bool:
+	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy():
+		return false
+	return stats.energy < (GameConfig.SLEEPY_ENERGY_NIGHT if _is_night() else GameConfig.SLEEPY_ENERGY)
+
+
+func _fall_asleep() -> void:
 	_is_sleeping = true
-	_sleep_timer = GameConfig.SLEEP_DURATION
-	stats.energy += GameConfig.SLEEP_ENERGY_GAIN * Personality.gain_factor("sleep")
+	_zzz_t = ZZZ_EVERY
+	_content_t = 0.0
 	_play_anim(ANIM_SLEEP)
 	_set_mood(Mood.SLEEP)
-	_feedback("Zzz", GameConfig.COLOR_ENERGY, "sleep", 20)
-	Personality.record("sleep", before)
+	sprite.release_look()
+	_feedback("Zzz", GameConfig.COLOR_ENERGY, "sleep", 0)
 	EventBus.sleeping_changed.emit(true)
+	EventBus.pet_slept.emit()
 
 
-func _on_woken() -> void:
+func _sleep_tick(delta: float) -> void:
+	var regen := GameConfig.SLEEP_REGEN_TEST if GameState.decay_test_mode else GameConfig.SLEEP_REGEN_NORMAL
+	stats.energy += regen * Personality.gain_factor("sleep") * delta
+	_zzz_t -= delta
+	if _zzz_t <= 0.0:
+		_zzz_t = ZZZ_EVERY
+		EventBus.floating_text_requested.emit("Zzz", GameConfig.COLOR_ENERGY, global_position)
+	# At night she sleeps on till morning even once rested.
+	if stats.energy >= GameConfig.STAT_MAX and not _is_night():
+		_wake_up(false)
+
+
+## disturbed = you woke her (a tap, a rough touch) instead of her waking rested.
+func _wake_up(disturbed: bool) -> void:
 	if not _is_sleeping:
 		return
 	_is_sleeping = false
 	_update_anim_from_stats()
 	_update_mood_from_stats()
 	EventBus.sleeping_changed.emit(false)
-	_reset_cooldown()
-
-
-func _on_petted() -> void:
-	if not _can_interact():
-		return
-	var before := stats.affection
-	var gain := GameConfig.PET_AFFECTION_GAIN * Personality.gain_factor("pet")
-	stats.affection += gain
-	_play_anim(ANIM_HAPPY)
+	EventBus.pet_woken.emit()
 	_trigger_reaction()
-	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_AFFECTION, "love", 25)
+	if disturbed:
+		_sulk = GameConfig.WAKE_SULK
+		_doze_grace = GameConfig.WAKE_GRACE
+		_stroking = 0.0
+		sprite.flinch()
+		EventBus.floating_text_requested.emit(tr("PET_WOKEN_GRUMPY"), GameConfig.COLOR_NEUTRAL, global_position)
+		EventBus.sound_requested.emit("grumble")
+		_haptic(35)
+	else:
+		# Letting her sleep it off is the care that grows a "dormilona".
+		Personality.record("sleep")
+
+
+func _is_night() -> bool:
+	var hour: int = Time.get_datetime_dict_from_system()["hour"]
+	return hour >= GameConfig.NIGHT_START_HOUR or hour < GameConfig.NIGHT_END_HOUR
+
+
+# ─── Caresses ─────────────────────────────────────────────────────────────────
+# Affection comes from stroking Mochi, not from a button: PetTouch reads the
+# finger by zone and these handlers turn it into stats, purring and reactions.
+
+func _on_petting(zone: String, delta: float, _at: Vector2) -> void:
+	_stroking = PURR_GRACE
+	_since_stroke = 0.0
+	var factor: float = GameConfig.STROKE_ZONE_FACTOR.get(zone, 1.0)
+	if _is_sleeping or _sulk > 0.0:
+		factor *= 0.5
+	var before := stats.affection
+	stats.affection += GameConfig.STROKE_AFFECTION_RATE * factor * delta * Personality.gain_factor("pet")
+	_stroke_gain += stats.affection - before
+	_stroke_time += delta
+	if _stroke_time >= GameConfig.STROKE_AWARD_TIME:
+		_stroke_time = 0.0
+		_award_caress()
+	# Eyes closed in bliss while she purrs, whatever her stats (not while sulking).
+	if not _is_sleeping and _sulk <= 0.0 and _purr > 0.25:
+		_content_t = maxf(_content_t, 0.6)
+		if _mood != Mood.CONTENT:
+			_set_mood(Mood.CONTENT)
+
+
+## A few seconds of good strokes: bond XP, hearts and the affection gained so far.
+func _award_caress() -> void:
+	if _stroke_gain >= 1.0:
+		EventBus.floating_text_requested.emit("+%d" % roundi(_stroke_gain), GameConfig.COLOR_AFFECTION, global_position)
+	_stroke_gain = 0.0
+	if not _is_sleeping:
+		EventBus.burst_requested.emit("love", global_position)
 	_add_bond(_bond_amount(GameConfig.BOND_XP_PET, "pet"))
-	Personality.record("pet", before)
-	_cheer_up()
-	_reset_cooldown()
+	Personality.record("pet", stats.affection)
+	EventBus.pet_petted.emit()
+
+
+func _on_annoyed(reason: String, _at: Vector2) -> void:
+	if _is_sleeping:
+		_wake_up(true)
+		return
+	_stroking = 0.0
+	_purr = minf(_purr, 0.15)
+	_stroke_time = 0.0
+	_content_t = 0.0
+	_update_mood_from_stats()
+	sprite.flinch()
+	_trigger_reaction()
+	EventBus.floating_text_requested.emit(tr("TOUCH_" + reason.to_upper()), GameConfig.COLOR_NEUTRAL, global_position)
+	EventBus.sound_requested.emit("grumble")
+	_haptic(35)
+
+
+func _on_tapped(zone: String, at: Vector2) -> void:
+	if _is_sleeping:
+		_wake_up(true)
+		return
+	if zone == "tail":
+		_on_annoyed("tail", at)
+		return
+	_trigger_reaction()
+	EventBus.sound_requested.emit("mrrp")
+	_haptic(12)
+	if _since_stroke >= HINT_AFTER and _hint_cd <= 0.0:
+		_hint_cd = HINT_COOLDOWN
+		EventBus.pet_thought.emit(tr("THOUGHT_STROKE_HINT"), "affection")
+
+
+func _on_looked(at: Vector2) -> void:
+	if not _is_sleeping:
+		sprite.look_at_canvas(at)
+
+
+## Swells the purr while strokes keep coming and lets it fade after; the audio
+## follows purr_changed and the phone hums along in soft "breaths".
+func _update_purr(delta: float) -> void:
+	_since_stroke += delta
+	if _hint_cd > 0.0:
+		_hint_cd -= delta
+	var cap := 0.5 if _is_sleeping else 1.0
+	if _stroking > 0.0:
+		_stroking -= delta
+		_purr = move_toward(_purr, cap, delta / GameConfig.PURR_RISE)
+	else:
+		_purr = move_toward(_purr, 0.0, delta / GameConfig.PURR_FALL)
+	if absf(_purr - _purr_sent) > 0.02 or (_purr == 0.0 and _purr_sent != 0.0):
+		_purr_sent = _purr
+		EventBus.purr_changed.emit(_purr)
+	_purr_haptics(delta)
+
+
+## The phone purrs along: one native 25 Hz breath at a time, re-issued as each
+## breath ends so it follows the purr's strength and stops within a breath.
+func _purr_haptics(delta: float) -> void:
+	var prev := _purr_clock
+	_purr_clock = fmod(_purr_clock + delta, PURR_BREATH)
+	if _purr < 0.15:
+		if _purr_buzzing:
+			_purr_buzzing = false
+			Haptics.stop()
+		return
+	if Haptics.has_waveforms():
+		if not _purr_buzzing or _purr_clock < prev:
+			Haptics.purr_breath(PURR_BREATH, _purr)
+		_purr_buzzing = true
+		return
+	_purr_buzzing = true
+	_haptic_t -= delta
+	if _haptic_t > 0.0:
+		return
+	_haptic_t = PURR_HAPTIC_STEP
+	var breath := 0.5 + 0.5 * sin(TAU * _purr_clock / PURR_BREATH)
+	# Each pulse outlasts the step, so the buzz never gaps between calls.
+	Haptics.vibrate(int(PURR_HAPTIC_STEP * 1000.0) + 40, clampf((0.05 + 0.15 * breath) * _purr, 0.04, 1.0))
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_stroking = 0.0
+		_purr = 0.0
+		if _purr_buzzing:
+			_purr_buzzing = false
+			Haptics.stop()
 
 
 # ─── Stat Event Responses ─────────────────────────────────────────────────────
 
 func _on_stat_depleted(stat_name: String) -> void:
 	_play_anim(ANIM_SAD)
-	_set_mood(Mood.SAD)
+	_update_mood_from_stats()
 	_schedule_notification(stat_name, 1.0)  # Full delay for depleted.
 
 
 func _on_stat_critical(stat_name: String, _value: float) -> void:
 	_play_anim(ANIM_CRITICAL)
-	_set_mood(Mood.SAD)
+	_update_mood_from_stats()
 	_schedule_notification(stat_name, 0.5)  # Half delay for critical warning.
 
 
 func _on_stat_recovered(_stat_name: String, _value: float) -> void:
 	_update_anim_from_stats()
 	_update_mood_from_stats()
-
-
-# ─── Touch / Click ────────────────────────────────────────────────────────────
-
-func _on_interaction_input(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
-	if event is InputEventScreenTouch and event.pressed:
-		EventBus.pet_petted.emit()
-	elif event is InputEventMouseButton \
-			and event.pressed \
-			and event.button_index == MOUSE_BUTTON_LEFT:
-		EventBus.pet_petted.emit()  # Editor / PC fallback for testing.
 
 
 # ─── Private Helpers ──────────────────────────────────────────────────────────
@@ -297,8 +505,7 @@ func _feedback(text: String, color: Color, burst_kind: String, haptic_ms: int) -
 
 ## Fires device haptics on mobile only (no-op on desktop / editor).
 func _haptic(ms: int) -> void:
-	if ms > 0 and OS.has_feature("mobile"):
-		Input.vibrate_handheld(ms)
+	Haptics.vibrate(ms)
 
 
 ## Periodically voices the pet's neediest stat as a "thought" bubble (shown by the HUD).
@@ -375,15 +582,13 @@ func _update_anim_from_stats() -> void:
 # ─── Procedural animation ─────────────────────────────────────────────────────
 # Brings the (otherwise static) sprite to life without any new art:
 #   • a volume-preserving squash-and-stretch "breathing" loop
-#   • a soft bob that lifts off the floor (never sinks into it), with the floor
-#     shadow staying put and shrinking/fading a touch as the body rises
+#   • a soft torso lift with each breath while the feet stay planted on the rug
 #   • a one-shot "pop" reaction on interactions
 # Everything is composed each frame from the rest pose captured in _ready, so it
 # layers cleanly on top of whatever SpriteFrames animation is (or isn't) playing.
 
 func _capture_rest_pose() -> void:
 	_base_scale = sprite.scale
-	_base_pos = sprite.position
 	_shadow_scale = shadow.scale
 
 
@@ -400,15 +605,17 @@ func _animate(delta: float) -> void:
 		var wobble := sin(p * PI * 3.0) * (1.0 - p) * REACT_STRETCH * _trait_react
 		pop = Vector2(1.0 - wobble * 0.5, 1.0 + wobble)
 
-	sprite.scale = _base_scale * breathe_scale * pop
-
-	var bob := (cos(_anim_time) - 1.0) * _bob_amp()
-	sprite.position = _base_pos + Vector2(0.0, bob)
-
-	var lift := clampf(-bob / (2.0 * BOB_AMP_IDLE), 0.0, 1.0)
-	var spread := 1.0 - lift * 0.08
-	shadow.scale = _shadow_scale * Vector2(breathe_scale.x * pop.x * spread, spread)
-	shadow.modulate.a = 1.0 - lift * 0.3
+	sprite.scale = _base_scale * breathe_scale * pop * play.pose_scale
+	# Moving the whole sprite lifted the feet off the rug and read as floating;
+	# only a pounce (PetPlay's pose) takes her off the floor.
+	sprite.set_torso_lift((1.0 - cos(_anim_time)) * 0.5 * _bob_amp() + play.torso_dip)
+	sprite.position = play.pose_offset * _base_scale
+	sprite.rotation = play.pose_tilt
+	sprite.set_leap(play.leap)
+	var height := clampf(-play.pose_offset.y / 150.0, 0.0, 1.0)
+	shadow.position.x = sprite.position.x
+	shadow.scale = _shadow_scale * Vector2(breathe_scale.x * pop.x, 1.0) * (1.0 - 0.4 * height)
+	shadow.modulate.a = 1.0 - 0.5 * height
 
 
 func _trigger_reaction() -> void:
@@ -421,8 +628,12 @@ func _set_mood(mood: Mood) -> void:
 		sprite.set_mood(mood)
 
 
+## Asleep she keeps her sleeping face, whatever her stats do meanwhile.
 func _update_mood_from_stats() -> void:
-	_set_mood(Mood.IDLE if stats.is_healthy() else Mood.SAD)
+	if _is_sleeping:
+		_set_mood(Mood.SLEEP)
+	else:
+		_set_mood(Mood.IDLE if stats.is_healthy() else Mood.SAD)
 
 
 ## After a successful care action a healthy pet shows its content face for a bit.

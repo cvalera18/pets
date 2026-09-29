@@ -36,16 +36,68 @@ const DECAY_MULTIPLIER_TEST:   float = 1.0
 # ─── Interaction Gains ────────────────────────────────────────────────────────
 
 const FEED_HUNGER_GAIN:       float = 30.0
-const PLAY_HAPPINESS_GAIN:    float = 25.0
-const PLAY_ENERGY_COST:   float = 10.0  # Playing costs energy
-const SLEEP_ENERGY_GAIN:  float = 50.0
-const PET_AFFECTION_GAIN: float = 20.0
+
+# ─── Play (feather wand) ──────────────────────────────────────────────────────
+
+## Each pounce that catches the feather: happiness gained and energy spent, so a
+## long play session tires her out and she dozes off on her own.
+const PLAY_CATCH_HAPPINESS: float = 12.0
+const PLAY_CATCH_ENERGY:    float = 5.0
+## A miss (you whisked the feather away mid-leap) still counts a little.
+const PLAY_MISS_HAPPINESS:  float = 4.0
+const PLAY_MISS_ENERGY:     float = 3.0
+
+## The wand is put away by itself after this long untouched.
+const WAND_IDLE_TIMEOUT: float = 10.0
+
+# ─── Sleep (Mochi decides) ────────────────────────────────────────────────────
+
+## She falls asleep on her own below this energy; she's sleepier at night.
+const SLEEPY_ENERGY:       float = 25.0
+const SLEEPY_ENERGY_NIGHT: float = 50.0
+const NIGHT_START_HOUR:    int   = 22
+const NIGHT_END_HOUR:      int   = 7
+
+## Energy regained per second asleep: 25→100 takes ~15 min, or ~30 s in test mode.
+const SLEEP_REGEN_NORMAL: float = 0.08
+const SLEEP_REGEN_TEST:   float = 2.5
+
+## After being woken she sulks a while (half the joy from caresses) and won't
+## doze off again right away.
+const WAKE_SULK:  float = 20.0
+const WAKE_GRACE: float = 45.0
+
+## Seconds after opening the game before she may doze off, so she greets you first.
+const OPEN_GRACE: float = 30.0
+
+# ─── Absence (offline) ────────────────────────────────────────────────────────
+
+## While you're away stats settle at a calm floor instead of emptying, so coming
+## back never finds her sad; only days of neglect lower that floor.
+const OFFLINE_FLOOR: float = 45.0
+const NEGLECT_AFTER: float = 172800.0  # 48 h away before the floor starts to sink…
+const NEGLECT_SPAN:  float = 86400.0   # …over one more day…
+const NEGLECT_FLOOR: float = 15.0      # …down to here
+
+# ─── Caresses (touch) ─────────────────────────────────────────────────────────
+
+## Affection per second of good stroking, before the zone and trait factors.
+const STROKE_AFFECTION_RATE: float = 8.0
+
+## Seconds of good stroking that earn one award (bond XP, hearts, "+N").
+const STROKE_AWARD_TIME: float = 2.5
+
+## How much each part of Mochi enjoys being stroked (see PetTouch zones).
+const STROKE_ZONE_FACTOR: Dictionary = {
+	"cheeks": 1.4, "head": 1.15, "back": 1.0, "body": 0.6, "belly": 0.6,
+}
+
+## Seconds for the purr to swell to full while stroking, and to fade once you stop.
+const PURR_RISE: float = 2.5
+const PURR_FALL: float = 1.2
 
 ## Seconds between allowed interactions. Prevents button spam.
 const INTERACTION_COOLDOWN: float = 2.0
-
-## How long the pet naps before it auto-wakes when put to sleep.
-const SLEEP_DURATION: float = 8.0
 
 ## Idle "thought" bubbles — the pet voices its neediest stat now and then.
 const THOUGHT_INTERVAL_MIN: float = 6.0

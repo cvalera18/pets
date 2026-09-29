@@ -29,14 +29,8 @@ msgstr "Alimentar"
 msgid "ACTION_PLAY"
 msgstr "Jugar"
 
-msgid "ACTION_SLEEP"
-msgstr "Dormir"
-
-msgid "ACTION_WAKE"
-msgstr "Despertar"
-
-msgid "ACTION_PET"
-msgstr "Mimar"
+msgid "ACTION_PUT_AWAY"
+msgstr "Guardar"
 
 # ── Notificaciones ────────────────────────────────────────────────────────────
 
@@ -93,7 +87,7 @@ msgid "PET_STATE_SAD"
 msgstr "Triste"
 
 msgid "PET_TOO_TIRED_TO_PLAY"
-msgstr "Demasiado cansado para jugar ahora..."
+msgstr "Demasiado cansada para jugar ahora..."
 
 # ── Onboarding ────────────────────────────────────────────────────────────────
 
@@ -129,6 +123,9 @@ msgstr "Sonido"
 msgid "SETTINGS_VOLUME"
 msgstr "Volumen"
 
+msgid "SETTINGS_VIBRATION"
+msgstr "Vibración"
+
 msgid "SETTINGS_TEST_MODE"
 msgstr "Modo de prueba"
 
@@ -147,7 +144,30 @@ msgid "THOUGHT_ENERGY"
 msgstr "Qué sueño..."
 
 msgid "THOUGHT_AFFECTION"
-msgstr "¿Un mimo?"
+msgstr "¿Me acaricias?"
+
+msgid "THOUGHT_STROKE_HINT"
+msgstr "Acaríciame el lomo"
+
+# ── Caricias ──────────────────────────────────────────────────────────────────
+
+msgid "TOUCH_AGAINST"
+msgstr "¡A contrapelo no!"
+
+msgid "TOUCH_ROUGH"
+msgstr "¡Más suave!"
+
+msgid "TOUCH_BELLY"
+msgstr "¡Trampa!"
+
+msgid "TOUCH_TAIL"
+msgstr "¡La cola no!"
+
+msgid "PET_WOKEN_GRUMPY"
+msgstr "¡Estaba durmiendo!"
+
+msgid "PLAY_MISS"
+msgstr "¡Casi!"
 
 # ── Vínculo ───────────────────────────────────────────────────────────────────
 

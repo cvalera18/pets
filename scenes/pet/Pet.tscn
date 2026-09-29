@@ -1,11 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://pets00pet001"]
+[gd_scene load_steps=6 format=3 uid="uid://pets00pet001"]
 
 [ext_resource type="Script" path="res://scenes/pet/Pet.gd" id="1_pet001"]
 [ext_resource type="Script" path="res://scenes/pet/MochiRig.gd" id="2_rig"]
 [ext_resource type="Script" path="res://scenes/pet/FloorShadow.gd" id="3_shadow"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
-radius = 130.0
+[ext_resource type="Script" path="res://scenes/pet/PetTouch.gd" id="4_touch"]
+[ext_resource type="Script" path="res://scenes/pet/PetPlay.gd" id="5_play"]
 
 [node name="Pet" type="Node2D"]
 script = ExtResource("1_pet001")
@@ -18,8 +17,9 @@ script = ExtResource("3_shadow")
 scale = Vector2(1.053, 1.053)
 script = ExtResource("2_rig")
 
-[node name="InteractionArea" type="Area2D" parent="."]
+[node name="Touch" type="Node" parent="." node_paths=PackedStringArray("rig")]
+script = ExtResource("4_touch")
+rig = NodePath("../Sprite")
 
-[node name="HitArea" type="CollisionShape2D" parent="InteractionArea"]
-position = Vector2(0, -138)
-shape = SubResource("CircleShape2D_hit")
+[node name="Play" type="Node" parent="."]
+script = ExtResource("5_play")

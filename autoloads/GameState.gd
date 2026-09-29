@@ -22,6 +22,10 @@ var sfx_enabled: bool = true
 ## SFX volume [0..1], set in Settings, applied by AudioManager per play.
 var sfx_volume: float = 0.8
 
+## Live vibration toggle (purr, taps, care feedback), set in Settings and
+## respected by Haptics.
+var haptics_enabled: bool = true
+
 ## When true, stats decay at the fast "test" rate; otherwise the normal pace.
 ## Read by PetStats; toggled in Settings.
 var decay_test_mode: bool = false

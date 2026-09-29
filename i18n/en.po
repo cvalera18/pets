@@ -29,14 +29,8 @@ msgstr "Feed"
 msgid "ACTION_PLAY"
 msgstr "Play"
 
-msgid "ACTION_SLEEP"
-msgstr "Sleep"
-
-msgid "ACTION_WAKE"
-msgstr "Wake up"
-
-msgid "ACTION_PET"
-msgstr "Pet"
+msgid "ACTION_PUT_AWAY"
+msgstr "Put away"
 
 # ── Notifications ─────────────────────────────────────────────────────────────
 
@@ -129,6 +123,9 @@ msgstr "Sound"
 msgid "SETTINGS_VOLUME"
 msgstr "Volume"
 
+msgid "SETTINGS_VIBRATION"
+msgstr "Vibration"
+
 msgid "SETTINGS_TEST_MODE"
 msgstr "Test mode"
 
@@ -148,6 +145,29 @@ msgstr "So sleepy..."
 
 msgid "THOUGHT_AFFECTION"
 msgstr "Pet me?"
+
+msgid "THOUGHT_STROKE_HINT"
+msgstr "Stroke my back"
+
+# ── Caresses ──────────────────────────────────────────────────────────────────
+
+msgid "TOUCH_AGAINST"
+msgstr "Not against the fur!"
+
+msgid "TOUCH_ROUGH"
+msgstr "Gently!"
+
+msgid "TOUCH_BELLY"
+msgstr "Gotcha!"
+
+msgid "TOUCH_TAIL"
+msgstr "Not the tail!"
+
+msgid "PET_WOKEN_GRUMPY"
+msgstr "I was sleeping!"
+
+msgid "PLAY_MISS"
+msgstr "So close!"
 
 # ── Bond ──────────────────────────────────────────────────────────────────────
 

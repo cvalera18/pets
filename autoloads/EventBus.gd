@@ -32,17 +32,33 @@ signal stat_recovered(stat_name: String, value: float)
 ## Player fed the pet.
 signal pet_fed
 
-## Player initiated a play session.
+## Emitted by Pet each time Mochi catches the feather wand (a play moment).
 signal pet_played
 
-## Player put the pet to sleep.
+## HUD's "Jugar" button: take the feather wand out, or put it away.
+signal play_requested
+
+## The feather wand appeared (true) or was put away (false).
+signal play_mode_changed(active: bool)
+
+## Where the wand's feather is (viewport coordinates) while the wand is out, and
+## whether a finger is holding it.
+signal wand_moved(screen_pos: Vector2, held: bool)
+
+## Mochi caught the feather; the wand gives a little tug.
+signal wand_caught
+
+## Emitted by Pet when Mochi dozes off on her own (she's tired, or it's night).
 signal pet_slept
 
-## Player woke the pet up.
+## Emitted by Pet when Mochi wakes up, rested or woken by the player.
 signal pet_woken
 
-## Player tapped / petted the pet.
+## Emitted by Pet each time a caress earns an award (a few seconds of good strokes).
 signal pet_petted
+
+## Mochi's purr intensity while being stroked: 0 = silent, 1 = full purr.
+signal purr_changed(intensity: float)
 
 ## Emitted when the pet's sleeping state changes.
 ## HUD listens to this to toggle the Sleep/Wake button label.
@@ -128,6 +144,9 @@ signal floating_text_requested(text: String, color: Color, world_pos: Vector2)
 ## @param kind       "love" | "play" | "eat" | "sleep" (see EffectsLayer.BURSTS)
 ## @param world_pos  global position to emit from
 signal burst_requested(kind: String, world_pos: Vector2)
+
+## A one-shot sound with no particles (see AudioManager): "mrrp" | "grumble".
+signal sound_requested(key: String)
 
 ## The pet voices a need or a trait flavor line; the HUD shows it in a bubble.
 ## @param text  already-translated line (e.g. "¿Comidita?")
