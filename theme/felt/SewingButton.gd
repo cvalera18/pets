@@ -1,7 +1,9 @@
 ## SewingButton.gd
 ## Round felt button: a disc with a bottom lip, stitched ring and an SVG icon.
 ## With no lip or inner shade it doubles as a stat badge. Alert draws a warning
-## ring around it (used when the stat it fixes is critical).
+## ring around it (used when the stat it fixes is critical). ring_fill below 1
+## turns the stitched ring into a gauge: stitched clockwise from the top up to that
+## fraction, the rest left as faint stitches.
 @tool
 extends BaseButton
 
@@ -50,6 +52,14 @@ const FeltDraw := preload("res://theme/felt/FeltDraw.gd")
 	set(v):
 		ring_gap = v
 		queue_redraw()
+@export_range(0.0, 1.0) var ring_fill := 1.0:
+	set(v):
+		v = clampf(v, 0.0, 1.0)
+		if absf(v - ring_fill) < 0.002:
+			return
+		ring_fill = v
+		queue_redraw()
+@export var ring_empty_alpha := 0.28
 @export_group("Depth")
 @export var lip := 3.0:
 	set(v):
@@ -103,11 +113,28 @@ func _draw() -> void:
 
 	var rr := r - ring_inset - ring_width * 0.5
 	if ring_width > 0.0 and rr > 0.0:
-		FeltDraw.draw_dashes(self, FeltDraw.ellipse(c + off, Vector2(rr, rr), 48), true,
-				_faded(ring_color, fade), ring_width, ring_dash, ring_gap)
+		if ring_fill >= 1.0:
+			FeltDraw.draw_dashes(self, FeltDraw.ellipse(c + off, Vector2(rr, rr), 48), true,
+					_faded(ring_color, fade), ring_width, ring_dash, ring_gap)
+		else:
+			var split := -PI * 0.5 + TAU * ring_fill
+			var empty := _faded(ring_color, fade * ring_empty_alpha)
+			FeltDraw.draw_dashes(self, _arc(c + off, rr, split, -PI * 0.5 + TAU), false, empty,
+					ring_width, ring_dash, ring_gap)
+			if ring_fill > 0.0:
+				FeltDraw.draw_dashes(self, _arc(c + off, rr, -PI * 0.5, split), false,
+						_faded(ring_color, fade), ring_width, ring_dash, ring_gap)
 	if _icon:
 		var s := Vector2(icon_size, icon_size)
 		draw_texture_rect(_icon, Rect2(c + off - s * 0.5, s), false, _faded(icon_color, fade))
+
+
+func _arc(center: Vector2, radius: float, from: float, to: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	var steps := maxi(2, ceili(48.0 * (to - from) / TAU))
+	for i in steps + 1:
+		pts.append(center + Vector2.from_angle(lerpf(from, to, float(i) / steps)) * radius)
+	return pts
 
 
 func _faded(col: Color, fade: float) -> Color:

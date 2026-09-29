@@ -6,6 +6,7 @@
 ##   • Responding to player interactions (fed) and hunting the feather wand (PetPlay)
 ##   • Sleeping on her own when tired and waking when rested (no sleep button)
 ##   • Caresses: turning PetTouch's gestures into affection, purring and reactions
+##   • Body language (PetGestures): asking for food, play and cuddles with her body
 ##   • Playing animations via AnimatedSprite2D
 ##   • Scheduling local notifications when stats drop to critical / zero
 ##
@@ -53,6 +54,8 @@ const REACT_STRETCH  := 0.22
 
 const PetTouch := preload("res://scenes/pet/PetTouch.gd")
 const PetPlay := preload("res://scenes/pet/PetPlay.gd")
+const PetGestures := preload("res://scenes/pet/PetGestures.gd")
+const Tastes := preload("res://resources/Tastes.gd")
 const Haptics := preload("res://systems/Haptics.gd")
 
 # ─── Caress tuning ────────────────────────────────────────────────────────────
@@ -66,12 +69,22 @@ const HINT_COOLDOWN := 8.0
 const SLEEP_CHECK_EVERY := 3.0
 const ZZZ_EVERY := 5.0
 
+const WAND_HINTS := 2           # times per session she explains how to play with the wand
+
+const FOOD_CHECK_EVERY := 1.0   # how often she glances at the bowl
+const BITES := 3
+const BITE_TIME := 0.9
+const SNIFF_TIME := 1.0
+
+const RUB_GRACE := 0.2          # she keeps rubbing this long after the finger stops resting
+
 # ─── Child references ─────────────────────────────────────────────────────────
 
 @onready var sprite: Node2D   = $Sprite
 @onready var shadow: Node2D   = $Shadow
 @onready var touch:  PetTouch = $Touch
 @onready var play:   PetPlay  = $Play
+@onready var gestures: PetGestures = $Gestures
 
 # ─── State ────────────────────────────────────────────────────────────────────
 
@@ -80,7 +93,8 @@ var pet_name:   String   = "Mochi"
 var bond_xp:    int      = 0
 var bond_level: int      = 1
 
-var _interaction_cooldown: float  = 0.0
+var tastes: Tastes = Tastes.new()
+
 var _is_sleeping:          bool   = false
 var _thought_timer:        float  = 0.0
 
@@ -88,7 +102,28 @@ var _thought_timer:        float  = 0.0
 var _sleep_check: float = 0.0   # seconds to the next "am I sleepy?" look
 var _doze_grace:  float = GameConfig.OPEN_GRACE
 var _sulk:        float = 0.0   # grumpy after being woken
+var _wand_hints:  int   = 0
 var _zzz_t:       float = 0.0
+
+# Bowl runtime state (she eats when she wants; see the Food section).
+var _bowl_food:   String = ""
+var _bowl_amount: float  = 0.0
+var _refused:     String = ""   # the food in the bowl she already turned down
+var _meal:        String = ""   # the food she's eating now
+var _bites_left:  int    = 0
+var _bite_t:      float  = 0.0
+var _meal_gain:   float  = 0.0
+var _sniff_t:     float  = 0.0
+var _food_check:  float  = 0.0
+var _eat_t:       float  = 0.0
+var _eat_tilt:    float  = 0.0
+var _eat_dip:     float  = 0.0
+
+# Body language runtime state (see the Body language section).
+var _fetch_cd:    float   = 0.0
+var _voiced:      Dictionary = {}   # needs already explained with a thought this session
+var _rub_grace:   float   = 0.0
+var _rub_at:      Vector2 = Vector2.INF
 
 # Procedural animation runtime state.
 var _mood:       Mood    = Mood.IDLE
@@ -122,12 +157,17 @@ func _ready() -> void:
 	touch.petting.connect(_on_petting)
 	touch.annoyed.connect(_on_annoyed)
 	touch.looked.connect(_on_looked)
+	touch.resting.connect(_on_resting)
 	touch.released.connect(func() -> void: sprite.release_look())
 	play.pounced.connect(func() -> void: _haptic(15))
 	play.caught.connect(_on_play_caught)
 	play.missed.connect(_on_play_missed)
+	gestures.pawed.connect(_on_pawed)
+	gestures.meowed.connect(_meow)
+	gestures.dropped.connect(_on_toy_dropped)
+	gestures.done.connect(_on_gesture_done)
 
-	EventBus.pet_fed.connect(_on_fed)
+	EventBus.bowl_changed.connect(_on_bowl_changed)
 	EventBus.play_mode_changed.connect(_on_play_mode_changed)
 	EventBus.wand_moved.connect(_on_wand_moved)
 	EventBus.stat_depleted.connect(_on_stat_depleted)
@@ -154,12 +194,19 @@ func _process(delta: float) -> void:
 		_sleep_tick(delta)
 		return  # Only energy changes while she sleeps.
 
-	play.can_hunt = stats.energy > GameConfig.CRITICAL_THRESHOLD and _sulk <= 0.0
-	play.update(delta)
-	stats.apply_decay(delta)
+	gestures.update(delta)
+	if gestures.carrying:
+		EventBus.toy_carried.emit(sprite.mouth_screen())
+	if _fetch_cd > 0.0:
+		_fetch_cd -= delta
 
-	if _interaction_cooldown > 0.0:
-		_interaction_cooldown -= delta
+	play.can_hunt = stats.energy > GameConfig.CRITICAL_THRESHOLD and _sulk <= 0.0 and not _is_eating() 			and not gestures.busy()
+	play.update(delta)
+	if play.active:
+		EventBus.hunt_changed.emit(play.feather_huntable() or play.is_busy(), play.progress())
+	stats.apply_decay(delta)
+	_eat_tick(delta)
+
 	if _sulk > 0.0:
 		_sulk -= delta
 	if _doze_grace > 0.0:
@@ -184,6 +231,7 @@ func initialize_fresh(p_name: String = "Mochi") -> void:
 	pet_name   = p_name
 	bond_xp    = 0
 	bond_level = 1
+	tastes.roll()
 	_play_anim(ANIM_IDLE)
 	_set_mood(Mood.IDLE)
 
@@ -197,6 +245,7 @@ func load_from_save(pet_data: Dictionary, offline_seconds: float) -> void:
 	bond_xp    = int(pet_data.get("bond_xp", 0))
 	@warning_ignore("integer_division")
 	bond_level = 1 + bond_xp / GameConfig.BOND_XP_PER_LEVEL
+	tastes.load_from(pet_data.get("tastes", {}))
 
 	if offline_seconds > 0.0:
 		stats.apply_offline_decay(offline_seconds)
@@ -216,23 +265,124 @@ func broadcast_stats() -> void:
 	EventBus.bond_level_changed.emit(bond_level)
 	EventBus.bond_progress_changed.emit(_bond_ratio())
 	EventBus.pet_name_changed.emit(pet_name)
+	for food in tastes.known:
+		EventBus.taste_discovered.emit(food, tastes.of(food))
 
 
-# ─── Interaction Handlers ─────────────────────────────────────────────────────
+# ─── Food (bowl) ──────────────────────────────────────────────────────────────
+# You fill the bowl (FoodBowl); she eats when she wants. She has tastes (Tastes):
+# her favorite she can't resist, one food she sniffs and turns down unless she's
+# starving, the rest she eats when hungry. Each food's taste is discovered the
+# first time she tries (or refuses) it.
 
-func _on_fed() -> void:
-	if not _can_interact():
+func _on_bowl_changed(food: String, amount: float) -> void:
+	if food != _bowl_food:
+		_refused = ""
+		if _meal != "" and food != "":
+			_finish_meal()   # a new food replaced the one she was eating
+	_bowl_food = food
+	_bowl_amount = amount
+
+
+func _is_eating() -> bool:
+	return _meal != "" or _sniff_t > 0.0
+
+
+func _consider_bowl() -> void:
+	if _bowl_food == "" or _bowl_food == _refused or play.active or _stroking > 0.0 or _sulk > 0.0 			or gestures.is_fetching():
 		return
+	if tastes.wants(_bowl_food, stats.hunger):
+		gestures.cancel()
+		_start_meal()
+	elif tastes.of(_bowl_food) == "dislike" and stats.hunger < GameConfig.EAT_BELOW:
+		gestures.cancel()
+		_sniff_t = SNIFF_TIME   # hungry enough to check it out, not enough to eat it
+		_eat_t = 0.0
+
+
+func _start_meal() -> void:
+	_meal = _bowl_food
+	_bites_left = BITES
+	_bite_t = BITE_TIME * 0.5
+	_meal_gain = 0.0
+	_eat_t = 0.0
+	_discover(_meal)
+	if tastes.of(_meal) != "dislike":
+		_content_t = BITES * BITE_TIME
+		_set_mood(Mood.CONTENT)
+
+
+func _eat_tick(delta: float) -> void:
+	if not _is_eating():
+		_eat_tilt = 0.0
+		_eat_dip = 0.0
+		_food_check -= delta
+		if _food_check <= 0.0:
+			_food_check = FOOD_CHECK_EVERY
+			_consider_bowl()
+		return
+	# Head down toward the bowl; chewing steps at 12 fps like the other poses.
+	_eat_t += delta
+	var step := floorf(_eat_t * 12.0) / 12.0
+	_eat_tilt = deg_to_rad(-5.0)
+	_eat_dip = -10.0 - (3.0 if _meal != "" and int(step * 6.0) % 2 == 0 else 0.0)
+	sprite.look_at_canvas(GameConfig.BOWL_OFFSET / _base_scale + PetTouch.ORIGIN)
+	if _sniff_t > 0.0:
+		_sniff_t -= delta
+		if _sniff_t <= 0.0:
+			_refuse()
+		return
+	_bite_t -= delta
+	if _bite_t <= 0.0:
+		_bite_t = BITE_TIME
+		_bite()
+
+
+func _bite() -> void:
+	var factor := 0.5 if tastes.of(_meal) == "dislike" else 1.0
 	var before := stats.hunger
-	var gain := GameConfig.FEED_HUNGER_GAIN * Personality.gain_factor("feed")
-	stats.hunger += gain
-	_play_anim(ANIM_EAT)
-	_trigger_reaction()
-	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HUNGER, "eat", 30)
-	_add_bond(_bond_amount(GameConfig.BOND_XP_FEED, "feed"))
-	Personality.record("feed", before)
-	_cheer_up()
-	_reset_cooldown()
+	stats.hunger += float(GameConfig.FOOD_HUNGER.get(_meal, 25.0)) / BITES * factor * Personality.gain_factor("feed")
+	_meal_gain += stats.hunger - before
+	_bites_left -= 1
+	_haptic(10)
+	EventBus.bowl_bite.emit()
+	if _bites_left <= 0 or _bowl_food == "":
+		_finish_meal()
+
+
+func _finish_meal() -> void:
+	var taste := tastes.of(_meal)
+	_feedback("+%d" % roundi(_meal_gain), GameConfig.COLOR_HUNGER, "eat", 30)
+	var bond := _bond_for(GameConfig.BOND_XP_FEED, "feed", _meal_gain, float(GameConfig.FOOD_HUNGER.get(_meal, 25.0)))
+	if taste == "love":
+		stats.happiness += GameConfig.LOVED_FOOD_HAPPINESS
+		bond = roundi(bond * 1.5)
+		EventBus.burst_requested.emit("love", global_position)
+		EventBus.pet_thought.emit(tr("TASTE_LOVE"), "hunger")
+	_add_bond(bond)
+	Personality.record("feed")
+	if taste != "dislike":
+		_cheer_up()
+	_meal = ""
+	sprite.release_look()
+	EventBus.pet_fed.emit()
+
+
+func _refuse() -> void:
+	_refused = _bowl_food
+	_discover(_bowl_food)
+	sprite.release_look()
+	sprite.flinch()
+	EventBus.floating_text_requested.emit(tr("FOOD_YUCK"), GameConfig.COLOR_NEUTRAL, global_position)
+	EventBus.pet_thought.emit(tr("TASTE_DISLIKE"), "hunger")
+	EventBus.sound_requested.emit("grumble")
+
+
+func _discover(food: String) -> void:
+	if food == "" or tastes.known.has(food):
+		return
+	tastes.known[food] = true
+	EventBus.taste_discovered.emit(food, tastes.of(food))
 
 
 # ─── Play (feather wand) ──────────────────────────────────────────────────────
@@ -240,11 +390,16 @@ func _on_fed() -> void:
 # these handlers pay out each catch. A long session tires her until she dozes off.
 
 func _on_play_mode_changed(active: bool) -> void:
+	if active:
+		gestures.cancel()   # "Jugar" while she was off fetching it: she comes back
 	play.set_active(active)
-	touch.enabled = not active
+	touch.enabled = not active and not gestures.is_fetching()
 	sprite.set_excited(1.8 if active else 1.0)
 	if active and stats.energy <= GameConfig.CRITICAL_THRESHOLD:
 		_feedback(tr("PET_TOO_TIRED_TO_PLAY"), GameConfig.COLOR_NEUTRAL, "", 15)
+	elif active and _wand_hints < WAND_HINTS:
+		_wand_hints += 1
+		EventBus.pet_thought.emit(tr("HINT_WAND"), "happiness")
 	if not active:
 		sprite.release_look()
 
@@ -258,18 +413,24 @@ func _on_wand_moved(screen_pos: Vector2, held: bool) -> void:
 	sprite.look_at_canvas(touch.to_canvas(screen_pos))
 
 
+## A catch is fun for her anyway, but it only pays out (happiness, bond, trait)
+## while she has room to get happier, so playing on at full happiness can't farm XP.
 func _on_play_caught(_at: Vector2) -> void:
 	var before := stats.happiness
-	var gain := GameConfig.PLAY_CATCH_HAPPINESS * Personality.gain_factor("play")
-	stats.happiness += gain
+	var nominal := GameConfig.PLAY_CATCH_HAPPINESS * Personality.gain_factor("play")
+	stats.happiness += nominal
 	stats.energy -= GameConfig.PLAY_CATCH_ENERGY * Personality.play_energy_cost_factor()
+	var gain := stats.happiness - before
 	_play_anim(ANIM_PLAY)
-	_feedback("+%d" % int(round(gain)), GameConfig.COLOR_HAPPINESS, "play", 40)
-	_add_bond(_bond_amount(GameConfig.BOND_XP_PLAY, "play"))
+	EventBus.wand_caught.emit()
+	_haptic(40)
+	if gain < 1.0:
+		return
+	_feedback("+%d" % roundi(gain), GameConfig.COLOR_HAPPINESS, "play", 0)
+	_add_bond(_bond_for(GameConfig.BOND_XP_PLAY, "play", gain, nominal))
 	Personality.record("play", before)
 	_cheer_up()
 	EventBus.pet_played.emit()
-	EventBus.wand_caught.emit()
 
 
 func _on_play_missed(_at: Vector2) -> void:
@@ -284,7 +445,7 @@ func _on_play_missed(_at: Vector2) -> void:
 # wakes once rested. Waking her early makes her grumpy for a while.
 
 func _wants_to_sleep() -> bool:
-	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy():
+	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy() 			or _is_eating() or gestures.busy():
 		return false
 	return stats.energy < (GameConfig.SLEEPY_ENERGY_NIGHT if _is_night() else GameConfig.SLEEPY_ENERGY)
 
@@ -365,14 +526,18 @@ func _on_petting(zone: String, delta: float, _at: Vector2) -> void:
 			_set_mood(Mood.CONTENT)
 
 
-## A few seconds of good strokes: bond XP, hearts and the affection gained so far.
+## A few seconds of good strokes: hearts, and while her affection still had room to
+## grow, the affection gained, bond XP in proportion and the trait record.
 func _award_caress() -> void:
-	if _stroke_gain >= 1.0:
-		EventBus.floating_text_requested.emit("+%d" % roundi(_stroke_gain), GameConfig.COLOR_AFFECTION, global_position)
+	var gain := _stroke_gain
 	_stroke_gain = 0.0
 	if not _is_sleeping:
 		EventBus.burst_requested.emit("love", global_position)
-	_add_bond(_bond_amount(GameConfig.BOND_XP_PET, "pet"))
+	if gain < 1.0:
+		return
+	EventBus.floating_text_requested.emit("+%d" % roundi(gain), GameConfig.COLOR_AFFECTION, global_position)
+	var nominal := GameConfig.STROKE_AFFECTION_RATE * GameConfig.STROKE_AWARD_TIME * Personality.gain_factor("pet")
+	_add_bond(_bond_for(GameConfig.BOND_XP_PET, "pet", gain, nominal))
 	Personality.record("pet", stats.affection)
 	EventBus.pet_petted.emit()
 
@@ -486,14 +651,6 @@ func _on_stat_recovered(_stat_name: String, _value: float) -> void:
 
 # ─── Private Helpers ──────────────────────────────────────────────────────────
 
-func _can_interact() -> bool:
-	return _interaction_cooldown <= 0.0
-
-
-func _reset_cooldown() -> void:
-	_interaction_cooldown = GameConfig.INTERACTION_COOLDOWN
-
-
 ## Emits a floating text + optional particle burst at the pet, plus haptics.
 ## Centralizes the juice so interaction handlers stay one-liners.
 func _feedback(text: String, color: Color, burst_kind: String, haptic_ms: int) -> void:
@@ -508,17 +665,96 @@ func _haptic(ms: int) -> void:
 	Haptics.vibrate(ms)
 
 
-## Periodically voices the pet's neediest stat as a "thought" bubble (shown by the HUD).
+## Every few seconds she shows her neediest stat: with her body when she can
+## (see _act_out), otherwise as a thought bubble (shown by the HUD).
 ## Stays quiet while the pet is content (lowest stat still above LOW_THRESHOLD).
 func _maybe_think() -> void:
 	_thought_timer = randf_range(GameConfig.THOUGHT_INTERVAL_MIN, GameConfig.THOUGHT_INTERVAL_MAX)
+	if gestures.busy() or _is_eating():
+		return
 	var stat := stats.get_lowest_stat()
 	if float(stats.to_dict().get(stat, GameConfig.STAT_MAX)) < GameConfig.LOW_THRESHOLD:
-		# A need is pressing — voice it.
-		EventBus.pet_thought.emit(tr("THOUGHT_" + stat.to_upper()), stat)
+		if not _act_out(stat):
+			EventBus.pet_thought.emit(tr("THOUGHT_" + stat.to_upper()), stat)
 	elif _trait_id != "" and randf() < 0.5:
 		# Content and has a personality — occasionally show a flavor thought.
 		EventBus.pet_thought.emit(tr("TRAIT_" + _trait_id.to_upper() + "_IDLE"), _trait_id)
+
+
+# ─── Body language ────────────────────────────────────────────────────────────
+# She shows what she needs (PetGestures): hungry, she paws at her bowl and meows;
+# bored, she fetches the wand and drops it in front of you; wanting cuddles, she
+# rubs her head against the air. A finger resting on her head gets rubbed too.
+
+## Shows a need with her body; false when she can't right now.
+func _act_out(stat: String) -> bool:
+	if play.active or _sulk > 0.0:
+		return false
+	match stat:
+		"hunger":
+			gestures.ask_food()
+			sprite.look_at_canvas(GameConfig.BOWL_OFFSET / _base_scale + PetTouch.ORIGIN)
+			_explain(stat)
+		"happiness":
+			var sleepy := GameConfig.SLEEPY_ENERGY_NIGHT if _is_night() else GameConfig.SLEEPY_ENERGY
+			if _fetch_cd > 0.0 or stats.energy < sleepy + 10.0:
+				return false
+			_fetch_cd = GameConfig.FETCH_COOLDOWN
+			touch.enabled = false
+			sprite.release_look()
+			gestures.fetch()
+		"affection":
+			gestures.ask_pet()
+			_rub_at = Vector2.INF
+			sprite.release_look()
+			EventBus.sound_requested.emit("mrrp")
+			_explain(stat)
+		_:
+			return false
+	return true
+
+
+## The first time each session a gesture comes with its thought bubble, so it reads.
+func _explain(stat: String) -> void:
+	if not _voiced.has(stat):
+		_voiced[stat] = true
+		EventBus.pet_thought.emit(tr("THOUGHT_" + stat.to_upper()), stat)
+
+
+func _on_toy_dropped() -> void:
+	EventBus.toy_dropped.emit()
+	_explain("happiness")
+
+
+func _on_pawed() -> void:
+	EventBus.bowl_nudged.emit()
+	EventBus.sound_requested.emit("tap")
+	_haptic(8)
+
+
+func _meow() -> void:
+	sprite.release_look()
+	sprite.meow()
+	_trigger_reaction()
+	EventBus.sound_requested.emit("meow")
+	EventBus.floating_text_requested.emit(tr("PET_MEOW"), GameConfig.COLOR_NEUTRAL, global_position)
+
+
+func _on_gesture_done(_kind: int) -> void:
+	sprite.release_look()
+	touch.enabled = not play.active
+
+
+## A finger resting on her head or cheeks: she rubs against it, and that's a caress.
+func _on_resting(_zone: String, delta: float, at: Vector2) -> void:
+	if _is_sleeping or _sulk > 0.0:
+		return
+	_rub_grace = RUB_GRACE
+	_rub_at = at
+	_content_t = maxf(_content_t, 0.6)
+	if _mood != Mood.CONTENT:
+		_set_mood(Mood.CONTENT)
+	_on_petting("rub", delta, at)
 
 
 # ─── Personality ──────────────────────────────────────────────────────────────
@@ -526,6 +762,12 @@ func _maybe_think() -> void:
 ## Scales a base bond-XP amount by the active trait's bond factor.
 func _bond_amount(base: int, kind: String) -> int:
 	return int(round(base * Personality.bond_factor(kind)))
+
+
+## Bond XP for a care in proportion to how much it actually filled its stat
+## (`gained` of a `nominal` full gain): a stat that was already full earns nothing.
+func _bond_for(base: int, kind: String, gained: float, nominal: float) -> int:
+	return roundi(_bond_amount(base, kind) * clampf(gained / maxf(nominal, 0.01), 0.0, 1.0))
 
 
 ## Syncs the active trait's motion multipliers and forwards tints to the sprite.
@@ -605,14 +847,18 @@ func _animate(delta: float) -> void:
 		var wobble := sin(p * PI * 3.0) * (1.0 - p) * REACT_STRETCH * _trait_react
 		pop = Vector2(1.0 - wobble * 0.5, 1.0 + wobble)
 
-	sprite.scale = _base_scale * breathe_scale * pop * play.pose_scale
+	var facing := gestures.facing
+	sprite.scale = _base_scale * breathe_scale * pop * play.pose_scale * Vector2(facing, 1.0)
 	# Moving the whole sprite lifted the feet off the rug and read as floating;
-	# only a pounce (PetPlay's pose) takes her off the floor.
-	sprite.set_torso_lift((1.0 - cos(_anim_time)) * 0.5 * _bob_amp() + play.torso_dip)
-	sprite.position = play.pose_offset * _base_scale
-	sprite.rotation = play.pose_tilt
-	sprite.set_leap(play.leap)
-	var height := clampf(-play.pose_offset.y / 150.0, 0.0, 1.0)
+	# only a pounce or a trotting hop takes her off the floor.
+	sprite.set_torso_lift((1.0 - cos(_anim_time)) * 0.5 * _bob_amp() + play.torso_dip + _eat_dip + gestures.dip)
+	sprite.position = (play.pose_offset + gestures.offset) * _base_scale
+	sprite.rotation = (play.pose_tilt + _eat_tilt + gestures.tilt) * facing
+	sprite.set_legs(play.leap, gestures.stride, gestures.paw)
+	if _rub_grace > 0.0:
+		_rub_grace -= delta
+	sprite.set_rub(maxf(1.0 if _rub_grace > 0.0 else 0.0, gestures.rub), _rub_at)
+	var height := clampf(-(play.pose_offset.y + gestures.offset.y) / 150.0, 0.0, 1.0)
 	shadow.position.x = sprite.position.x
 	shadow.scale = _shadow_scale * Vector2(breathe_scale.x * pop.x, 1.0) * (1.0 - 0.4 * height)
 	shadow.modulate.a = 1.0 - 0.5 * height

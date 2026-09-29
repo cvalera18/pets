@@ -1,7 +1,8 @@
 ## PetTouch.gd
 ## Turns the pointer over Mochi into cat gestures: taps, strokes by zone (with
-## the direction of the fur on the back) and what cats dislike — rubbing against
-## the fur, rough strokes, the belly trap and grabbing the tail.
+## the direction of the fur on the back), a finger resting on her head or cheeks
+## (she rubs against it) and what cats dislike — rubbing against the fur, rough
+## strokes, the belly trap and grabbing the tail.
 ##
 ## Works in the rig's 300×280 design-canvas space (ORIGIN = Mochi's feet), so the
 ## zones match the SVG pieces and follow Mochi's scale and breathing. The logic
@@ -15,6 +16,7 @@ extends Node
 
 signal tapped(zone: String, at: Vector2)
 signal petting(zone: String, delta: float, at: Vector2)
+signal resting(zone: String, delta: float, at: Vector2)
 signal annoyed(reason: String, at: Vector2)
 signal looked(at: Vector2)
 signal released
@@ -31,6 +33,7 @@ const AGAINST_TIME := 0.45    # a quick return stroke is forgiven; a deliberate 
 const BELLY_TIME := 0.9
 const TAIL_TIME := 0.35       # long enough that a stroke brushing past the tail is fine
 const GRUMPY_TIME := 1.5
+const REST_AFTER := 0.35      # a finger held still this long on her head is one to rub against
 
 @export var rig: Node2D
 
@@ -52,6 +55,7 @@ var _rough_t := 0.0
 var _against_t := 0.0
 var _belly_t := 0.0
 var _tail_t := 0.0
+var _still := 0.0
 var _grumpy := 0.0
 
 
@@ -90,6 +94,7 @@ func begin(c: Vector2) -> void:
 	_against_t = 0.0
 	_belly_t = 0.0
 	_tail_t = 0.0
+	_still = 0.0
 
 
 func advance(c: Vector2, delta: float) -> void:
@@ -113,6 +118,12 @@ func advance(c: Vector2, delta: float) -> void:
 	_tail_t = 0.0
 
 	var speed := _vel.length()
+	if speed < MIN_SPEED and (zone == "head" or zone == "cheeks"):
+		_still += delta
+		if _still >= REST_AFTER:
+			resting.emit(zone, delta, c)
+		return
+	_still = 0.0
 	if zone == "" or not _moved or speed < MIN_SPEED:
 		return
 	if speed > ROUGH_SPEED:

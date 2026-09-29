@@ -88,4 +88,5 @@ const CUSHION_STITCH := Color("f2d3da")   # Stitched ring on the cushion.
 # Multiply-blend tints over the room and pet: values near white = subtle, lower =
 # deeper. Day = white (identity).
 const TINT_DUSK_MUL  := Color(1.0, 0.88, 0.78)    # Multiply tint over room and Mochi from 17:00 to 20:00.
-const TINT_NIGHT_MUL := Color(0.60, 0.65, 0.86)   # Multiply tint over room and Mochi from 20:00 to 05:00.
+const TINT_LAMP_MUL  := Color(1.0, 0.94, 0.86)    # Multiply tint over room and Mochi at night (20:00 to 05:00) with the lamp on.
+const TINT_NIGHT_MUL := Color(0.60, 0.65, 0.86)   # Lights off: multiply tint over room and Mochi at night while she sleeps.

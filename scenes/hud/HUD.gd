@@ -18,6 +18,10 @@ const SETTINGS := preload("res://scenes/ui/Settings.tscn")
 const TOAST := preload("res://scenes/hud/Toast.tscn")
 const P := preload("res://theme/Palette.gd")
 const StyleBoxKnit := preload("res://theme/felt/StyleBoxKnit.gd")
+const FeltFood := preload("res://theme/felt/FeltFood.gd")
+
+## food id → its FeltFood node on the food row of the action bar.
+const FOODS := {"tuna": "TunaFood", "chicken": "ChickenFood", "kibble": "KibbleFood", "carrot": "CarrotFood"}
 
 ## stat → node-name prefix in HUD.tscn.
 const STATS := {"hunger": "Hunger", "happiness": "Happiness", "energy": "Energy", "affection": "Affection"}
@@ -29,7 +33,6 @@ const PEEK_HOLD := 2.5      # seconds a rising stat's row stays after its last r
 const EXPAND_HOLD := 8.0    # the open card folds back on its own after this
 const STATS_GAP := 6.0
 
-var _cooldown_timer: float = 0.0
 var _is_sleeping: bool = false
 var _bond_level: int = 0   # 0 until the first broadcast, so loading never toasts
 var _crit_fill: StyleBox
@@ -40,6 +43,13 @@ var _expanded := false
 var _expand_left := 0.0
 var _peek := {}         # stat -> seconds its row keeps peeking
 var _tab_badges := {}   # stat -> the tab's copy of that row's badge
+var _stats_tween: Tween
+var _tab_tween: Tween
+
+var _ghost: FeltFood = null   # the food following your finger while you drag it
+var _drag_food := ""
+var _served := false
+var _drag_hint_shown := false
 
 
 func _ready() -> void:
@@ -54,9 +64,14 @@ func _ready() -> void:
 	EventBus.trait_revealed.connect(_on_trait_revealed)
 	EventBus.pet_thought.connect(_on_pet_thought)
 
-	# Buttons emit straight to the EventBus — no Pet reference needed.
-	%FeedButton.pressed.connect(_on_action_button_pressed.bind(EventBus.pet_fed))
-	# Jugar takes the feather wand out and puts it away; no cooldown for that.
+	# Alimentar swaps the action bar for the food row; you drag a food to the bowl.
+	%FeedButton.pressed.connect(_show_foods.bind(true))
+	%FoodsBack.pressed.connect(_show_foods.bind(false))
+	for food in FOODS:
+		get_node("%" + FOODS[food]).gui_input.connect(_on_food_input.bind(food))
+	EventBus.food_served.connect(func(_food: String) -> void: _served = true)
+	EventBus.taste_discovered.connect(_on_taste_discovered)
+	# Jugar takes the feather wand out and puts it away.
 	%PlayButton.pressed.connect(func() -> void: EventBus.play_requested.emit())
 	EventBus.play_mode_changed.connect(_on_play_mode_changed)
 	%SettingsButton.pressed.connect(_on_settings_pressed)
@@ -73,54 +88,97 @@ func _ready() -> void:
 	for stat in STATS:
 		_bar(stat).value = 0.0
 
-	# The tab reuses each row's badge so the look lives in one place (HUD.tscn).
+	# The tab reuses each row's badge so the look lives in one place (HUD.tscn),
+	# a bit bigger, with its stitched ring working as a gauge of the stat.
 	for stat in STATS:
-		var badge: Control = _row(stat).get_node("Items/Badge").duplicate()
+		var badge = _row(stat).get_node("Items/Badge").duplicate()
+		badge.diameter = 36.0
+		badge.icon_size = 19.0
+		badge.ring_inset = 3.5
+		badge.ring_width = 2.0
+		badge.ring_color.a = 1.0
+		badge.ring_empty_alpha = 0.16
 		%TabBadges.add_child(badge)
 		_tab_badges[stat] = badge
 	%StatsTab.gui_input.connect(_on_stats_input)
 	%Stats.gui_input.connect(_on_stats_input)
 	%StatsTab.resized.connect(_place_stats)
+	%Stats.visible = false
 	_refresh_stats()
 
 
 func _process(delta: float) -> void:
 	_tick_stats(delta)
-	if _cooldown_timer <= 0.0:
-		return
-	_cooldown_timer -= delta
-	if _cooldown_timer <= 0.0:
-		_set_buttons_disabled(false)
 
 
 # ─── Actions ──────────────────────────────────────────────────────────────────
-
-func _on_action_button_pressed(signal_to_emit: Signal) -> void:
-	signal_to_emit.emit()
-	_start_cooldown()
-
 
 func _on_play_mode_changed(active: bool) -> void:
 	%PlayLabel.text = "ACTION_PUT_AWAY" if active else "ACTION_PLAY"
 
 
-## While Mochi sleeps you can't feed her or play; you can stroke her gently or
-## wake her with a tap (she'll be grumpy).
+## While Mochi sleeps you can't play; you can still fill her bowl (she'll eat
+## when she wakes), stroke her gently or wake her with a tap (she'll be grumpy).
 func _on_sleeping_changed(is_sleeping: bool) -> void:
 	_is_sleeping = is_sleeping
-	_set_buttons_disabled(_cooldown_timer > 0.0)
+	%PlayButton.disabled = is_sleeping
 	if is_sleeping:
 		_hide_thought()
 
 
-func _start_cooldown() -> void:
-	_cooldown_timer = GameConfig.INTERACTION_COOLDOWN
-	_set_buttons_disabled(true)
+# ─── Food row (drag a food to the bowl) ───────────────────────────────────────
+
+func _show_foods(on: bool) -> void:
+	%Foods.visible = on
+	$Control/Actions/Row.visible = not on
+	if on and not _drag_hint_shown:
+		_drag_hint_shown = true
+		_on_pet_thought(tr("HINT_DRAG_FOOD"), "hunger")
 
 
-func _set_buttons_disabled(disabled: bool) -> void:
-	%FeedButton.disabled = disabled or _is_sleeping
-	%PlayButton.disabled = disabled or _is_sleeping
+## A discovered taste marks its food on the row (heart = favorite, cross = won't eat).
+func _on_taste_discovered(food: String, taste: String) -> void:
+	(get_node("%" + FOODS[food]) as FeltFood).taste = taste
+
+
+func _on_food_input(event: InputEvent, food: String) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_start_drag(food, event.global_position)
+		elif _ghost:
+			_end_drag(event.global_position)
+	elif event is InputEventMouseMotion and _ghost:
+		_ghost.position = event.global_position - _ghost.size * 0.5
+
+
+func _start_drag(food: String, at: Vector2) -> void:
+	_drag_food = food
+	_ghost = FeltFood.new()
+	_ghost.food = food
+	_ghost.size = Vector2(64, 64)
+	_ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$Control.add_child(_ghost)
+	_ghost.position = at - _ghost.size * 0.5
+	get_node("%" + FOODS[food]).modulate.a = 0.35
+
+
+## Dropped on the bowl: the food goes in and the row closes. Anywhere else: it
+## flies back to its place.
+func _end_drag(at: Vector2) -> void:
+	var ghost := _ghost
+	var slot: Control = get_node("%" + FOODS[_drag_food])
+	_ghost = null
+	_served = false
+	EventBus.food_dropped.emit(_drag_food, at)
+	var tween := create_tween()
+	if _served:
+		ghost.pivot_offset = ghost.size * 0.5
+		tween.tween_property(ghost, "scale", Vector2.ZERO, 0.15)
+		_show_foods(false)
+	else:
+		tween.tween_property(ghost, "global_position", slot.global_position + (slot.size - ghost.size) * 0.5, 0.2)
+	tween.tween_callback(ghost.queue_free)
+	tween.tween_callback(func() -> void: slot.modulate.a = 1.0)
 
 
 func _on_settings_pressed() -> void:
@@ -169,20 +227,44 @@ func _tick_stats(delta: float) -> void:
 
 
 ## Collapsed: only the tab. Peeking: the tab plus the rising rows under it.
-## Open: the full card in the tab's place (tap it to fold it back).
+## Open: the full card in the tab's place (tap it to fold it back). The card
+## fades in and out, and the tab fades back in as the open card folds away.
 func _refresh_stats() -> void:
-	var any := false
-	for stat in STATS:
-		var shown := _expanded or _peek.has(stat)
-		_row(stat).visible = shown
-		any = any or shown
-	%StatsTab.visible = not _expanded
-	var was_visible: bool = %Stats.visible
-	%Stats.visible = any
-	if any and not was_visible:
-		%Stats.modulate.a = 0.0
-		create_tween().tween_property(%Stats, "modulate:a", 1.0, 0.18)
+	var any := _expanded or not _peek.is_empty()
+	if _stats_tween:
+		_stats_tween.kill()
+	if any:
+		for stat in STATS:
+			_row(stat).visible = _expanded or _peek.has(stat)
+		if not %Stats.visible:
+			%Stats.modulate.a = 0.0
+			%Stats.visible = true
+		_place_stats()
+		_stats_tween = create_tween()
+		_stats_tween.tween_property(%Stats, "modulate:a", 1.0, 0.18)
+	elif %Stats.visible:
+		# Fade out where it stands; rows and position change only once it's gone.
+		_stats_tween = create_tween()
+		_stats_tween.tween_property(%Stats, "modulate:a", 0.0, 0.35)
+		_stats_tween.tween_callback(_after_stats_faded)
+	_show_tab(not _expanded)
+
+
+func _after_stats_faded() -> void:
+	%Stats.visible = false
 	_place_stats()
+
+
+func _show_tab(on: bool) -> void:
+	if on == %StatsTab.visible:
+		return
+	if _tab_tween:
+		_tab_tween.kill()
+	%StatsTab.visible = on
+	if on:
+		%StatsTab.modulate.a = 0.0
+		_tab_tween = create_tween()
+		_tab_tween.tween_property(%StatsTab, "modulate:a", 1.0, 0.3)
 
 
 func _place_stats() -> void:
@@ -221,6 +303,7 @@ func _on_stat_changed(stat_name: String, new_value: float, old_value: float) -> 
 		value_label.remove_theme_color_override("font_color")
 		row.remove_theme_stylebox_override("panel")
 	_tab_badges[stat_name].alert = crit
+	_tab_badges[stat_name].ring_fill = new_value / GameConfig.STAT_MAX
 	if FIXES.has(stat_name):
 		get_node("%" + FIXES[stat_name]).alert = crit
 

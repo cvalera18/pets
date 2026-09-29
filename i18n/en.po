@@ -166,8 +166,40 @@ msgstr "Not the tail!"
 msgid "PET_WOKEN_GRUMPY"
 msgstr "I was sleeping!"
 
+msgid "PET_MEOW"
+msgstr "Meow!"
+
 msgid "PLAY_MISS"
 msgstr "So close!"
+
+msgid "HINT_WAND"
+msgstr "Hold it still near me"
+
+# ── Food ──────────────────────────────────────────────────────────────────────
+
+msgid "FOOD_TUNA"
+msgstr "Tuna"
+
+msgid "FOOD_CHICKEN"
+msgstr "Chicken"
+
+msgid "FOOD_KIBBLE"
+msgstr "Kibble"
+
+msgid "FOOD_CARROT"
+msgstr "Carrot"
+
+msgid "HINT_DRAG_FOOD"
+msgstr "Put it in my bowl"
+
+msgid "TASTE_LOVE"
+msgstr "I love it!"
+
+msgid "TASTE_DISLIKE"
+msgstr "I don't like that..."
+
+msgid "FOOD_YUCK"
+msgstr "Yuck!"
 
 # ── Bond ──────────────────────────────────────────────────────────────────────
 

@@ -21,7 +21,8 @@ const LOW_THRESHOLD: float = 40.0
 # ─── Decay Rates (units per real-time second) ─────────────────────────────────
 ## At rate × NORMAL multiplier (0.2), a full stat empties in roughly:
 ##   hunger → ~2.3 h   happiness → ~3.5 h   energy → ~2.8 h   affection → ~4.6 h
-## Test mode (×1.0) is ~5× faster, for development / observing decay quickly.
+## Test mode (×8) is 40× faster, for development: hunger empties in ~3.5 min and
+## affection, the slowest, in ~7 min.
 
 const HUNGER_DECAY_RATE:    float = 0.06
 const HAPPINESS_DECAY_RATE: float = 0.04
@@ -29,13 +30,25 @@ const ENERGY_DECAY_RATE:    float = 0.05
 const AFFECTION_DECAY_RATE: float = 0.03
 
 ## Decay-speed presets, selected at runtime via GameState.decay_test_mode
-## (toggled in Settings). Normal = logical pace; Test = the current fast pace.
+## (toggled in Settings). Normal = logical pace; Test = fast, to watch her needs
+## and body language come up within a couple of minutes.
 const DECAY_MULTIPLIER_NORMAL: float = 0.2
-const DECAY_MULTIPLIER_TEST:   float = 1.0
+const DECAY_MULTIPLIER_TEST:   float = 8.0
 
 # ─── Interaction Gains ────────────────────────────────────────────────────────
 
-const FEED_HUNGER_GAIN:       float = 30.0
+# ─── Food (bowl) ──────────────────────────────────────────────────────────────
+
+## Hunger a full bowl restores, per food; she eats it in three mouthfuls.
+const FOOD_HUNGER: Dictionary = {"tuna": 35.0, "chicken": 30.0, "kibble": 25.0, "carrot": 15.0}
+## She goes to eat food she likes when her hunger is below this; her favorite
+## tempts her almost always. A food she dislikes she only eats when starving.
+const EAT_BELOW:       float = 75.0
+const EAT_LOVED_BELOW: float = 95.0
+## Extra happiness from a meal of her favorite food.
+const LOVED_FOOD_HAPPINESS: float = 10.0
+## Where the bowl sits on the floor, from Mochi's feet (left of her front paws).
+const BOWL_OFFSET := Vector2(-128.0, 4.0)
 
 # ─── Play (feather wand) ──────────────────────────────────────────────────────
 
@@ -47,8 +60,15 @@ const PLAY_CATCH_ENERGY:    float = 5.0
 const PLAY_MISS_HAPPINESS:  float = 4.0
 const PLAY_MISS_ENERGY:     float = 3.0
 
-## The wand is put away by itself after this long untouched.
-const WAND_IDLE_TIMEOUT: float = 10.0
+## Let go of the wand and it swings back beside Mochi; untouched this long, it's put away.
+const WAND_IDLE_TIMEOUT: float = 5.0
+
+# ─── Body language ────────────────────────────────────────────────────────────
+
+## Bored, she brings you the wand at most this often.
+const FETCH_COOLDOWN: float = 90.0
+## The wand she brought lies on the floor this long before it's put away.
+const TOY_LYING_TIMEOUT: float = 30.0
 
 # ─── Sleep (Mochi decides) ────────────────────────────────────────────────────
 
@@ -87,17 +107,16 @@ const STROKE_AFFECTION_RATE: float = 8.0
 ## Seconds of good stroking that earn one award (bond XP, hearts, "+N").
 const STROKE_AWARD_TIME: float = 2.5
 
-## How much each part of Mochi enjoys being stroked (see PetTouch zones).
+## How much each part of Mochi enjoys being stroked (see PetTouch zones); "rub"
+## is her rubbing against a finger resting on her head.
 const STROKE_ZONE_FACTOR: Dictionary = {
-	"cheeks": 1.4, "head": 1.15, "back": 1.0, "body": 0.6, "belly": 0.6,
+	"cheeks": 1.4, "rub": 1.2, "head": 1.15, "back": 1.0, "body": 0.6, "belly": 0.6,
 }
 
 ## Seconds for the purr to swell to full while stroking, and to fade once you stop.
 const PURR_RISE: float = 2.5
 const PURR_FALL: float = 1.2
 
-## Seconds between allowed interactions. Prevents button spam.
-const INTERACTION_COOLDOWN: float = 2.0
 
 ## Idle "thought" bubbles — the pet voices its neediest stat now and then.
 const THOUGHT_INTERVAL_MIN: float = 6.0

@@ -29,8 +29,26 @@ signal stat_recovered(stat_name: String, value: float)
 
 # ─── Pet Interaction Events ───────────────────────────────────────────────────
 
-## Player fed the pet.
+## Emitted by Pet when Mochi finishes a meal from her bowl.
 signal pet_fed
+
+## The food tray dropped a food at a screen point; the bowl takes it if it landed on it.
+signal food_dropped(food: String, screen_pos: Vector2)
+
+## The bowl accepted a food (the tray closes).
+signal food_served(food: String)
+
+## What's in the bowl now: a food id ("" when empty) and how much is left, 0..1.
+signal bowl_changed(food: String, amount: float)
+
+## Mochi took a mouthful from the bowl.
+signal bowl_bite
+
+## Mochi pawed at her bowl, asking for food; it wobbles.
+signal bowl_nudged
+
+## First time the player learns what Mochi thinks of a food ("love"|"like"|"dislike").
+signal taste_discovered(food: String, taste: String)
 
 ## Emitted by Pet each time Mochi catches the feather wand (a play moment).
 signal pet_played
@@ -47,6 +65,17 @@ signal wand_moved(screen_pos: Vector2, held: bool)
 
 ## Mochi caught the feather; the wand gives a little tug.
 signal wand_caught
+
+## While the wand is out: whether the feather is somewhere she'd hunt it, and how
+## close she is to pouncing (0..1). The wand draws it as a stitched ring.
+signal hunt_changed(huntable: bool, progress: float)
+
+## Bored, Mochi brings the wand in her mouth: where her mouth is (viewport
+## coordinates), every frame while she carries it.
+signal toy_carried(mouth_pos: Vector2)
+
+## She drops the wand she brought on the floor in front of you.
+signal toy_dropped
 
 ## Emitted by Pet when Mochi dozes off on her own (she's tired, or it's night).
 signal pet_slept
