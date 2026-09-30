@@ -1,14 +1,18 @@
 ## Tastes.gd
-## What Mochi thinks of each food: one she loves, one she won't eat unless she's
-## starving, and the rest she likes. Rolled once per cat and saved in the pet
-## block; the player discovers them by serving each food, and known ones get a
-## mark on the food tray.
+## What Mochi likes: of the foods, one she loves, one she won't eat unless she's
+## starving, and the rest she likes; and her favorite place to be stroked (cheeks,
+## head or back). Rolled once per cat and saved in the pet block; the player
+## discovers them by caring for her (known foods get a mark on the food tray).
+## An older save without a favorite zone gets one rolled, keeping its foods.
 extends RefCounted
 
 const FOODS := ["tuna", "chicken", "kibble", "carrot"]
+const ZONES := ["cheeks", "head", "back"]
 
 var taste := {}   # food -> "love" | "like" | "dislike"
 var known := {}   # food -> true once she has eaten or refused it
+var zone := ""    # her favorite place to be stroked
+var zone_known := false
 
 
 ## Picks a new set of tastes (pass an rng to make it deterministic).
@@ -23,6 +27,12 @@ func roll(rng: RandomNumberGenerator = null) -> void:
 	for i in order.size():
 		taste[order[i]] = "love" if i == 0 else "dislike" if i == order.size() - 1 else "like"
 	known.clear()
+	_roll_zone(rng)
+
+
+func _roll_zone(rng: RandomNumberGenerator = null) -> void:
+	zone = ZONES[rng.randi_range(0, ZONES.size() - 1) if rng else randi_range(0, ZONES.size() - 1)]
+	zone_known = false
 
 
 func of(food: String) -> String:
@@ -41,7 +51,7 @@ func wants(food: String, hunger: float) -> bool:
 
 
 func to_dict() -> Dictionary:
-	return {"taste": taste.duplicate(), "known": known.keys()}
+	return {"taste": taste.duplicate(), "known": known.keys(), "zone": zone, "zone_known": zone_known}
 
 
 ## Restores saved tastes; a missing or broken set (old saves) is rolled anew.
@@ -58,3 +68,8 @@ func load_from(data: Dictionary) -> void:
 	for food in data.get("known", []):
 		if food in FOODS:
 			known[food] = true
+	if data.get("zone", "") in ZONES:
+		zone = data["zone"]
+		zone_known = bool(data.get("zone_known", false))
+	else:
+		_roll_zone()

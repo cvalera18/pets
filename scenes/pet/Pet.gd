@@ -169,6 +169,8 @@ var _stroke_time:  float = 0.0
 var _stroke_gain:  float = 0.0
 var _since_stroke: float = HINT_AFTER
 var _hint_cd:      float = 0.0
+var _fav_time:     float = 0.0   # strokes on her favorite zone in this award
+var _fav_grace:    float = 0.0   # the purr swells faster while this lasts
 
 
 func _ready() -> void:
@@ -533,6 +535,10 @@ func _on_petting(zone: String, delta: float, _at: Vector2) -> void:
 	_stroking = PURR_GRACE
 	_since_stroke = 0.0
 	var factor: float = GameConfig.STROKE_ZONE_FACTOR.get(zone, 1.0)
+	if zone == tastes.zone:
+		factor *= GameConfig.FAVORITE_ZONE_FACTOR
+		_fav_time += delta
+		_fav_grace = PURR_GRACE
 	if _is_sleeping or _sulk > 0.0:
 		factor *= 0.5
 	var before := stats.affection
@@ -550,10 +556,16 @@ func _on_petting(zone: String, delta: float, _at: Vector2) -> void:
 
 
 ## A few seconds of good strokes: hearts, and while her affection still had room to
-## grow, the affection gained, bond XP in proportion and the trait record.
+## grow, the affection gained, bond XP in proportion and the trait record. The
+## first good strokes on her favorite zone, she lets you know she loves it there.
 func _award_caress() -> void:
 	var gain := _stroke_gain
 	_stroke_gain = 0.0
+	if _fav_time >= GameConfig.FAVORITE_ZONE_DISCOVER and not tastes.zone_known and not _is_sleeping:
+		tastes.zone_known = true
+		_react("encanta")
+		_haptic(20)
+	_fav_time = 0.0
 	if not _is_sleeping:
 		EventBus.burst_requested.emit("love", global_position)
 	if gain < 1.0:
@@ -608,9 +620,12 @@ func _update_purr(delta: float) -> void:
 	if _hint_cd > 0.0:
 		_hint_cd -= delta
 	var cap := 0.5 if _is_sleeping else 1.0
+	if _fav_grace > 0.0:
+		_fav_grace -= delta
 	if _stroking > 0.0:
 		_stroking -= delta
-		_purr = move_toward(_purr, cap, delta / GameConfig.PURR_RISE)
+		var rise := GameConfig.FAVORITE_ZONE_PURR if _fav_grace > 0.0 else 1.0
+		_purr = move_toward(_purr, cap, delta * rise / GameConfig.PURR_RISE)
 	else:
 		_purr = move_toward(_purr, 0.0, delta / GameConfig.PURR_FALL)
 	if absf(_purr - _purr_sent) > 0.02 or (_purr == 0.0 and _purr_sent != 0.0):

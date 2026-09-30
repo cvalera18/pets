@@ -20,7 +20,8 @@
 ##      "affection": 90.0,
 ##      "name":      "Mochi",
 ##      "bond_xp":   0,
-##      "tastes":    {"taste": {"tuna": "love", "carrot": "dislike", …}, "known": ["tuna"]},
+##      "tastes":    {"taste": {"tuna": "love", "carrot": "dislike", …}, "known": ["tuna"],
+##                    "zone": "back", "zone_known": false},
 ##      "temperament": {"energy": 0.4, "attachment": -0.2}
 ##    },
 ##    "settings": {

@@ -176,6 +176,16 @@ func _test_tastes() -> void:
 	broken.load_from({"taste": {"tuna": "love", "carrot": "love"}})
 	_check("broken tastes are rolled anew", broken.taste.values().count("love") == 1 and broken.taste.size() == 4)
 
+	_check("she has one favorite zone to be stroked", t.zone in TastesScript.ZONES and not t.zone_known)
+	t.zone_known = true
+	var again = TastesScript.new()
+	again.load_from(t.to_dict())
+	_check("favorite zone round-trips", again.zone == t.zone and again.zone_known)
+	var older = TastesScript.new()
+	older.load_from({"taste": t.taste, "known": [fav]})
+	_check("an older save gets a favorite zone and keeps its foods",
+			older.zone in TastesScript.ZONES and older.taste == t.taste and older.known.has(fav))
+
 
 # ─── Achievements persistence ─────────────────────────────────────────────────
 

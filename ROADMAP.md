@@ -39,6 +39,8 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
   desayuno temprano, ratos de locura a media mañana, siesta de tarde, más mimosa al
   atardecer. En su tiempo libre se acicala, se estira con un bostezo o corre de un lado
   al otro. Los rasgos (glotona…) son sus costumbres y también empujan lo que hace.
+  Tiene una zona de caricias favorita (mejillas, cabeza o lomo): ahí el afecto sube
+  más y ronronea antes; la primera vez que la encuentras salta «le encanta».
 - **Mochi no habla** — lo que quiere es un dibujo en su burbuja, lo que siente es un
   símbolo que salta sobre su cabeza y los gestos se enseñan con una mano fantasma
   (`theme/felt/FeltPicto.gd`, `scenes/effects/ReactionPop.gd`, `scenes/hud/GhostHand.gd`).
@@ -114,7 +116,7 @@ mantener barras a **una gata con vida propia**, pensada para criarse de a dos.
    desde el plato con gustos por gata, lenguaje corporal (pide comida, trae la varita,
    pide mimos, se restriega contra el dedo), sin palabras (pictogramas y mano
    fantasma), costurero en vez de barra, se acuesta a dormir, temperamento y rutina con
-   el reloj real. Falta: zona de caricias favorita, Libreta de Mochi, notificaciones
+   el reloj real, zona de caricias favorita. Falta: Libreta de Mochi, notificaciones
    narradas, parpadeo lento.
 3. **🎁 Fase 3 · Razones para volver** — "mientras no estabas", regalos, visitas en la
    ventana, sueños, álbum de fotos.
