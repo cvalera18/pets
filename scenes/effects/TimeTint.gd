@@ -4,17 +4,16 @@
 ## warm tint) until Mochi falls asleep; then the lights go off. White = identity
 ## (daytime).
 ##
-## To check dusk/night visuals at any hour, set forced_hour (e.g. 22) before the
-## scene loads; -1 follows the real clock.
+## To check dusk/night visuals at any hour, set Routine.forced_hour (e.g. 22)
+## before the scene loads.
 extends ColorRect
 
 const P := preload("res://theme/Palette.gd")
+const Routine := preload("res://systems/Routine.gd")
 const UPDATE_INTERVAL := 60.0
 const LIGHTS_FADE := 0.8
 
 enum Phase { DAY, DUSK, NIGHT }
-
-static var forced_hour := -1
 
 var _timer := 0.0
 var _asleep := false
@@ -22,7 +21,7 @@ var _tween: Tween
 
 
 static func phase() -> Phase:
-	var hour: int = forced_hour if forced_hour >= 0 else Time.get_time_dict_from_system().get("hour", 12)
+	var hour := Routine.hour()
 	if hour < 5 or hour >= 20:
 		return Phase.NIGHT
 	if hour >= 17:

@@ -151,7 +151,8 @@ func _save() -> void:
 
 	SaveSystem.save_game(_pet.stats, _pet.pet_name, settings, cosmetics,
 			_pet.bond_xp, Achievements.to_dict(), Personality.to_dict(),
-			{"tastes": _pet.tastes.to_dict()})
+			{"tastes": _pet.tastes.to_dict(), "temperament": _pet.temperament.to_dict(),
+			"journal": _pet.journal.to_dict()})
 
 
 func _apply_settings(settings: Dictionary) -> void:

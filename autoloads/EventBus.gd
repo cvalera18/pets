@@ -201,3 +201,15 @@ signal tray_requested(which: String)
 
 ## The feather wand went back into the toy basket (true) or came out (false).
 signal wand_stored(stored: bool)
+
+## Something new was noted in the Libreta de Mochi (already-translated line).
+signal journal_noted(text: String)
+
+## Whether the Libreta has something you haven't read (the header button's dot).
+signal journal_unread(unread: bool)
+
+## The Libreta opened and asks for what to show; Pet answers with journal_snapshot.
+signal journal_requested
+
+## Everything the Libreta shows (see Pet._journal_snapshot).
+signal journal_snapshot(data: Dictionary)

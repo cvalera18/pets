@@ -1,0 +1,861 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/Journal.gd" id="1_script"]
+[ext_resource type="Script" path="res://theme/felt/FeltBook.gd" id="2_book"]
+[ext_resource type="Script" path="res://theme/felt/FeltPage.gd" id="3_page"]
+[ext_resource type="Script" path="res://theme/felt/FeltPicto.gd" id="4_picto"]
+[ext_resource type="Script" path="res://theme/felt/FeltFood.gd" id="5_food"]
+[ext_resource type="Script" path="res://scenes/ui/JournalScale.gd" id="6_scale"]
+[ext_resource type="Script" path="res://scenes/ui/JournalTimeline.gd" id="7_timeline"]
+[ext_resource type="Script" path="res://theme/felt/SewingButton.gd" id="8_sew"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_tabs"]
+
+[node name="Journal" type="CanvasLayer" unique_id=1093826080]
+layer = 10
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=970772896]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.23, 0.15, 0.09, 0.42)
+
+[node name="Book" type="Control" parent="." unique_id=1454067418]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 50.0
+offset_right = -10.0
+offset_bottom = -14.0
+script = ExtResource("2_book")
+
+[node name="Tabs" type="HBoxContainer" parent="Book" unique_id=1667076836]
+layout_mode = 0
+offset_left = 38.0
+offset_top = 12.0
+offset_right = 330.0
+offset_bottom = 54.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="WhoTab" type="Button" parent="Book/Tabs" unique_id=577439405]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+size_flags_vertical = 8
+theme_type_variation = &"JournalTab"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "JOURNAL_TAB_WHO"
+button_pressed = true
+
+[node name="TastesTab" type="Button" parent="Book/Tabs" unique_id=1549171942]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+size_flags_vertical = 8
+theme_type_variation = &"JournalTab"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "JOURNAL_TAB_TASTES"
+
+[node name="DayTab" type="Button" parent="Book/Tabs" unique_id=760619202]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+size_flags_vertical = 8
+theme_type_variation = &"JournalTab"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "JOURNAL_TAB_DAY"
+
+[node name="UsTab" type="Button" parent="Book/Tabs" unique_id=1474054567]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+size_flags_vertical = 8
+theme_type_variation = &"JournalTab"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "JOURNAL_TAB_US"
+
+[node name="Close" type="BaseButton" parent="Book" unique_id=1177934895]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -48.0
+offset_top = 10.0
+offset_right = -14.0
+offset_bottom = 44.0
+grow_horizontal = 0
+script = ExtResource("8_sew")
+color = Color(0.9843137, 0.95686275, 0.9019608, 1)
+diameter = 34.0
+ring_color = Color(0.8352941, 0.74509805, 0.6117647, 1)
+ring_inset = 3.0
+ring_width = 1.5
+lip = 2.0
+lip_color = Color(0.31, 0.39, 0.27, 0.45)
+inner_shade = false
+
+[node name="CloseIcon" type="Control" parent="Book/Close" unique_id=1630844569]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 26.0
+offset_bottom = 26.0
+mouse_filter = 2
+script = ExtResource("4_picto")
+kind = "cerrar"
+
+[node name="Page" type="Control" parent="Book" unique_id=1644503938]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 38.0
+offset_top = 54.0
+offset_right = -12.0
+offset_bottom = -12.0
+clip_contents = true
+script = ExtResource("3_page")
+
+[node name="Margin" type="MarginContainer" parent="Book/Page" unique_id=1482706739]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="Who" type="VBoxContainer" parent="Book/Page/Margin" unique_id=998893448]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Book/Page/Margin/Who" unique_id=1864989375]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="PortraitBox" type="Control" parent="Book/Page/Margin/Who/Header" unique_id=147624964]
+custom_minimum_size = Vector2(92, 92)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PortraitFabric" type="Control" parent="Book/Page/Margin/Who/Header/PortraitBox" unique_id=207039995]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="PortraitFrame" type="Control" parent="Book/Page/Margin/Who/Header/PortraitBox" unique_id=1316729850]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="NameBox" type="VBoxContainer" parent="Book/Page/Margin/Who/Header" unique_id=1619010848]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="JName" type="Label" parent="Book/Page/Margin/Who/Header/NameBox" unique_id=1710910540]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Mochi"
+auto_translate_mode = 2
+
+[node name="JArrived" type="Label" parent="Book/Page/Margin/Who/Header/NameBox" unique_id=694441412]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+auto_translate_mode = 2
+
+[node name="JDays" type="Label" parent="Book/Page/Margin/Who/Header/NameBox" unique_id=1102740532]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+auto_translate_mode = 2
+
+[node name="TempLabel" type="Label" parent="Book/Page/Margin/Who" unique_id=2076234784]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "JOURNAL_TEMPERAMENT"
+
+[node name="Energy" type="VBoxContainer" parent="Book/Page/Margin/Who" unique_id=1963972218]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Ends" type="HBoxContainer" parent="Book/Page/Margin/Who/Energy" unique_id=1725812632]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Low" type="Label" parent="Book/Page/Margin/Who/Energy/Ends" unique_id=1354707476]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "JOURNAL_CALM"
+theme_override_font_sizes/font_size = 13
+
+[node name="Gap" type="Control" parent="Book/Page/Margin/Who/Energy/Ends" unique_id=1022975487]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="High" type="Label" parent="Book/Page/Margin/Who/Energy/Ends" unique_id=157571496]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "JOURNAL_RESTLESS"
+theme_override_font_sizes/font_size = 13
+
+[node name="EnergyScale" type="Control" parent="Book/Page/Margin/Who/Energy" unique_id=1845176413]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_scale")
+color = Color(0.8666667, 0.65882355, 0.2627451, 1)
+
+[node name="EnergyNote" type="Label" parent="Book/Page/Margin/Who/Energy" unique_id=185635800]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
+
+[node name="Attach" type="VBoxContainer" parent="Book/Page/Margin/Who" unique_id=1168032362]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Ends" type="HBoxContainer" parent="Book/Page/Margin/Who/Attach" unique_id=1960182628]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Low" type="Label" parent="Book/Page/Margin/Who/Attach/Ends" unique_id=281517722]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "JOURNAL_ALOOF"
+theme_override_font_sizes/font_size = 13
+
+[node name="Gap" type="Control" parent="Book/Page/Margin/Who/Attach/Ends" unique_id=480879668]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="High" type="Label" parent="Book/Page/Margin/Who/Attach/Ends" unique_id=1417063885]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "JOURNAL_CLINGY"
+theme_override_font_sizes/font_size = 13
+
+[node name="AttachScale" type="Control" parent="Book/Page/Margin/Who/Attach" unique_id=1244505458]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_scale")
+color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+
+[node name="AttachNote" type="Label" parent="Book/Page/Margin/Who/Attach" unique_id=849902762]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
+
+[node name="Tastes" type="VBoxContainer" parent="Book/Page/Margin" unique_id=264627556]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="FoodLabel" type="Label" parent="Book/Page/Margin/Tastes" unique_id=2084452773]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "JOURNAL_FOOD"
+
+[node name="Foods" type="GridContainer" parent="Book/Page/Margin/Tastes" unique_id=906838012]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="TunaCard" type="PanelContainer" parent="Book/Page/Margin/Tastes/Foods" unique_id=1548561514]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Row" type="HBoxContainer" parent="Book/Page/Margin/Tastes/Foods/TunaCard" unique_id=791939757]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="TunaPic" type="Control" parent="Book/Page/Margin/Tastes/Foods/TunaCard/Row" unique_id=1795768124]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("5_food")
+food = "tuna"
+
+[node name="Texts" type="VBoxContainer" parent="Book/Page/Margin/Tastes/Foods/TunaCard/Row" unique_id=1909667896]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Name" type="Label" parent="Book/Page/Margin/Tastes/Foods/TunaCard/Row/Texts" unique_id=238686893]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "FOOD_TUNA"
+theme_override_font_sizes/font_size = 14
+
+[node name="TunaMark" type="Label" parent="Book/Page/Margin/Tastes/Foods/TunaCard/Row/Texts" unique_id=1780747822]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+auto_translate_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="ChickenCard" type="PanelContainer" parent="Book/Page/Margin/Tastes/Foods" unique_id=1993135014]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Row" type="HBoxContainer" parent="Book/Page/Margin/Tastes/Foods/ChickenCard" unique_id=965842896]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="ChickenPic" type="Control" parent="Book/Page/Margin/Tastes/Foods/ChickenCard/Row" unique_id=2027424644]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("5_food")
+food = "chicken"
+
+[node name="Texts" type="VBoxContainer" parent="Book/Page/Margin/Tastes/Foods/ChickenCard/Row" unique_id=198682388]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Name" type="Label" parent="Book/Page/Margin/Tastes/Foods/ChickenCard/Row/Texts" unique_id=621970306]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "FOOD_CHICKEN"
+theme_override_font_sizes/font_size = 14
+
+[node name="ChickenMark" type="Label" parent="Book/Page/Margin/Tastes/Foods/ChickenCard/Row/Texts" unique_id=2084182525]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+auto_translate_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="KibbleCard" type="PanelContainer" parent="Book/Page/Margin/Tastes/Foods" unique_id=114721954]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Row" type="HBoxContainer" parent="Book/Page/Margin/Tastes/Foods/KibbleCard" unique_id=1185985201]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="KibblePic" type="Control" parent="Book/Page/Margin/Tastes/Foods/KibbleCard/Row" unique_id=698195885]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("5_food")
+food = "kibble"
+
+[node name="Texts" type="VBoxContainer" parent="Book/Page/Margin/Tastes/Foods/KibbleCard/Row" unique_id=1055024462]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Name" type="Label" parent="Book/Page/Margin/Tastes/Foods/KibbleCard/Row/Texts" unique_id=1966097720]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "FOOD_KIBBLE"
+theme_override_font_sizes/font_size = 14
+
+[node name="KibbleMark" type="Label" parent="Book/Page/Margin/Tastes/Foods/KibbleCard/Row/Texts" unique_id=1199364986]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+auto_translate_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="CarrotCard" type="PanelContainer" parent="Book/Page/Margin/Tastes/Foods" unique_id=1808161935]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Row" type="HBoxContainer" parent="Book/Page/Margin/Tastes/Foods/CarrotCard" unique_id=1270130228]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="CarrotPic" type="Control" parent="Book/Page/Margin/Tastes/Foods/CarrotCard/Row" unique_id=315921717]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("5_food")
+food = "carrot"
+
+[node name="Texts" type="VBoxContainer" parent="Book/Page/Margin/Tastes/Foods/CarrotCard/Row" unique_id=535116410]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Name" type="Label" parent="Book/Page/Margin/Tastes/Foods/CarrotCard/Row/Texts" unique_id=1697646898]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+text = "FOOD_CARROT"
+theme_override_font_sizes/font_size = 14
+
+[node name="CarrotMark" type="Label" parent="Book/Page/Margin/Tastes/Foods/CarrotCard/Row/Texts" unique_id=1759767496]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+auto_translate_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="PetLabel" type="Label" parent="Book/Page/Margin/Tastes" unique_id=1429007006]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "JOURNAL_PETTING"
+
+[node name="ZoneCard" type="PanelContainer" parent="Book/Page/Margin/Tastes" unique_id=1242721650]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Row" type="HBoxContainer" parent="Book/Page/Margin/Tastes/ZoneCard" unique_id=1698044662]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="ZoneMochi" type="Control" parent="Book/Page/Margin/Tastes/ZoneCard/Row" unique_id=453232540]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 131)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ZoneMark" type="Control" parent="Book/Page/Margin/Tastes/ZoneCard/Row/ZoneMochi" unique_id=2015072243]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 30.0
+offset_bottom = 30.0
+mouse_filter = 2
+script = ExtResource("4_picto")
+kind = "corazon"
+
+[node name="Texts" type="VBoxContainer" parent="Book/Page/Margin/Tastes/ZoneCard/Row" unique_id=677500257]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Lbl" type="Label" parent="Book/Page/Margin/Tastes/ZoneCard/Row/Texts" unique_id=1714384959]
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "JOURNAL_FAV_ZONE"
+
+[node name="ZoneName" type="Label" parent="Book/Page/Margin/Tastes/ZoneCard/Row/Texts" unique_id=850424932]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+
+[node name="ZoneNote" type="Label" parent="Book/Page/Margin/Tastes/ZoneCard/Row/Texts" unique_id=1753783992]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 13
+
+[node name="Day" type="VBoxContainer" parent="Book/Page/Margin" unique_id=1292376556]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="DayLabel" type="Label" parent="Book/Page/Margin/Day" unique_id=994041940]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "JOURNAL_DAY"
+
+[node name="Rows" type="VBoxContainer" parent="Book/Page/Margin/Day" unique_id=1234464320]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+script = ExtResource("7_timeline")
+
+[node name="Row0" type="HBoxContainer" parent="Book/Page/Margin/Day/Rows" unique_id=694768699]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Time0" type="Label" parent="Book/Page/Margin/Day/Rows/Row0" unique_id=413604395]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+custom_minimum_size = Vector2(50, 0)
+auto_translate_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Doodle0" type="Control" parent="Book/Page/Margin/Day/Rows/Row0" unique_id=1699208802]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("4_picto")
+
+[node name="Note0" type="Label" parent="Book/Page/Margin/Day/Rows/Row0" unique_id=486975501]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="Row1" type="HBoxContainer" parent="Book/Page/Margin/Day/Rows" unique_id=2094927416]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Time1" type="Label" parent="Book/Page/Margin/Day/Rows/Row1" unique_id=173943172]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+custom_minimum_size = Vector2(50, 0)
+auto_translate_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Doodle1" type="Control" parent="Book/Page/Margin/Day/Rows/Row1" unique_id=1945873755]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("4_picto")
+
+[node name="Note1" type="Label" parent="Book/Page/Margin/Day/Rows/Row1" unique_id=946998265]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="Row2" type="HBoxContainer" parent="Book/Page/Margin/Day/Rows" unique_id=186314595]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Time2" type="Label" parent="Book/Page/Margin/Day/Rows/Row2" unique_id=1159303212]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+custom_minimum_size = Vector2(50, 0)
+auto_translate_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Doodle2" type="Control" parent="Book/Page/Margin/Day/Rows/Row2" unique_id=1514374871]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("4_picto")
+
+[node name="Note2" type="Label" parent="Book/Page/Margin/Day/Rows/Row2" unique_id=1485472033]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="Row3" type="HBoxContainer" parent="Book/Page/Margin/Day/Rows" unique_id=1330620336]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Time3" type="Label" parent="Book/Page/Margin/Day/Rows/Row3" unique_id=1244168362]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+custom_minimum_size = Vector2(50, 0)
+auto_translate_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Doodle3" type="Control" parent="Book/Page/Margin/Day/Rows/Row3" unique_id=669427120]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("4_picto")
+
+[node name="Note3" type="Label" parent="Book/Page/Margin/Day/Rows/Row3" unique_id=670347111]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="Row4" type="HBoxContainer" parent="Book/Page/Margin/Day/Rows" unique_id=1605868253]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Time4" type="Label" parent="Book/Page/Margin/Day/Rows/Row4" unique_id=126671603]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+custom_minimum_size = Vector2(50, 0)
+auto_translate_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Doodle4" type="Control" parent="Book/Page/Margin/Day/Rows/Row4" unique_id=1237021755]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("4_picto")
+
+[node name="Note4" type="Label" parent="Book/Page/Margin/Day/Rows/Row4" unique_id=802729831]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="Row5" type="HBoxContainer" parent="Book/Page/Margin/Day/Rows" unique_id=1981285658]
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Time5" type="Label" parent="Book/Page/Margin/Day/Rows/Row5" unique_id=1676467557]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+custom_minimum_size = Vector2(50, 0)
+auto_translate_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Doodle5" type="Control" parent="Book/Page/Margin/Day/Rows/Row5" unique_id=510383457]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("4_picto")
+
+[node name="Note5" type="Label" parent="Book/Page/Margin/Day/Rows/Row5" unique_id=836506833]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+size_flags_horizontal = 3
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="Us" type="VBoxContainer" parent="Book/Page/Margin" unique_id=1499087431]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="HabitLabel" type="Label" parent="Book/Page/Margin/Us" unique_id=667521613]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "JOURNAL_HABITS"
+
+[node name="HabitTag" type="PanelContainer" parent="Book/Page/Margin/Us" unique_id=831893003]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_type_variation = &"TraitTag"
+
+[node name="HabitName" type="Label" parent="Book/Page/Margin/Us/HabitTag" unique_id=500532102]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TagLabel"
+theme_override_font_sizes/font_size = 13
+
+[node name="HabitNote" type="Label" parent="Book/Page/Margin/Us" unique_id=243358573]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+auto_translate_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
+
+[node name="TogetherLabel" type="Label" parent="Book/Page/Margin/Us" unique_id=393183462]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "JOURNAL_TOGETHER"
+
+[node name="Together" type="HBoxContainer" parent="Book/Page/Margin/Us" unique_id=879428275]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="BondCard" type="PanelContainer" parent="Book/Page/Margin/Us/Together" unique_id=1932788324]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Box" type="VBoxContainer" parent="Book/Page/Margin/Us/Together/BondCard" unique_id=1426398499]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="BondValue" type="Label" parent="Book/Page/Margin/Us/Together/BondCard/Box" unique_id=642046247]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+auto_translate_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+
+[node name="Lbl" type="Label" parent="Book/Page/Margin/Us/Together/BondCard/Box" unique_id=1035626690]
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "JOURNAL_BOND"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="DaysCard" type="PanelContainer" parent="Book/Page/Margin/Us/Together" unique_id=1900186814]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Box" type="VBoxContainer" parent="Book/Page/Margin/Us/Together/DaysCard" unique_id=1090341048]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="DaysValue" type="Label" parent="Book/Page/Margin/Us/Together/DaysCard/Box" unique_id=1855579726]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+auto_translate_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+
+[node name="Lbl" type="Label" parent="Book/Page/Margin/Us/Together/DaysCard/Box" unique_id=687809422]
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "JOURNAL_DAYS_LABEL"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="CaresCard" type="PanelContainer" parent="Book/Page/Margin/Us/Together" unique_id=786892849]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"JournalCard"
+
+[node name="Box" type="VBoxContainer" parent="Book/Page/Margin/Us/Together/CaresCard" unique_id=1127596645]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="CaresValue" type="Label" parent="Book/Page/Margin/Us/Together/CaresCard/Box" unique_id=1462878698]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+auto_translate_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+
+[node name="Lbl" type="Label" parent="Book/Page/Margin/Us/Together/CaresCard/Box" unique_id=198943502]
+layout_mode = 2
+theme_type_variation = &"ToastBody"
+text = "JOURNAL_CARES"
+horizontal_alignment = 1
+autowrap_mode = 3

@@ -75,6 +75,8 @@ const TOY_LYING_TIMEOUT: float = 30.0
 ## She falls asleep on her own below this energy; she's sleepier at night.
 const SLEEPY_ENERGY:       float = 25.0
 const SLEEPY_ENERGY_NIGHT: float = 50.0
+## In the afternoon nap hours she dozes off below this (calmer cats sooner).
+const SLEEPY_ENERGY_SIESTA: float = 65.0
 const NIGHT_START_HOUR:    int   = 22
 const NIGHT_END_HOUR:      int   = 7
 
@@ -112,6 +114,13 @@ const STROKE_AWARD_TIME: float = 2.5
 const STROKE_ZONE_FACTOR: Dictionary = {
 	"cheeks": 1.4, "rub": 1.2, "head": 1.15, "back": 1.0, "body": 0.6, "belly": 0.6,
 }
+
+## Her favorite place to be stroked (Tastes.zone) gives this much more affection
+## and swells the purr faster; this many seconds of it in one go and she lets you
+## know she loves it (the first time).
+const FAVORITE_ZONE_FACTOR: float = 1.5
+const FAVORITE_ZONE_PURR: float = 1.6
+const FAVORITE_ZONE_DISCOVER: float = 1.5
 
 ## Seconds for the purr to swell to full while stroking, and to fade once you stop.
 const PURR_RISE: float = 2.5

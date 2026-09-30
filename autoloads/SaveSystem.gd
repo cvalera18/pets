@@ -20,7 +20,11 @@
 ##      "affection": 90.0,
 ##      "name":      "Mochi",
 ##      "bond_xp":   0,
-##      "tastes":    {"taste": {"tuna": "love", "carrot": "dislike", …}, "known": ["tuna"]}
+##      "tastes":    {"taste": {"tuna": "love", "carrot": "dislike", …}, "known": ["tuna"],
+##                    "zone": "back", "zone_known": false},
+##      "journal":   {"arrived_at": 1710000000.0, "signs": {"energy": 1, "attach": 3},
+##                    "seen": ["manana"], "unread": true},
+##      "temperament": {"energy": 0.4, "attachment": -0.2}
 ##    },
 ##    "settings": {
 ##      "locale":                "es",
@@ -42,7 +46,7 @@
 ##  }
 extends Node
 
-const SAVE_SCHEMA_VERSION: int = 5
+const SAVE_SCHEMA_VERSION: int = 7
 
 var _provider: BaseSaveProvider
 
@@ -170,5 +174,17 @@ func _migrate(data: Dictionary) -> Dictionary:
 		if data.has("pet") and not data["pet"].has("tastes"):
 			data["pet"]["tastes"] = {}
 		data["version"] = 5
+
+	# v5 → v6: add pet.temperament (who she is; empty = rolled on load)
+	if version < 6:
+		if data.has("pet") and not data["pet"].has("temperament"):
+			data["pet"]["temperament"] = {}
+		data["version"] = 6
+
+	# v6 → v7: add pet.journal (the Libreta; empty = starts on load)
+	if version < 7:
+		if data.has("pet") and not data["pet"].has("journal"):
+			data["pet"]["journal"] = {}
+		data["version"] = 7
 
 	return data

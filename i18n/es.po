@@ -211,3 +211,200 @@ msgstr "Cuidador devoto"
 
 msgid "ACH_CARETAKER_200"
 msgstr "Guardián fiel"
+
+# ── Libreta de Mochi ──────────────────────────────────────────────────────────
+
+msgid "JOURNAL_TAB_WHO"
+msgstr "Quién es"
+
+msgid "JOURNAL_TAB_TASTES"
+msgstr "Gustos"
+
+msgid "JOURNAL_TAB_DAY"
+msgstr "Su día"
+
+msgid "JOURNAL_TAB_US"
+msgstr "Contigo"
+
+msgid "JOURNAL_NEW"
+msgstr "NUEVO EN LA LIBRETA"
+
+msgid "JOURNAL_ARRIVED"
+msgstr "Llegó el %s"
+
+msgid "JOURNAL_ARRIVED_TODAY"
+msgstr "Llegó hoy"
+
+msgid "JOURNAL_DATE"
+msgstr "{day} de {month}"
+
+msgid "JOURNAL_DAYS"
+msgstr "%d días juntos"
+
+msgid "JOURNAL_DAYS_ONE"
+msgstr "1 día juntos"
+
+msgid "JOURNAL_TEMPERAMENT"
+msgstr "TEMPERAMENTO"
+
+msgid "JOURNAL_CALM"
+msgstr "Tranquila"
+
+msgid "JOURNAL_RESTLESS"
+msgstr "Inquieta"
+
+msgid "JOURNAL_ALOOF"
+msgstr "Independiente"
+
+msgid "JOURNAL_CLINGY"
+msgstr "Pegote"
+
+msgid "JOURNAL_ENERGY_HIGH"
+msgstr "Es inquieta: tiene sus ratos de locura."
+
+msgid "JOURNAL_ENERGY_MID"
+msgstr "Ni muy tranquila ni muy inquieta."
+
+msgid "JOURNAL_ENERGY_LOW"
+msgstr "Es tranquila: le encantan las siestas."
+
+msgid "JOURNAL_ATTACH_HIGH"
+msgstr "Es pegote: pide mimos seguido."
+
+msgid "JOURNAL_ATTACH_MID"
+msgstr "Pide mimos de vez en cuando."
+
+msgid "JOURNAL_ATTACH_LOW"
+msgstr "Se deja mimar, pero casi nunca los pide."
+
+msgid "JOURNAL_WATCH_MORE"
+msgstr "Obsérvala un poco más."
+
+msgid "JOURNAL_FOOD"
+msgstr "COMIDA"
+
+msgid "JOURNAL_PETTING"
+msgstr "CARICIAS"
+
+msgid "JOURNAL_FAV_ZONE"
+msgstr "Su lugar favorito"
+
+msgid "ZONE_CHEEKS"
+msgstr "las mejillas"
+
+msgid "ZONE_HEAD"
+msgstr "la cabeza"
+
+msgid "ZONE_BACK"
+msgstr "el lomo"
+
+msgid "JOURNAL_ZONE_NOTE"
+msgstr "Ahí ronronea antes."
+
+msgid "JOURNAL_ZONE_UNKNOWN"
+msgstr "Todavía no lo sabes"
+
+msgid "JOURNAL_ZONE_HINT"
+msgstr "Acaríciala en distintos lugares: mejillas, cabeza, lomo."
+
+msgid "TASTE_LOVES"
+msgstr "Le encanta"
+
+msgid "TASTE_LIKES"
+msgstr "Le gusta"
+
+msgid "TASTE_DISLIKES"
+msgstr "No la come"
+
+msgid "TASTE_UNTRIED"
+msgstr "Sin probar"
+
+msgid "JOURNAL_DAY"
+msgstr "SU DÍA"
+
+msgid "DAY_MANANA"
+msgstr "Pide el desayuno temprano."
+
+msgid "DAY_ACTIVA"
+msgstr "Tiene ganas de jugar."
+
+msgid "DAY_SIESTA"
+msgstr "Duerme la siesta."
+
+msgid "DAY_ATARDECER"
+msgstr "Se pone mimosa."
+
+msgid "DAY_CALMA"
+msgstr "Se acicala antes de dormir."
+
+msgid "DAY_NOCHE"
+msgstr "Duerme toda la noche."
+
+msgid "DAY_UNSEEN"
+msgstr "Todavía no la viste a esta hora."
+
+msgid "JOURNAL_HABITS"
+msgstr "COSTUMBRES"
+
+msgid "HABIT_NOTE_glotona"
+msgstr "Le das de comer seguido: pide comida antes."
+
+msgid "HABIT_NOTE_juguetona"
+msgstr "Juegan mucho juntos: trae la varita más seguido y tiene más ratos de locura."
+
+msgid "HABIT_NOTE_dormilona"
+msgstr "La dejas dormir tranquila: duerme más siesta."
+
+msgid "HABIT_NOTE_mimosa"
+msgstr "La acaricias mucho: pide mimos antes."
+
+msgid "JOURNAL_HABIT_NONE"
+msgstr "Se va formando con lo que más hacen juntos."
+
+msgid "JOURNAL_TOGETHER"
+msgstr "JUNTOS"
+
+msgid "JOURNAL_BOND"
+msgstr "nivel de vínculo"
+
+msgid "JOURNAL_DAYS_LABEL"
+msgstr "días juntos"
+
+msgid "JOURNAL_CARES"
+msgstr "cuidados"
+
+msgid "MONTH_01"
+msgstr "enero"
+
+msgid "MONTH_02"
+msgstr "febrero"
+
+msgid "MONTH_03"
+msgstr "marzo"
+
+msgid "MONTH_04"
+msgstr "abril"
+
+msgid "MONTH_05"
+msgstr "mayo"
+
+msgid "MONTH_06"
+msgstr "junio"
+
+msgid "MONTH_07"
+msgstr "julio"
+
+msgid "MONTH_08"
+msgstr "agosto"
+
+msgid "MONTH_09"
+msgstr "septiembre"
+
+msgid "MONTH_10"
+msgstr "octubre"
+
+msgid "MONTH_11"
+msgstr "noviembre"
+
+msgid "MONTH_12"
+msgstr "diciembre"

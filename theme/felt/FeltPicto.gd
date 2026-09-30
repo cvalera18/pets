@@ -4,7 +4,9 @@
 ## the exact thing she wants, which you find out by caring for her —, how she
 ## feels pops over her head (enojo, asco, encanta, casi, maulla) and the ghost hand
 ## (mano) shows the player a gesture. A few UI marks share the set: plumas and
-## varita (the toys), costurero (the sewing-kit button) and cerrar.
+## varita (the toys), costurero (the sewing-kit button), cerrar, and for the
+## Libreta: libreta (its button), patita (grooming), corazon (her favorite spot)
+## and incognita (something you haven't found out yet).
 ##
 ## draw_picto() paints any of them on any CanvasItem, in a 64-unit design box
 ## scaled to `size`, so the bubble, the effects layer and the ghost hand share
@@ -19,7 +21,8 @@ const FeltDraw := preload("res://theme/felt/FeltDraw.gd")
 const FINGERTIP := Vector2(28, 5)
 
 @export_enum("hambre", "jugar", "mimos", "sueno", "enojo", "asco", "encanta", "casi",
-		"maulla", "mano", "plumas", "varita", "costurero", "cerrar") var kind := "hambre":
+		"maulla", "mano", "plumas", "varita", "costurero", "cerrar", "libreta", "patita",
+		"corazon", "incognita") var kind := "hambre":
 	set(v):
 		kind = v
 		queue_redraw()
@@ -85,6 +88,31 @@ static func draw_picto(ci: CanvasItem, which: String, center: Vector2, size: flo
 			_feathers(ci, tip + Vector2(0, 12) * s, s, 13.0, 4.2)
 		"costurero":
 			_spool(ci, o, s)
+		"libreta":
+			FeltDraw.fill(ci, FeltDraw.rounded_rect(Rect2(o + Vector2(14, 6) * s, Vector2(36, 52) * s), 6.0 * s), P.SAGE_LIGHT)
+			FeltDraw.fill(ci, FeltDraw.rounded_rect(Rect2(o + Vector2(14, 6) * s, Vector2(10, 52) * s), 4.0 * s), P.SAGE)
+			for y in [14.0, 24.0, 34.0, 44.0]:
+				_stroke(ci, _map(o, s, [Vector2(16.5, y), Vector2(21.5, y)]), P.MOON, 2.4 * s)
+			FeltDraw.draw_dashes(ci, FeltDraw.rounded_rect(Rect2(o + Vector2(29, 15) * s, Vector2(15, 11) * s), 2.0 * s),
+					true, P.CARD, 1.8 * s, 3.0 * s, 2.5 * s)
+			FeltDraw.fill(ci, _map(o, s, [Vector2(39, 55), Vector2(46, 55), Vector2(46, 63), Vector2(42.5, 60), Vector2(39, 63)]), P.ROSE)
+		"patita":
+			FeltDraw.fill(ci, FeltDraw.ellipse(o + Vector2(32, 42) * s, Vector2(14, 11) * s, 32), P.HOOP_INNER)
+			for toe in [Vector2(16, 26), Vector2(26, 17), Vector2(38, 17), Vector2(48, 26)]:
+				FeltDraw.fill(ci, FeltDraw.ellipse(o + toe * s, Vector2(5.5, 7) * s, 20), P.HOOP_INNER)
+		"corazon":
+			FeltDraw.fill(ci, _heart_points(o + Vector2(32, 34) * s, 24.0 * s), P.ROSE)
+			FeltDraw.draw_dashes(ci, _heart_points(o + Vector2(32, 33) * s, 17.0 * s), true, P.ON_ACCENT, 2.4 * s, 4.0 * s, 3.0 * s)
+		"incognita":
+			FeltDraw.draw_dashes(ci, FeltDraw.ellipse(o + Vector2(32, 32) * s, Vector2(24, 24) * s, 40), true,
+					P.TRACK_STITCH, 2.6 * s, 4.5 * s, 3.5 * s)
+			var mark: Array[Vector2] = []
+			for p in _bezier_points([Vector2(24, 25), Vector2(24, 13), Vector2(40, 12), Vector2(40, 24)]):
+				mark.append(p)
+			for p in _bezier_points([Vector2(40, 24), Vector2(40, 30), Vector2(32, 30), Vector2(32, 38)]):
+				mark.append(p)
+			_stroke(ci, _map(o, s, mark), P.MUTED, 4.5 * s)
+			ci.draw_circle(o + Vector2(32, 47) * s, 3.0 * s, P.MUTED)
 		"cerrar":
 			ci.draw_line(o + Vector2(20, 20) * s, o + Vector2(44, 44) * s, P.INK_SOFT, 6.0 * s, true)
 			ci.draw_line(o + Vector2(44, 20) * s, o + Vector2(20, 44) * s, P.INK_SOFT, 6.0 * s, true)

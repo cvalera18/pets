@@ -30,6 +30,11 @@ func _ready() -> void:
 	EventBus.bond_level_changed.connect(_on_bond_level_changed)
 
 
+## How many times she's been cared for (the Libreta shows it).
+func interactions() -> int:
+	return _interactions
+
+
 # ─── Persistence (orchestrated by Room) ───────────────────────────────────────
 
 func to_dict() -> Dictionary:

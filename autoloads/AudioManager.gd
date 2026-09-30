@@ -47,6 +47,7 @@ func _ready() -> void:
 		"grumble": _make_grumble(),
 		"meow":    _make_meow(),
 		"tap":     _make_tap(),
+		"yawn":    _make_yawn(),
 	}
 
 	_purr_player = AudioStreamPlayer.new()
@@ -251,6 +252,24 @@ func _make_meow() -> AudioStreamWAV:
 		var v := sin(phase) + open * (0.55 * sin(2.0 * phase) + 0.3 * sin(3.0 * phase))
 		var env := minf(1.0, t / 0.04) * pow(1.0 - p, 0.6)
 		b.append(v * env * 0.3)
+	return _to_stream(b)
+
+
+## A soft yawn: a breathy tone that opens and sinks.
+func _make_yawn() -> AudioStreamWAV:
+	var b := PackedFloat32Array()
+	var dur := 0.8
+	var phase := 0.0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var breath := 0.0
+	for i in int(dur * RATE):
+		var t := float(i) / float(RATE)
+		var p := t / dur
+		phase += TAU * lerpf(420.0, 210.0, p * p) / float(RATE)
+		breath += (rng.randf_range(-1.0, 1.0) - breath) * 0.2
+		var env := sin(PI * minf(p * 1.25, 1.0)) * (1.0 - 0.5 * p)
+		b.append((0.7 * sin(phase) + 0.25 * sin(2.0 * phase) + 0.35 * breath) * env * 0.22)
 	return _to_stream(b)
 
 
