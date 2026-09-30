@@ -7,7 +7,8 @@
 ##
 ## Pet.gd drives the whole-body motion and calls set_mood() / set_personality(),
 ## set_torso_lift(), look_at_canvas() / release_look(), flinch(), set_legs(),
-## set_rub(), meow() and set_excited(); mouth_screen() tells where to hold a toy.
+## set_lie(), set_rub(), meow() and set_excited(); mouth_screen() tells where to
+## hold a toy.
 ## The contact shadow is a separate FloorShadow node so it can stay on the floor.
 ## Runs as a tool so the rig also shows in the editor (without idle motion).
 @tool
@@ -45,6 +46,13 @@ const RUB_LEAN := 0.2
 const RUB_HZ := 1.7
 
 const MOUTH := Vector2(97, 121)
+
+# Lying down: the body settles until its belly (y 238) meets the floor, the head
+# rests a little lower still and the tail swings down to lie along the floor.
+const LIE_DROP := 26.0
+const LIE_HEAD_DROP := 8.0
+const LIE_TAIL := 100.0
+const LIE_TILT := -0.12
 const MEOW_TIME := 0.55
 
 @export_enum("Feliz:0", "Dormida:1", "Triste:2", "Contenta:3") var preview_mood := 0:
@@ -69,6 +77,7 @@ var _rub_w := 0.0
 var _rub_at := Vector2.INF
 var _rub_phase := 0.0
 var _meow_t := 0.0
+var _lie := 0.0
 
 var _look_at := Vector2.ZERO
 var _look_on := false
@@ -109,7 +118,19 @@ func set_legs(leap: float, stride := 0.0, paw := 0.0) -> void:
 	_nodes["LegFN"].rotation_degrees = 35.0 * leap - swing
 	_nodes["LegBF"].rotation_degrees = -30.0 * leap - swing
 	_nodes["LegBN"].rotation_degrees = -30.0 * leap + swing
-	_nodes["LegFF"].position = _leg_base["LegFF"] - Vector2(0.0, 16.0 * paw)
+	# Lying, the legs fold under her: they sink with the body and shorten so the
+	# paws stay on the floor, showing as tucked stubs.
+	for key in _leg_base:
+		_nodes[key].position = _leg_base[key] + Vector2(0.0, LIE_DROP * _lie)
+		_nodes[key].scale.y = 1.0 - 0.5 * _lie
+	_nodes["LegFF"].position.y -= 16.0 * paw
+
+
+## Lying down, 0..1 (Pet steps it like the other poses).
+func set_lie(k: float) -> void:
+	_lie = k
+	if not _nodes.is_empty():
+		_nodes["TailRest"].rotation_degrees = LIE_TAIL * k
 
 
 ## Rubs her head, weight 0..1 (eased): side to side, leaning toward `at` (a
@@ -127,7 +148,18 @@ func meow(time := MEOW_TIME) -> void:
 
 ## Her mouth in viewport coordinates, where she holds what she carries.
 func mouth_screen() -> Vector2:
-	return (_nodes["Head"] as Node2D).get_global_transform_with_canvas() * (MOUTH - NECK)
+	return head_to_screen(MOUTH)
+
+
+## A design-canvas point on her head, in viewport coordinates: it follows the
+## head as it turns, tilts and lowers.
+func head_to_screen(c: Vector2) -> Vector2:
+	return (_nodes["Head"] as Node2D).get_global_transform_with_canvas() * (c - NECK)
+
+
+## A design-canvas point, in viewport coordinates.
+func canvas_to_screen(c: Vector2) -> Vector2:
+	return get_global_transform_with_canvas() * (c - ORIGIN)
 
 
 ## Excitement speeds up the tail (1 = calm); she lashes it while hunting.
@@ -137,10 +169,12 @@ func set_excited(k: float) -> void:
 		_tail_tween.set_speed_scale(k)
 
 
-## Breathing lift: body, head and tail rise `px` while the legs stay planted.
+## Breathing lift: body, head and tail rise `px` while the legs stay planted
+## (lying down, all of them sit lower).
 func set_torso_lift(px: float) -> void:
 	for key in _torso_base:
-		_nodes[key].position = _torso_base[key] - Vector2(0.0, px)
+		var drop := LIE_DROP * _lie + (LIE_HEAD_DROP * _lie if key == "HeadLook" else 0.0)
+		_nodes[key].position = _torso_base[key] - Vector2(0.0, px - drop)
 
 
 ## Mochi looks toward a point of her 300×280 design canvas (e.g. your finger).
@@ -191,6 +225,7 @@ func _process(delta: float) -> void:
 		var d := _look_at - EYES_CENTER
 		eye_target = d.normalized() * minf(EYE_TRAVEL, d.length() * 0.05) * _look_w
 		head_target = clampf(Vector2.UP.angle_to(_look_at - NECK) * 0.35, -HEAD_TURN, HEAD_TURN) * _look_w
+	head_target += LIE_TILT * _lie
 	_rub_w = move_toward(_rub_w, _rub_goal, delta * 4.0)
 	if _rub_w > 0.0:
 		_rub_phase += delta * TAU * RUB_HZ
@@ -252,8 +287,10 @@ func _build() -> void:
 	felt.material = mat
 	root.add_child(felt)
 
+	# Tail carries the idle sway, TailRest lying down and TailFlick the flinch.
 	var tail := _pivot(felt, "Tail", Vector2(230, 156))
-	_piece(_pivot(tail, "TailFlick", Vector2(230, 156)), "tail")
+	var tail_rest := _pivot(tail, "TailRest", Vector2(230, 156))
+	_piece(_pivot(tail_rest, "TailFlick", Vector2(230, 156)), "tail")
 	_piece(_pivot(felt, "LegFF", Vector2(81, 206)), "leg_ff")
 	_piece(_pivot(felt, "LegBF", Vector2(192, 206)), "leg_bf")
 	_piece(felt, "body")

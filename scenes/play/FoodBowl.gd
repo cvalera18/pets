@@ -3,7 +3,8 @@
 ## it to fill it (EventBus.food_dropped → food_served); she eats in her own time,
 ## one mouthful per EventBus.bowl_bite, and the mound goes down as she does. A new
 ## food replaces whatever is left. When she paws at it asking for food
-## (EventBus.bowl_nudged) it rocks on its base.
+## (EventBus.bowl_nudged) it rocks on its base. Tapping it opens the food tray,
+## and the first time the tray opens it guides the ghost hand to itself.
 extends Node2D
 
 const P := preload("res://theme/Palette.gd")
@@ -15,11 +16,13 @@ const DEPTH := 26.0
 const RIM_H := 9.0
 const DROP_RADIUS := 85.0   # generous: a finger dropping food near the bowl counts
 const BITES := 3.0
+const TAP_SLOP := 14.0
 
 var food := ""
 var amount := 0.0
 var _pop := 0.0
 var _wobble := 0.0
+var _press := Vector2.INF
 
 
 func _ready() -> void:
@@ -28,6 +31,7 @@ func _ready() -> void:
 	EventBus.food_dropped.connect(_on_food_dropped)
 	EventBus.bowl_bite.connect(_on_bite)
 	EventBus.bowl_nudged.connect(_on_nudged)
+	EventBus.food_hint_wanted.connect(_on_food_hint_wanted)
 
 
 func _on_food_dropped(which: String, screen_pos: Vector2) -> void:
@@ -41,6 +45,29 @@ func _on_food_dropped(which: String, screen_pos: Vector2) -> void:
 	EventBus.food_served.emit(which)
 	EventBus.bowl_changed.emit(food, amount)
 	queue_redraw()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
+		return
+	var hit := _hit(get_global_transform_with_canvas().affine_inverse() * event.position)
+	if event.pressed:
+		_press = event.position if hit else Vector2.INF
+		if hit:
+			get_viewport().set_input_as_handled()
+	elif _press != Vector2.INF:
+		if hit and event.position.distance_to(_press) < TAP_SLOP:
+			EventBus.tray_requested.emit("food")
+		_press = Vector2.INF
+		get_viewport().set_input_as_handled()
+
+
+func _hit(local: Vector2) -> bool:
+	return Rect2(-HALF_W - 8.0, -DEPTH - RIM_H - 14.0, HALF_W * 2.0 + 16.0, DEPTH + RIM_H + 22.0).has_point(local)
+
+
+func _on_food_hint_wanted(slot: Vector2) -> void:
+	EventBus.hint_requested.emit("drag", slot, get_global_transform_with_canvas() * Vector2(0.0, -DEPTH))
 
 
 func _on_nudged() -> void:

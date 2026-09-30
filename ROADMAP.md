@@ -17,7 +17,9 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
 **Implementado y funcionando:**
 - **Loop core** — 4 stats (hambre · felicidad · energía · afecto) con decaimiento en
   tiempo real, "no muere" (triste en vez de game over), persistencia con autosave.
-  Botones: Alimentar y Jugar (saca la varita).
+  Sin barra fija: un costurero (abajo a la derecha) abre un abanico de acciones
+  (Comida, Juguetes), y el plato y la canasta de juguetes de la habitación abren su
+  bandeja al tocarlos.
 - **Mochi decide (Fase 2, en curso)** — se duerme sola cuando está cansada (antes de
   noche) y despierta descansada; si la despiertas se enoja un rato. Al estar ausente
   las stats bajan hasta un piso "tranquila" (45) y solo bajan más tras días de
@@ -31,7 +33,11 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
   Lenguaje corporal: con hambre le da zarpazos al plato y maúlla; aburrida se va
   trotando y vuelve con la varita en la boca, la deja en el piso y la levantas
   tocándola; con ganas de mimos se restriega en el aire, y se restriega contra tu dedo
-  si lo dejas quieto en su cabeza (`scenes/pet/PetGestures.gd`).
+  si lo dejas quieto en su cabeza (`scenes/pet/PetGestures.gd`). Dormida se acuesta.
+- **Mochi no habla** — lo que quiere es un dibujo en su burbuja, lo que siente es un
+  símbolo que salta sobre su cabeza y los gestos se enseñan con una mano fantasma
+  (`theme/felt/FeltPicto.gd`, `scenes/effects/ReactionPop.gd`, `scenes/hud/GhostHand.gd`).
+  Diseño en el canvas, fila «Sin palabras · y el costurero».
 - **Caricias táctiles (Fase 1 del rediseño de juego)** — el afecto se gana acariciando
   a Mochi, no con un botón: zonas (mejillas, cabeza, lomo a favor del pelo), cosas que
   le molestan (a contrapelo, brusco, panza trampa, cola), ronroneo con sonido y
@@ -51,7 +57,7 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
   SFX procedurales (`AudioManager`).
 - **Progresión de vínculo** — XP + niveles, barra de progreso y aviso al subir de nivel.
 - **Logros** — 5 hitos (primer cuidado, vínculo 3/5, cuidador 50/200) con aviso.
-- **Pensamientos** — burbuja de fieltro con lo que necesita o con su frase de rasgo.
+- **Pensamientos** — burbuja de fieltro con el dibujo de lo que necesita o de lo que le gusta.
 - **Ciclo día/noche** — tinte multiply sobre la habitación y Mochi; el bastidor
   bordado cambia de sol a luna.
 - **Onboarding** (nombre) y **Ajustes** (idioma ES/EN, notificaciones, sonido,
@@ -101,8 +107,9 @@ mantener barras a **una gata con vida propia**, pensada para criarse de a dos.
 2. **🐾 Fase 2 · Mochi decide** 🟡 — hecho: barras a demanda, dormir como consecuencia
    (sin botón Dormir), piso en vez de cero al estar ausente, jugar con la varita, comer
    desde el plato con gustos por gata, lenguaje corporal (pide comida, trae la varita,
-   pide mimos, se restriega contra el dedo). Falta: rutina con el reloj real,
-   notificaciones con su voz.
+   pide mimos, se restriega contra el dedo), sin palabras (pictogramas y mano
+   fantasma), costurero en vez de barra, se acuesta a dormir. Falta: rutina con el
+   reloj real, notificaciones narradas, parpadeo lento.
 3. **🎁 Fase 3 · Razones para volver** — "mientras no estabas", regalos, visitas en la
    ventana, sueños, álbum de fotos.
 4. **🏠 Fase 4 · La casa** — skins y accesorios (rig por piezas), muro de logros de

@@ -1,7 +1,7 @@
 ## EffectsLayer.gd
 ## Listens for juice/feedback requests on the EventBus and spawns transient
-## visual effects (floating text + particle bursts) at the requested world
-## position.
+## visual effects (floating text, particle bursts and Mochi's reaction symbols)
+## at the requested world position.
 ##
 ## Holds NO game logic — pure presentation. It owns no references to the Pet or
 ## HUD; everything arrives via EventBus signals. Lives as a child of Room.
@@ -12,6 +12,7 @@ class_name EffectsLayer
 extends Node2D
 
 const FLOATING_TEXT := preload("res://scenes/effects/FloatingText.gd")
+const REACTION_POP := preload("res://scenes/effects/ReactionPop.gd")
 const FeltDraw := preload("res://theme/felt/FeltDraw.gd")
 
 const SHAPE_HEART := "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
@@ -43,12 +44,19 @@ func _ready() -> void:
 		_textures[kind] = FeltDraw.svg_string_texture(svg, 2.0)
 	EventBus.floating_text_requested.connect(_on_floating_text_requested)
 	EventBus.burst_requested.connect(_on_burst_requested)
+	EventBus.reaction_requested.connect(_on_reaction_requested)
 
 
 func _on_floating_text_requested(content: String, color: Color, world_pos: Vector2) -> void:
 	var ft := FLOATING_TEXT.new()
 	add_child(ft)
 	ft.begin(to_local(world_pos) + HEAD_OFFSET, content, color)
+
+
+func _on_reaction_requested(kind: String, screen_pos: Vector2) -> void:
+	var pop := REACTION_POP.new()
+	add_child(pop)
+	pop.begin(to_local(screen_pos), kind)
 
 
 func _on_burst_requested(kind: String, world_pos: Vector2) -> void:

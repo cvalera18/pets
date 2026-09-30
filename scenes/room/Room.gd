@@ -17,11 +17,14 @@ const EFFECTS_LAYER: GDScript = preload("res://scenes/effects/EffectsLayer.gd")
 const FELT_ROOM:     PackedScene = preload("res://scenes/room/FeltRoom.tscn")
 const FEATHER_WAND:  GDScript = preload("res://scenes/play/FeatherWand.gd")
 const FOOD_BOWL:     GDScript = preload("res://scenes/play/FoodBowl.gd")
+const TOY_BASKET:    GDScript = preload("res://scenes/play/ToyBasket.gd")
 
 ## Where the wand's feather rests, from Mochi's feet: beside her face, clear of the hoop.
 const WAND_REST := Vector2(125.0, -175.0)
 ## How far in front of her feet the wand she brings lands on the floor.
 const WAND_DROP_Y := 26.0
+## The toy basket, from Mochi's feet: to her right, partly behind her.
+const BASKET_OFFSET := Vector2(164.0, 0.0)
 
 @onready var pet_spawn_point:   Marker2D = $PetSpawnPoint
 @onready var decoration_layer:  Node2D   = $DecorationLayer
@@ -35,6 +38,7 @@ func _ready() -> void:
 	_spawn_room()
 	_load_or_create_pet()
 	_spawn_bowl()
+	_spawn_basket()
 	_spawn_wand()
 	_spawn_hud()
 	_spawn_effects_layer()
@@ -94,7 +98,15 @@ func _spawn_bowl() -> void:
 	bowl.position = _pet.position + GameConfig.BOWL_OFFSET
 
 
-## The feather wand toy, hidden until "Jugar".
+## The toy basket, drawn just behind Mochi.
+func _spawn_basket() -> void:
+	var basket: Node2D = TOY_BASKET.new()
+	add_child(basket)
+	move_child(basket, _pet.get_index())
+	basket.position = _pet.position + BASKET_OFFSET
+
+
+## The feather wand toy, stored in the basket until you take it out.
 func _spawn_wand() -> void:
 	var wand = FEATHER_WAND.new()
 	add_child(wand)

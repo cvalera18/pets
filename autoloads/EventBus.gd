@@ -177,7 +177,27 @@ signal burst_requested(kind: String, world_pos: Vector2)
 ## A one-shot sound with no particles (see AudioManager): "mrrp" | "grumble".
 signal sound_requested(key: String)
 
-## The pet voices a need or a trait flavor line; the HUD shows it in a bubble.
-## @param text  already-translated line (e.g. "¿Comidita?")
-## @param kind  stat name ("hunger", …) or trait id ("glotona", …)
-signal pet_thought(text: String, kind: String)
+## How Mochi is doing, as a soft doodle in her thought bubble (she never talks):
+## a state, never the exact thing she wants.
+## @param kind  FeltPicto kind: "hambre" | "jugar" | "mimos" | "sueno"
+signal pet_thought(kind: String)
+
+## How Mochi feels: a pictogram that pops at a point over her and fades.
+## @param kind        FeltPicto kind: "enojo" | "asco" | "encanta" | "casi" | "maulla"
+## @param screen_pos  viewport position of the symbol's center
+signal reaction_requested(kind: String, screen_pos: Vector2)
+
+## Show the player a gesture with the ghost hand (viewport positions):
+## "drag" from → to, "hold" still at from, "stroke" from → to along her back.
+signal hint_requested(kind: String, from: Vector2, to: Vector2)
+
+## The food tray opened for the first time: the bowl answers with a drag hint
+## from this tray slot (viewport position) to itself.
+signal food_hint_wanted(slot_pos: Vector2)
+
+## A room object was tapped: the bowl asks for the food tray ("food"), the toy
+## basket for the toys ("toys").
+signal tray_requested(which: String)
+
+## The feather wand went back into the toy basket (true) or came out (false).
+signal wand_stored(stored: bool)
