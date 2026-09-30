@@ -11,6 +11,8 @@
 ## Bored, Mochi brings it herself: it rides crosswise in her mouth
 ## (EventBus.toy_carried), lands on the floor in front of you (toy_dropped) and
 ## lies there until you pick it up by touching it, or a while passes.
+## Put away, it rests in the toy basket (EventBus.wand_stored). The first times
+## it comes out, the ghost hand shows how to hold it still (EventBus.hint_requested).
 ## Reads the pointer itself while out (mouse events; touches arrive emulated) and
 ## reports the feather through EventBus.wand_moved.
 extends Node2D
@@ -32,6 +34,8 @@ const HALO_RADIUS := 32.0
 const CARRY_ANGLE := -0.08   # radians: the stick crosswise in her mouth, tip a bit up
 const CARRY_GRIP := 100.0    # from the grip end to where her teeth hold the stick
 const PICK_RADIUS := 36.0
+const HOLD_HINTS := 2        # times per session the ghost hand shows how to hold it
+const HINT_DELAY := 0.7      # once it has settled beside her
 
 ## Where the feather dangles when the wand comes out (Room puts it by Mochi's face).
 var rest_point := Vector2.ZERO
@@ -56,6 +60,8 @@ var _carried := false
 var _lying := false
 var _on_floor := false
 var _lie_t := 0.0
+var _stored := true
+var _hints := 0
 
 
 func _ready() -> void:
@@ -94,6 +100,7 @@ func _on_toy_carried(mouth: Vector2) -> void:
 		_feather = _tip() + Vector2(0.0, STRING_LEN)
 		_feather_prev = _feather
 		visible = true
+		_set_stored(false)
 		set_process(true)
 	_handle = _carry_handle(mouth)
 	_handle_goal = _handle
@@ -133,14 +140,18 @@ func _set_active(on: bool) -> void:
 		_lying = false
 		_on_floor = false
 		visible = true
+		_set_stored(false)
 		set_process(true)
+		if _hints < HOLD_HINTS:
+			get_tree().create_timer(HINT_DELAY).timeout.connect(_hint_hold)
 	else:
 		_handle_goal = _offscreen(_handle)
 	EventBus.play_mode_changed.emit(on)
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _lying and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT 			and event.pressed and _touches_wand(_local(event.position)):
+	if _lying and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT \
+			and event.pressed and _touches_wand(_local(event.position)):
 		_set_active(true)
 		_held = true
 		_handle_goal = _local(event.position)
@@ -190,6 +201,7 @@ func _process(delta: float) -> void:
 	elif not (_lying or _carried) and _handle.distance_to(_handle_goal) < 12.0:
 		visible = false
 		_on_floor = false
+		_set_stored(true)
 		set_process(false)
 	queue_redraw()
 
@@ -258,6 +270,21 @@ func _draw_feather(base: Vector2, angle: float, color: Color) -> void:
 	FeltDraw.fill(self, left + right, color)
 	FeltDraw.draw_dashes(self, PackedVector2Array([base + dir * 6.0, base + dir * (FEATHER_LEN - 6.0)]),
 			false, color.lightened(0.4), 1.5, 4.0, 3.0)
+
+
+func _set_stored(stored: bool) -> void:
+	if stored != _stored:
+		_stored = stored
+		EventBus.wand_stored.emit(stored)
+
+
+## The ghost hand holds the grip still beside her, unless you already hold it.
+func _hint_hold() -> void:
+	if not _active or _held:
+		return
+	_hints += 1
+	var grip := _handle + Vector2.from_angle(_angle) * GRIP_LEN * 0.4
+	EventBus.hint_requested.emit("hold", get_global_transform_with_canvas() * grip, Vector2.ZERO)
 
 
 func _tip() -> Vector2:

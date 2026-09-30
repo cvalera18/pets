@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://theme/felt/SewingButton.gd" id="1_xvj7f"]
 [ext_resource type="Script" path="res://theme/felt/BubbleTail.gd" id="2_arwy5"]
 [ext_resource type="Script" path="res://theme/felt/FeltFood.gd" id="3_food"]
+[ext_resource type="Script" path="res://theme/felt/FeltPicto.gd" id="4_picto"]
+[ext_resource type="Script" path="res://scenes/hud/GhostHand.gd" id="5_ghost"]
 
 [node name="HUD" type="CanvasLayer" unique_id=408560496]
 script = ExtResource("root_script")
@@ -666,12 +668,12 @@ offset_bottom = -516.0
 mouse_filter = 2
 theme_type_variation = &"BubblePanel"
 
-[node name="ThoughtLabel" type="Label" parent="Control/Thought/Bubble" unique_id=148455134]
+[node name="ThoughtPicto" type="Control" parent="Control/Thought/Bubble" unique_id=148455134]
 unique_name_in_owner = true
-auto_translate_mode = 2
+custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-theme_type_variation = &"BubbleLabel"
-text = "¿Comidita?"
+mouse_filter = 2
+script = ExtResource("4_picto")
 
 [node name="Tail" type="Control" parent="Control/Thought" unique_id=211317948]
 custom_minimum_size = Vector2(22, 28)
@@ -686,7 +688,9 @@ offset_bottom = -444.0
 mouse_filter = 2
 script = ExtResource("2_arwy5")
 
-[node name="Actions" type="PanelContainer" parent="Control" unique_id=476417762]
+[node name="Tray" type="PanelContainer" parent="Control" unique_id=476417762]
+unique_name_in_owner = true
+visible = false
 layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -698,186 +702,19 @@ offset_bottom = -18.0
 grow_vertical = 0
 theme_type_variation = &"ActionsPanel"
 
-[node name="Row" type="HBoxContainer" parent="Control/Actions" unique_id=403777315]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
-
-[node name="Feed" type="VBoxContainer" parent="Control/Actions/Row" unique_id=520194393]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_constants/separation = 7
-
-[node name="FeedButton" type="BaseButton" parent="Control/Actions/Row/Feed" unique_id=918447977]
-unique_name_in_owner = true
-process_mode = 0
-process_priority = 0
-process_physics_priority = 0
-process_thread_group = 0
-physics_interpolation_mode = 2
-auto_translate_mode = 0
-editor_description = ""
-visible = true
-modulate = Color(1, 1, 1, 1)
-self_modulate = Color(1, 1, 1, 1)
-show_behind_parent = false
-top_level = false
-clip_children = 0
-light_mask = 1
-visibility_layer = 1
-z_index = 0
-z_as_relative = true
-y_sort_enabled = false
-texture_filter = 0
-texture_repeat = 0
-material = null
-use_parent_material = false
-clip_contents = false
-custom_minimum_size = Vector2(62, 62)
-layout_direction = 0
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 1
-size_flags_stretch_ratio = 1.0
-localize_numeral_system = true
-tooltip_text = ""
-tooltip_auto_translate_mode = 0
-focus_neighbor_left = NodePath("")
-focus_neighbor_top = NodePath("")
-focus_neighbor_right = NodePath("")
-focus_neighbor_bottom = NodePath("")
-focus_next = NodePath("")
-focus_previous = NodePath("")
-focus_mode = 2
-focus_behavior_recursive = 0
-mouse_filter = 0
-mouse_behavior_recursive = 0
-mouse_force_pass_scroll_events = true
-mouse_default_cursor_shape = 0
-accessibility_name = ""
-accessibility_description = ""
-accessibility_live = 0
-accessibility_controls_nodes = Array[NodePath]([])
-accessibility_described_by_nodes = Array[NodePath]([])
-accessibility_labeled_by_nodes = Array[NodePath]([])
-accessibility_flow_to_nodes = Array[NodePath]([])
-theme = null
-theme_type_variation = &""
-disabled = false
-toggle_mode = false
-button_pressed = false
-action_mode = 1
-button_mask = 1
-keep_pressed_outside = false
-button_group = null
-shortcut = null
-shortcut_feedback = true
-shortcut_in_tooltip = true
-script = ExtResource("1_xvj7f")
-icon_path = "res://assets/icons/bowl.svg"
-
-[node name="FeedLabel" type="Label" parent="Control/Actions/Row/Feed" unique_id=544880177]
-layout_mode = 2
-theme_type_variation = &"ActionLabel"
-text = "ACTION_FEED"
-horizontal_alignment = 1
-
-[node name="Play" type="VBoxContainer" parent="Control/Actions/Row" unique_id=373629525]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_constants/separation = 7
-
-[node name="PlayButton" type="BaseButton" parent="Control/Actions/Row/Play" unique_id=1811353008]
-unique_name_in_owner = true
-process_mode = 0
-process_priority = 0
-process_physics_priority = 0
-process_thread_group = 0
-physics_interpolation_mode = 2
-auto_translate_mode = 0
-editor_description = ""
-visible = true
-modulate = Color(1, 1, 1, 1)
-self_modulate = Color(1, 1, 1, 1)
-show_behind_parent = false
-top_level = false
-clip_children = 0
-light_mask = 1
-visibility_layer = 1
-z_index = 0
-z_as_relative = true
-y_sort_enabled = false
-texture_filter = 0
-texture_repeat = 0
-material = null
-use_parent_material = false
-clip_contents = false
-custom_minimum_size = Vector2(62, 62)
-layout_direction = 0
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 1
-size_flags_stretch_ratio = 1.0
-localize_numeral_system = true
-tooltip_text = ""
-tooltip_auto_translate_mode = 0
-focus_neighbor_left = NodePath("")
-focus_neighbor_top = NodePath("")
-focus_neighbor_right = NodePath("")
-focus_neighbor_bottom = NodePath("")
-focus_next = NodePath("")
-focus_previous = NodePath("")
-focus_mode = 2
-focus_behavior_recursive = 0
-mouse_filter = 0
-mouse_behavior_recursive = 0
-mouse_force_pass_scroll_events = true
-mouse_default_cursor_shape = 0
-accessibility_name = ""
-accessibility_description = ""
-accessibility_live = 0
-accessibility_controls_nodes = Array[NodePath]([])
-accessibility_described_by_nodes = Array[NodePath]([])
-accessibility_labeled_by_nodes = Array[NodePath]([])
-accessibility_flow_to_nodes = Array[NodePath]([])
-theme = null
-theme_type_variation = &""
-disabled = false
-toggle_mode = false
-button_pressed = false
-action_mode = 1
-button_mask = 1
-keep_pressed_outside = false
-button_group = null
-shortcut = null
-shortcut_feedback = true
-shortcut_in_tooltip = true
-script = ExtResource("1_xvj7f")
-color = Color(0.8666667, 0.65882355, 0.2627451, 1)
-icon_path = "res://assets/icons/ball.svg"
-
-[node name="PlayLabel" type="Label" parent="Control/Actions/Row/Play" unique_id=1035873941]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"ActionLabel"
-text = "ACTION_PLAY"
-horizontal_alignment = 1
-
-[node name="Foods" type="HBoxContainer" parent="Control/Actions" unique_id=921749420]
+[node name="Foods" type="HBoxContainer" parent="Control/Tray" unique_id=921749420]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 
-[node name="Back" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=1211923443]
+[node name="Back" type="VBoxContainer" parent="Control/Tray/Foods" unique_id=1211923443]
 layout_mode = 2
 mouse_filter = 2
 alignment = 1
 
-[node name="FoodsBack" type="BaseButton" parent="Control/Actions/Foods/Back" unique_id=1679960136]
+[node name="FoodsBack" type="BaseButton" parent="Control/Tray/Foods/Back" unique_id=1679960136]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
@@ -897,13 +734,13 @@ lip = 2.0
 lip_color = Color(0.47, 0.35, 0.24, 0.3)
 inner_shade = false
 
-[node name="Tuna" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=724105206]
+[node name="Tuna" type="VBoxContainer" parent="Control/Tray/Foods" unique_id=724105206]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 5
 
-[node name="TunaFood" type="Control" parent="Control/Actions/Foods/Tuna" unique_id=1529398641]
+[node name="TunaFood" type="Control" parent="Control/Tray/Foods/Tuna" unique_id=1529398641]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
@@ -911,20 +748,20 @@ size_flags_horizontal = 4
 script = ExtResource("3_food")
 food = "tuna"
 
-[node name="Label" type="Label" parent="Control/Actions/Foods/Tuna" unique_id=1094346005]
+[node name="Label" type="Label" parent="Control/Tray/Foods/Tuna" unique_id=1094346005]
 layout_mode = 2
 theme_type_variation = &"ActionLabel"
 theme_override_font_sizes/font_size = 12
 text = "FOOD_TUNA"
 horizontal_alignment = 1
 
-[node name="Chicken" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=415720487]
+[node name="Chicken" type="VBoxContainer" parent="Control/Tray/Foods" unique_id=415720487]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 5
 
-[node name="ChickenFood" type="Control" parent="Control/Actions/Foods/Chicken" unique_id=1036536277]
+[node name="ChickenFood" type="Control" parent="Control/Tray/Foods/Chicken" unique_id=1036536277]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
@@ -932,20 +769,20 @@ size_flags_horizontal = 4
 script = ExtResource("3_food")
 food = "chicken"
 
-[node name="Label" type="Label" parent="Control/Actions/Foods/Chicken" unique_id=607517643]
+[node name="Label" type="Label" parent="Control/Tray/Foods/Chicken" unique_id=607517643]
 layout_mode = 2
 theme_type_variation = &"ActionLabel"
 theme_override_font_sizes/font_size = 12
 text = "FOOD_CHICKEN"
 horizontal_alignment = 1
 
-[node name="Kibble" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=1387850211]
+[node name="Kibble" type="VBoxContainer" parent="Control/Tray/Foods" unique_id=1387850211]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 5
 
-[node name="KibbleFood" type="Control" parent="Control/Actions/Foods/Kibble" unique_id=885952264]
+[node name="KibbleFood" type="Control" parent="Control/Tray/Foods/Kibble" unique_id=885952264]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
@@ -953,20 +790,20 @@ size_flags_horizontal = 4
 script = ExtResource("3_food")
 food = "kibble"
 
-[node name="Label" type="Label" parent="Control/Actions/Foods/Kibble" unique_id=1135805342]
+[node name="Label" type="Label" parent="Control/Tray/Foods/Kibble" unique_id=1135805342]
 layout_mode = 2
 theme_type_variation = &"ActionLabel"
 theme_override_font_sizes/font_size = 12
 text = "FOOD_KIBBLE"
 horizontal_alignment = 1
 
-[node name="Carrot" type="VBoxContainer" parent="Control/Actions/Foods" unique_id=1855466823]
+[node name="Carrot" type="VBoxContainer" parent="Control/Tray/Foods" unique_id=1855466823]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 5
 
-[node name="CarrotFood" type="Control" parent="Control/Actions/Foods/Carrot" unique_id=246484577]
+[node name="CarrotFood" type="Control" parent="Control/Tray/Foods/Carrot" unique_id=246484577]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
@@ -974,12 +811,190 @@ size_flags_horizontal = 4
 script = ExtResource("3_food")
 food = "carrot"
 
-[node name="Label" type="Label" parent="Control/Actions/Foods/Carrot" unique_id=1190147508]
+[node name="Label" type="Label" parent="Control/Tray/Foods/Carrot" unique_id=1190147508]
 layout_mode = 2
 theme_type_variation = &"ActionLabel"
 theme_override_font_sizes/font_size = 12
 text = "FOOD_CARROT"
 horizontal_alignment = 1
+
+[node name="Toys" type="HBoxContainer" parent="Control/Tray" unique_id=1093826080]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Back" type="VBoxContainer" parent="Control/Tray/Toys" unique_id=970772896]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="ToysBack" type="BaseButton" parent="Control/Tray/Toys/Back" unique_id=1454067418]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("1_xvj7f")
+color = Color(0.9137255, 0.85490197, 0.76862746, 1)
+diameter = 44.0
+icon_path = "res://assets/icons/chevron.svg"
+icon_color = Color(0.43137255, 0.3372549, 0.26666668, 1)
+icon_size = 20.0
+ring_color = Color(0.72156864, 0.6039216, 0.45490196, 1)
+ring_inset = 4.0
+ring_width = 1.5
+ring_dash = 4.0
+ring_gap = 3.5
+lip = 2.0
+lip_color = Color(0.47, 0.35, 0.24, 0.3)
+inner_shade = false
+
+[node name="Wand" type="VBoxContainer" parent="Control/Tray/Toys" unique_id=1667076836]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="WandToy" type="Control" parent="Control/Tray/Toys/Wand" unique_id=577439405]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("4_picto")
+kind = "varita"
+
+[node name="Label" type="Label" parent="Control/Tray/Toys/Wand" unique_id=1549171942]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+theme_override_font_sizes/font_size = 12
+text = "TOY_WAND"
+horizontal_alignment = 1
+
+[node name="Radial" type="Control" parent="Control" unique_id=760619202]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Scrim" type="ColorRect" parent="Control/Radial" unique_id=1474054567]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.23, 0.15, 0.09, 0.28)
+
+[node name="FoodItem" type="Control" parent="Control/Radial" unique_id=1177934895]
+layout_mode = 0
+mouse_filter = 2
+
+[node name="FoodButton" type="BaseButton" parent="Control/Radial/FoodItem" unique_id=1630844569]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -29.0
+offset_top = -29.0
+offset_right = 29.0
+offset_bottom = 29.0
+script = ExtResource("1_xvj7f")
+color = Color(0.9843137, 0.95686275, 0.9019608, 1)
+diameter = 58.0
+icon_path = "res://assets/icons/bowl.svg"
+icon_color = Color(0.8235294, 0.45490196, 0.28627452, 1)
+ring_color = Color(0.7882353, 0.6901961, 0.5568628, 1)
+ring_inset = 4.0
+lip = 3.0
+lip_color = Color(0.47, 0.35, 0.24, 0.3)
+inner_shade = false
+
+[node name="Tag" type="PanelContainer" parent="Control/Radial/FoodItem" unique_id=1644503938]
+layout_mode = 0
+mouse_filter = 2
+theme_type_variation = &"PillTag"
+
+[node name="Label" type="Label" parent="Control/Radial/FoodItem/Tag" unique_id=1482706739]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+theme_override_font_sizes/font_size = 13
+text = "ACTION_FOOD"
+
+[node name="ToysItem" type="Control" parent="Control/Radial" unique_id=998893448]
+layout_mode = 0
+mouse_filter = 2
+
+[node name="ToysButton" type="BaseButton" parent="Control/Radial/ToysItem" unique_id=1864989375]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -29.0
+offset_top = -29.0
+offset_right = 29.0
+offset_bottom = 29.0
+script = ExtResource("1_xvj7f")
+color = Color(0.9843137, 0.95686275, 0.9019608, 1)
+diameter = 58.0
+ring_color = Color(0.7882353, 0.6901961, 0.5568628, 1)
+ring_inset = 4.0
+lip = 3.0
+lip_color = Color(0.47, 0.35, 0.24, 0.3)
+inner_shade = false
+
+[node name="Tag" type="PanelContainer" parent="Control/Radial/ToysItem" unique_id=147624964]
+layout_mode = 0
+mouse_filter = 2
+theme_type_variation = &"PillTag"
+
+[node name="Label" type="Label" parent="Control/Radial/ToysItem/Tag" unique_id=207039995]
+layout_mode = 2
+theme_type_variation = &"ActionLabel"
+theme_override_font_sizes/font_size = 13
+text = "ACTION_TOYS"
+
+[node name="ToysIcon" type="Control" parent="Control/Radial/ToysItem/ToysButton" unique_id=1316729850]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 12.0
+offset_right = 45.0
+offset_bottom = 44.0
+mouse_filter = 2
+script = ExtResource("4_picto")
+kind = "plumas"
+
+[node name="Costurero" type="BaseButton" parent="Control" unique_id=1619010848]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -92.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+script = ExtResource("1_xvj7f")
+color = Color(0.96862745, 0.92941177, 0.8666667, 1)
+diameter = 68.0
+ring_color = Color(0.7411765, 0.63529414, 0.49411765, 1)
+ring_inset = 5.0
+lip = 3.0
+lip_color = Color(0.47, 0.35, 0.24, 0.3)
+inner_shade = false
+
+[node name="CostureroIcon" type="Control" parent="Control/Costurero" unique_id=1710910540]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 54.0
+offset_bottom = 54.0
+mouse_filter = 2
+script = ExtResource("4_picto")
+kind = "costurero"
 
 [node name="Toasts" type="VBoxContainer" parent="Control" unique_id=1649046935]
 unique_name_in_owner = true
@@ -991,3 +1006,12 @@ offset_right = -24.0
 offset_bottom = 18.0
 mouse_filter = 2
 theme_override_constants/separation = 8
+
+[node name="GhostHand" type="Control" parent="Control" unique_id=694441412]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("5_ghost")

@@ -21,16 +21,16 @@ msgstr "Energía"
 msgid "STAT_AFFECTION"
 msgstr "Afecto"
 
-# ── Botones de acción ─────────────────────────────────────────────────────────
+# ── Costurero y juguetes ──────────────────────────────────────────────────────
 
-msgid "ACTION_FEED"
-msgstr "Alimentar"
+msgid "ACTION_FOOD"
+msgstr "Comida"
 
-msgid "ACTION_PLAY"
-msgstr "Jugar"
+msgid "ACTION_TOYS"
+msgstr "Juguetes"
 
-msgid "ACTION_PUT_AWAY"
-msgstr "Guardar"
+msgid "TOY_WAND"
+msgstr "Varita"
 
 # ── Notificaciones ────────────────────────────────────────────────────────────
 
@@ -86,9 +86,6 @@ msgstr "Cansado"
 msgid "PET_STATE_SAD"
 msgstr "Triste"
 
-msgid "PET_TOO_TIRED_TO_PLAY"
-msgstr "Demasiado cansada para jugar ahora..."
-
 # ── Onboarding ────────────────────────────────────────────────────────────────
 
 msgid "ONBOARDING_TITLE"
@@ -132,49 +129,6 @@ msgstr "Modo de prueba"
 msgid "SETTINGS_DONE"
 msgstr "Listo"
 
-# ── Pensamientos de la mascota ────────────────────────────────────────────────
-
-msgid "THOUGHT_HUNGER"
-msgstr "¿Comidita?"
-
-msgid "THOUGHT_HAPPINESS"
-msgstr "¿Jugamos?"
-
-msgid "THOUGHT_ENERGY"
-msgstr "Qué sueño..."
-
-msgid "THOUGHT_AFFECTION"
-msgstr "¿Me acaricias?"
-
-msgid "THOUGHT_STROKE_HINT"
-msgstr "Acaríciame el lomo"
-
-# ── Caricias ──────────────────────────────────────────────────────────────────
-
-msgid "TOUCH_AGAINST"
-msgstr "¡A contrapelo no!"
-
-msgid "TOUCH_ROUGH"
-msgstr "¡Más suave!"
-
-msgid "TOUCH_BELLY"
-msgstr "¡Trampa!"
-
-msgid "TOUCH_TAIL"
-msgstr "¡La cola no!"
-
-msgid "PET_WOKEN_GRUMPY"
-msgstr "¡Estaba durmiendo!"
-
-msgid "PET_MEOW"
-msgstr "¡Miau!"
-
-msgid "PLAY_MISS"
-msgstr "¡Casi!"
-
-msgid "HINT_WAND"
-msgstr "Déjala quieta cerca"
-
 # ── Comida ────────────────────────────────────────────────────────────────────
 
 msgid "FOOD_TUNA"
@@ -188,18 +142,6 @@ msgstr "Croquetas"
 
 msgid "FOOD_CARROT"
 msgstr "Zanahoria"
-
-msgid "HINT_DRAG_FOOD"
-msgstr "Ponla en mi plato"
-
-msgid "TASTE_LOVE"
-msgstr "¡Me encanta!"
-
-msgid "TASTE_DISLIKE"
-msgstr "Eso no me gusta..."
-
-msgid "FOOD_YUCK"
-msgstr "¡Puaj!"
 
 # ── Vínculo ───────────────────────────────────────────────────────────────────
 

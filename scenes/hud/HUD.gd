@@ -1,7 +1,12 @@
 ## HUD.gd
 ## Heads-up display in the felt style — header (name, bond, trait), stat rows,
-## thought bubble, toasts and the sewing-button action bar. Layout and styling
-## live in HUD.tscn + the felt Theme; this script only wires state to it.
+## thought bubble, toasts, the costurero and its trays. Layout and styling live
+## in HUD.tscn + the felt Theme; this script only wires state to it.
+##
+## No fixed action bar: the costurero (bottom right) opens a fan of actions, and
+## the bowl and the toy basket in the room open their tray directly. Mochi never
+## talks: her thought bubble holds a drawing (FeltPicto) and gestures are shown
+## by the ghost hand (GhostHand).
 ##
 ## The stat bars stay out of the way: a small tab of stat badges (alert ring when
 ## critical) opens the full card on tap, and a stat that goes up peeks its own
@@ -20,18 +25,17 @@ const P := preload("res://theme/Palette.gd")
 const StyleBoxKnit := preload("res://theme/felt/StyleBoxKnit.gd")
 const FeltFood := preload("res://theme/felt/FeltFood.gd")
 
-## food id → its FeltFood node on the food row of the action bar.
+## food id → its FeltFood node on the food tray.
 const FOODS := {"tuna": "TunaFood", "chicken": "ChickenFood", "kibble": "KibbleFood", "carrot": "CarrotFood"}
 
 ## stat → node-name prefix in HUD.tscn.
 const STATS := {"hunger": "Hunger", "happiness": "Happiness", "energy": "Energy", "affection": "Affection"}
-## stat → the action button that fixes it (gets an alert ring while critical).
-## Affection and energy have none: she's stroked, and she sleeps on her own.
-const FIXES := {"hunger": "FeedButton", "happiness": "PlayButton"}
 const THOUGHT_HOLD := 3.5
 const PEEK_HOLD := 2.5      # seconds a rising stat's row stays after its last rise
 const EXPAND_HOLD := 8.0    # the open card folds back on its own after this
 const STATS_GAP := 6.0
+const RADIAL_RADIUS := 170.0
+const RADIAL_STEP := 30.0   # degrees between the costurero's actions, from its left going up
 
 var _is_sleeping: bool = false
 var _bond_level: int = 0   # 0 until the first broadcast, so loading never toasts
@@ -50,6 +54,8 @@ var _ghost: FeltFood = null   # the food following your finger while you drag it
 var _drag_food := ""
 var _served := false
 var _drag_hint_shown := false
+var _play_active := false
+var _radial_tween: Tween
 
 
 func _ready() -> void:
@@ -63,16 +69,23 @@ func _ready() -> void:
 	EventBus.personality_updated.connect(_on_personality_updated)
 	EventBus.trait_revealed.connect(_on_trait_revealed)
 	EventBus.pet_thought.connect(_on_pet_thought)
+	# A feeling pops where her thought bubble sits, and replaces the thought.
+	EventBus.reaction_requested.connect(func(_kind: String, _at: Vector2) -> void: _hide_thought())
 
-	# Alimentar swaps the action bar for the food row; you drag a food to the bowl.
-	%FeedButton.pressed.connect(_show_foods.bind(true))
-	%FoodsBack.pressed.connect(_show_foods.bind(false))
+	%Costurero.pressed.connect(func() -> void: _open_radial(not %Radial.visible))
+	%Scrim.gui_input.connect(_on_scrim_input)
+	%FoodButton.pressed.connect(_show_tray.bind("food"))
+	%ToysButton.pressed.connect(_show_tray.bind("toys"))
+	%FoodsBack.pressed.connect(_show_tray.bind(""))
+	%ToysBack.pressed.connect(_show_tray.bind(""))
+	%WandToy.gui_input.connect(_on_wand_toy_input)
+	EventBus.tray_requested.connect(_on_tray_requested)
+	EventBus.hint_requested.connect(%GhostHand.play)
+	# In the food tray you drag a food to the bowl.
 	for food in FOODS:
 		get_node("%" + FOODS[food]).gui_input.connect(_on_food_input.bind(food))
 	EventBus.food_served.connect(func(_food: String) -> void: _served = true)
 	EventBus.taste_discovered.connect(_on_taste_discovered)
-	# Jugar takes the feather wand out and puts it away.
-	%PlayButton.pressed.connect(func() -> void: EventBus.play_requested.emit())
 	EventBus.play_mode_changed.connect(_on_play_mode_changed)
 	%SettingsButton.pressed.connect(_on_settings_pressed)
 
@@ -111,29 +124,110 @@ func _process(delta: float) -> void:
 	_tick_stats(delta)
 
 
-# ─── Actions ──────────────────────────────────────────────────────────────────
+# ─── Costurero and trays ──────────────────────────────────────────────────────
 
 func _on_play_mode_changed(active: bool) -> void:
-	%PlayLabel.text = "ACTION_PUT_AWAY" if active else "ACTION_PLAY"
+	_play_active = active
+	if active:
+		_show_tray("")
 
 
 ## While Mochi sleeps you can't play; you can still fill her bowl (she'll eat
 ## when she wakes), stroke her gently or wake her with a tap (she'll be grumpy).
 func _on_sleeping_changed(is_sleeping: bool) -> void:
 	_is_sleeping = is_sleeping
-	%PlayButton.disabled = is_sleeping
 	if is_sleeping:
 		_hide_thought()
 
 
-# ─── Food row (drag a food to the bowl) ───────────────────────────────────────
+## The costurero's actions fan out in an arc from its left going up, each with its
+## name on a felt tag; the room dims behind them and a tap there closes them.
+func _open_radial(on: bool) -> void:
+	if on == %Radial.visible:
+		return
+	%CostureroIcon.kind = "cerrar" if on else "costurero"
+	if _radial_tween:
+		_radial_tween.kill()
+	%Radial.visible = on
+	if not on:
+		return
+	var center: Vector2 = %Costurero.get_global_rect().get_center() - %Radial.global_position
+	%Scrim.modulate.a = 0.0
+	_radial_tween = create_tween().set_parallel()
+	_radial_tween.tween_property(%Scrim, "modulate:a", 1.0, 0.2)
+	var items: Array[Control] = [$Control/Radial/FoodItem, $Control/Radial/ToysItem]
+	for i in items.size():
+		var item := items[i]
+		var angle := deg_to_rad(180.0 + RADIAL_STEP * i)
+		_place_tag(item.get_node("Tag"), angle)
+		item.position = center
+		item.scale = Vector2.ONE * 0.4
+		item.modulate.a = 0.0
+		var delay := 0.04 * i
+		_radial_tween.tween_property(item, "position", center + Vector2.from_angle(angle) * RADIAL_RADIUS, 0.22) \
+				.set_delay(delay).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_radial_tween.tween_property(item, "scale", Vector2.ONE, 0.22).set_delay(delay)
+		_radial_tween.tween_property(item, "modulate:a", 1.0, 0.12).set_delay(delay)
 
-func _show_foods(on: bool) -> void:
-	%Foods.visible = on
-	$Control/Actions/Row.visible = not on
-	if on and not _drag_hint_shown:
+
+## Tags sit on the outside of the arc: left of the lower actions, above the higher ones.
+func _place_tag(tag: Control, angle: float) -> void:
+	var tag_size := tag.get_combined_minimum_size()
+	tag.size = tag_size
+	if angle < deg_to_rad(225.0):
+		tag.position = Vector2(-35.0 - tag_size.x, -tag_size.y * 0.5)
+	else:
+		tag.position = Vector2(-tag_size.x * 0.5, -35.0 - tag_size.y)
+
+
+func _on_scrim_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_open_radial(false)
+
+
+## The tray at the bottom holds the foods or the toys ("" closes it); the
+## costurero steps aside while it's open.
+func _show_tray(which: String) -> void:
+	_open_radial(false)
+	%Foods.visible = which == "food"
+	%Toys.visible = which == "toys"
+	%Tray.visible = which != ""
+	%Costurero.visible = which == ""
+	_fit_tray.call_deferred()
+	if which == "food" and not _drag_hint_shown:
 		_drag_hint_shown = true
-		_on_pet_thought(tr("HINT_DRAG_FOOD"), "hunger")
+		_hint_food()
+
+
+## The tray hangs from the bottom edge: its height has to follow the row it shows,
+## and a bottom-anchored panel doesn't grow back on its own once it was emptied.
+func _fit_tray() -> void:
+	%Tray.offset_top = %Tray.offset_bottom - %Tray.get_combined_minimum_size().y
+
+
+## The first time the food tray opens, the ghost hand drags a food to the bowl.
+func _hint_food() -> void:
+	await get_tree().process_frame
+	EventBus.food_hint_wanted.emit((%TunaFood as Control).get_global_rect().get_center())
+
+
+## The bowl and the toy basket in the room open their tray; with the wand out,
+## tapping the basket puts it back.
+func _on_tray_requested(which: String) -> void:
+	if which == "toys" and _play_active:
+		EventBus.play_requested.emit()
+		return
+	_show_tray(which)
+
+
+func _on_wand_toy_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_show_tray("")
+		if _play_active or not _is_sleeping:
+			EventBus.play_requested.emit()
+
+
+# ─── Food tray (drag a food to the bowl) ──────────────────────────────────────
 
 
 ## A discovered taste marks its food on the row (heart = favorite, cross = won't eat).
@@ -174,7 +268,7 @@ func _end_drag(at: Vector2) -> void:
 	if _served:
 		ghost.pivot_offset = ghost.size * 0.5
 		tween.tween_property(ghost, "scale", Vector2.ZERO, 0.15)
-		_show_foods(false)
+		_show_tray("")
 	else:
 		tween.tween_property(ghost, "global_position", slot.global_position + (slot.size - ghost.size) * 0.5, 0.2)
 	tween.tween_callback(ghost.queue_free)
@@ -304,8 +398,6 @@ func _on_stat_changed(stat_name: String, new_value: float, old_value: float) -> 
 		row.remove_theme_stylebox_override("panel")
 	_tab_badges[stat_name].alert = crit
 	_tab_badges[stat_name].ring_fill = new_value / GameConfig.STAT_MAX
-	if FIXES.has(stat_name):
-		get_node("%" + FIXES[stat_name]).alert = crit
 
 
 # ─── Header ───────────────────────────────────────────────────────────────────
@@ -355,10 +447,10 @@ func _on_trait_revealed(trait_id: String) -> void:
 	_toast().show_trait(trait_id)
 
 
-func _on_pet_thought(text: String, _kind: String) -> void:
+func _on_pet_thought(kind: String) -> void:
 	if _is_sleeping:
 		return
-	%ThoughtLabel.text = text
+	%ThoughtPicto.kind = kind
 	if _thought_tween:
 		_thought_tween.kill()
 	%Thought.show()

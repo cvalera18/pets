@@ -21,16 +21,16 @@ msgstr "Energy"
 msgid "STAT_AFFECTION"
 msgstr "Affection"
 
-# ── Action buttons ────────────────────────────────────────────────────────────
+# ── Sewing kit and toys ───────────────────────────────────────────────────────
 
-msgid "ACTION_FEED"
-msgstr "Feed"
+msgid "ACTION_FOOD"
+msgstr "Food"
 
-msgid "ACTION_PLAY"
-msgstr "Play"
+msgid "ACTION_TOYS"
+msgstr "Toys"
 
-msgid "ACTION_PUT_AWAY"
-msgstr "Put away"
+msgid "TOY_WAND"
+msgstr "Wand"
 
 # ── Notifications ─────────────────────────────────────────────────────────────
 
@@ -86,9 +86,6 @@ msgstr "Tired"
 msgid "PET_STATE_SAD"
 msgstr "Sad"
 
-msgid "PET_TOO_TIRED_TO_PLAY"
-msgstr "Too tired to play right now..."
-
 # ── Onboarding ────────────────────────────────────────────────────────────────
 
 msgid "ONBOARDING_TITLE"
@@ -132,49 +129,6 @@ msgstr "Test mode"
 msgid "SETTINGS_DONE"
 msgstr "Done"
 
-# ── Pet thoughts ──────────────────────────────────────────────────────────────
-
-msgid "THOUGHT_HUNGER"
-msgstr "Snack?"
-
-msgid "THOUGHT_HAPPINESS"
-msgstr "Play?"
-
-msgid "THOUGHT_ENERGY"
-msgstr "So sleepy..."
-
-msgid "THOUGHT_AFFECTION"
-msgstr "Pet me?"
-
-msgid "THOUGHT_STROKE_HINT"
-msgstr "Stroke my back"
-
-# ── Caresses ──────────────────────────────────────────────────────────────────
-
-msgid "TOUCH_AGAINST"
-msgstr "Not against the fur!"
-
-msgid "TOUCH_ROUGH"
-msgstr "Gently!"
-
-msgid "TOUCH_BELLY"
-msgstr "Gotcha!"
-
-msgid "TOUCH_TAIL"
-msgstr "Not the tail!"
-
-msgid "PET_WOKEN_GRUMPY"
-msgstr "I was sleeping!"
-
-msgid "PET_MEOW"
-msgstr "Meow!"
-
-msgid "PLAY_MISS"
-msgstr "So close!"
-
-msgid "HINT_WAND"
-msgstr "Hold it still near me"
-
 # ── Food ──────────────────────────────────────────────────────────────────────
 
 msgid "FOOD_TUNA"
@@ -188,18 +142,6 @@ msgstr "Kibble"
 
 msgid "FOOD_CARROT"
 msgstr "Carrot"
-
-msgid "HINT_DRAG_FOOD"
-msgstr "Put it in my bowl"
-
-msgid "TASTE_LOVE"
-msgstr "I love it!"
-
-msgid "TASTE_DISLIKE"
-msgstr "I don't like that..."
-
-msgid "FOOD_YUCK"
-msgstr "Yuck!"
 
 # ── Bond ──────────────────────────────────────────────────────────────────────
 

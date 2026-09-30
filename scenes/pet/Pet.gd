@@ -69,7 +69,6 @@ const HINT_COOLDOWN := 8.0
 const SLEEP_CHECK_EVERY := 3.0
 const ZZZ_EVERY := 5.0
 
-const WAND_HINTS := 2           # times per session she explains how to play with the wand
 
 const FOOD_CHECK_EVERY := 1.0   # how often she glances at the bowl
 const BITES := 3
@@ -77,6 +76,18 @@ const BITE_TIME := 0.9
 const SNIFF_TIME := 1.0
 
 const RUB_GRACE := 0.2          # she keeps rubbing this long after the finger stops resting
+
+const LIE_DOWN_TIME := 0.6      # asleep she lies down; awake she gets up quicker
+const GET_UP_TIME := 0.35
+
+# She never talks. Where her feelings pop (on the head) and the back the ghost
+# hand strokes, in the rig's design canvas.
+const REACTION_AT := Vector2(172, 8)
+const MEOW_AT := Vector2(196, 116)
+const BACK_FROM := Vector2(130, 105)
+const BACK_TO := Vector2(262, 120)
+const NEED_PICTO := {"hunger": "hambre", "happiness": "jugar", "energy": "sueno", "affection": "mimos"}
+const TRAIT_PICTO := {"glotona": "hambre", "juguetona": "jugar", "dormilona": "sueno", "mimosa": "mimos"}
 
 # ─── Child references ─────────────────────────────────────────────────────────
 
@@ -102,7 +113,6 @@ var _thought_timer:        float  = 0.0
 var _sleep_check: float = 0.0   # seconds to the next "am I sleepy?" look
 var _doze_grace:  float = GameConfig.OPEN_GRACE
 var _sulk:        float = 0.0   # grumpy after being woken
-var _wand_hints:  int   = 0
 var _zzz_t:       float = 0.0
 
 # Bowl runtime state (she eats when she wants; see the Food section).
@@ -124,6 +134,7 @@ var _fetch_cd:    float   = 0.0
 var _voiced:      Dictionary = {}   # needs already explained with a thought this session
 var _rub_grace:   float   = 0.0
 var _rub_at:      Vector2 = Vector2.INF
+var _lie:         float   = 0.0
 
 # Procedural animation runtime state.
 var _mood:       Mood    = Mood.IDLE
@@ -200,7 +211,8 @@ func _process(delta: float) -> void:
 	if _fetch_cd > 0.0:
 		_fetch_cd -= delta
 
-	play.can_hunt = stats.energy > GameConfig.CRITICAL_THRESHOLD and _sulk <= 0.0 and not _is_eating() 			and not gestures.busy()
+	play.can_hunt = stats.energy > GameConfig.CRITICAL_THRESHOLD and _sulk <= 0.0 and not _is_eating() \
+			and not gestures.busy()
 	play.update(delta)
 	if play.active:
 		EventBus.hunt_changed.emit(play.feather_huntable() or play.is_busy(), play.progress())
@@ -289,7 +301,8 @@ func _is_eating() -> bool:
 
 
 func _consider_bowl() -> void:
-	if _bowl_food == "" or _bowl_food == _refused or play.active or _stroking > 0.0 or _sulk > 0.0 			or gestures.is_fetching():
+	if _bowl_food == "" or _bowl_food == _refused or play.active or _stroking > 0.0 or _sulk > 0.0 \
+			or gestures.is_fetching():
 		return
 	if tastes.wants(_bowl_food, stats.hunger):
 		gestures.cancel()
@@ -358,7 +371,7 @@ func _finish_meal() -> void:
 		stats.happiness += GameConfig.LOVED_FOOD_HAPPINESS
 		bond = roundi(bond * 1.5)
 		EventBus.burst_requested.emit("love", global_position)
-		EventBus.pet_thought.emit(tr("TASTE_LOVE"), "hunger")
+		_react("encanta")
 	_add_bond(bond)
 	Personality.record("feed")
 	if taste != "dislike":
@@ -373,8 +386,7 @@ func _refuse() -> void:
 	_discover(_bowl_food)
 	sprite.release_look()
 	sprite.flinch()
-	EventBus.floating_text_requested.emit(tr("FOOD_YUCK"), GameConfig.COLOR_NEUTRAL, global_position)
-	EventBus.pet_thought.emit(tr("TASTE_DISLIKE"), "hunger")
+	_react("asco")
 	EventBus.sound_requested.emit("grumble")
 
 
@@ -396,10 +408,8 @@ func _on_play_mode_changed(active: bool) -> void:
 	touch.enabled = not active and not gestures.is_fetching()
 	sprite.set_excited(1.8 if active else 1.0)
 	if active and stats.energy <= GameConfig.CRITICAL_THRESHOLD:
-		_feedback(tr("PET_TOO_TIRED_TO_PLAY"), GameConfig.COLOR_NEUTRAL, "", 15)
-	elif active and _wand_hints < WAND_HINTS:
-		_wand_hints += 1
-		EventBus.pet_thought.emit(tr("HINT_WAND"), "happiness")
+		_think(NEED_PICTO["energy"])   # too tired to play
+		_haptic(15)
 	if not active:
 		sprite.release_look()
 
@@ -436,7 +446,7 @@ func _on_play_caught(_at: Vector2) -> void:
 func _on_play_missed(_at: Vector2) -> void:
 	stats.happiness += GameConfig.PLAY_MISS_HAPPINESS * Personality.gain_factor("play")
 	stats.energy -= GameConfig.PLAY_MISS_ENERGY * Personality.play_energy_cost_factor()
-	EventBus.floating_text_requested.emit(tr("PLAY_MISS"), GameConfig.COLOR_NEUTRAL, global_position)
+	_react("casi")
 	_haptic(10)
 
 
@@ -445,7 +455,8 @@ func _on_play_missed(_at: Vector2) -> void:
 # wakes once rested. Waking her early makes her grumpy for a while.
 
 func _wants_to_sleep() -> bool:
-	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy() 			or _is_eating() or gestures.busy():
+	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy() \
+			or _is_eating() or gestures.busy():
 		return false
 	return stats.energy < (GameConfig.SLEEPY_ENERGY_NIGHT if _is_night() else GameConfig.SLEEPY_ENERGY)
 
@@ -489,7 +500,7 @@ func _wake_up(disturbed: bool) -> void:
 		_doze_grace = GameConfig.WAKE_GRACE
 		_stroking = 0.0
 		sprite.flinch()
-		EventBus.floating_text_requested.emit(tr("PET_WOKEN_GRUMPY"), GameConfig.COLOR_NEUTRAL, global_position)
+		_react("enojo")
 		EventBus.sound_requested.emit("grumble")
 		_haptic(35)
 	else:
@@ -542,7 +553,7 @@ func _award_caress() -> void:
 	EventBus.pet_petted.emit()
 
 
-func _on_annoyed(reason: String, _at: Vector2) -> void:
+func _on_annoyed(_reason: String, _at: Vector2) -> void:
 	if _is_sleeping:
 		_wake_up(true)
 		return
@@ -553,7 +564,7 @@ func _on_annoyed(reason: String, _at: Vector2) -> void:
 	_update_mood_from_stats()
 	sprite.flinch()
 	_trigger_reaction()
-	EventBus.floating_text_requested.emit(tr("TOUCH_" + reason.to_upper()), GameConfig.COLOR_NEUTRAL, global_position)
+	_react("enojo")
 	EventBus.sound_requested.emit("grumble")
 	_haptic(35)
 
@@ -570,7 +581,7 @@ func _on_tapped(zone: String, at: Vector2) -> void:
 	_haptic(12)
 	if _since_stroke >= HINT_AFTER and _hint_cd <= 0.0:
 		_hint_cd = HINT_COOLDOWN
-		EventBus.pet_thought.emit(tr("THOUGHT_STROKE_HINT"), "affection")
+		EventBus.hint_requested.emit("stroke", sprite.canvas_to_screen(BACK_FROM), sprite.canvas_to_screen(BACK_TO))
 
 
 func _on_looked(at: Vector2) -> void:
@@ -675,10 +686,10 @@ func _maybe_think() -> void:
 	var stat := stats.get_lowest_stat()
 	if float(stats.to_dict().get(stat, GameConfig.STAT_MAX)) < GameConfig.LOW_THRESHOLD:
 		if not _act_out(stat):
-			EventBus.pet_thought.emit(tr("THOUGHT_" + stat.to_upper()), stat)
-	elif _trait_id != "" and randf() < 0.5:
-		# Content and has a personality — occasionally show a flavor thought.
-		EventBus.pet_thought.emit(tr("TRAIT_" + _trait_id.to_upper() + "_IDLE"), _trait_id)
+			_think(NEED_PICTO[stat])
+	elif TRAIT_PICTO.has(_trait_id) and randf() < 0.5:
+		# Content and has a personality — now and then she dreams of her thing.
+		_think(TRAIT_PICTO[_trait_id])
 
 
 # ─── Body language ────────────────────────────────────────────────────────────
@@ -718,7 +729,17 @@ func _act_out(stat: String) -> bool:
 func _explain(stat: String) -> void:
 	if not _voiced.has(stat):
 		_voiced[stat] = true
-		EventBus.pet_thought.emit(tr("THOUGHT_" + stat.to_upper()), stat)
+		_think(NEED_PICTO[stat])
+
+
+## A need, as a doodle in her thought bubble.
+func _think(picto: String) -> void:
+	EventBus.pet_thought.emit(picto)
+
+
+## A feeling, popping over her head.
+func _react(kind: String) -> void:
+	EventBus.reaction_requested.emit(kind, sprite.head_to_screen(REACTION_AT))
 
 
 func _on_toy_dropped() -> void:
@@ -737,7 +758,7 @@ func _meow() -> void:
 	sprite.meow()
 	_trigger_reaction()
 	EventBus.sound_requested.emit("meow")
-	EventBus.floating_text_requested.emit(tr("PET_MEOW"), GameConfig.COLOR_NEUTRAL, global_position)
+	EventBus.reaction_requested.emit("maulla", sprite.head_to_screen(MEOW_AT))
 
 
 func _on_gesture_done(_kind: int) -> void:
@@ -847,6 +868,9 @@ func _animate(delta: float) -> void:
 		var wobble := sin(p * PI * 3.0) * (1.0 - p) * REACT_STRETCH * _trait_react
 		pop = Vector2(1.0 - wobble * 0.5, 1.0 + wobble)
 
+	var lying := 1.0 if _is_sleeping else 0.0
+	_lie = move_toward(_lie, lying, delta / (LIE_DOWN_TIME if lying > _lie else GET_UP_TIME))
+	sprite.set_lie(snappedf(_lie, 1.0 / 6.0))   # in steps, like the other felt stop-motion poses
 	var facing := gestures.facing
 	sprite.scale = _base_scale * breathe_scale * pop * play.pose_scale * Vector2(facing, 1.0)
 	# Moving the whole sprite lifted the feet off the rug and read as floating;
@@ -860,7 +884,7 @@ func _animate(delta: float) -> void:
 	sprite.set_rub(maxf(1.0 if _rub_grace > 0.0 else 0.0, gestures.rub), _rub_at)
 	var height := clampf(-(play.pose_offset.y + gestures.offset.y) / 150.0, 0.0, 1.0)
 	shadow.position.x = sprite.position.x
-	shadow.scale = _shadow_scale * Vector2(breathe_scale.x * pop.x, 1.0) * (1.0 - 0.4 * height)
+	shadow.scale = _shadow_scale * Vector2(breathe_scale.x * pop.x * (1.0 + 0.08 * _lie), 1.0) * (1.0 - 0.4 * height)
 	shadow.modulate.a = 1.0 - 0.5 * height
 
 
