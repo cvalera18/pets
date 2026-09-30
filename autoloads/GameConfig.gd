@@ -75,6 +75,8 @@ const TOY_LYING_TIMEOUT: float = 30.0
 ## She falls asleep on her own below this energy; she's sleepier at night.
 const SLEEPY_ENERGY:       float = 25.0
 const SLEEPY_ENERGY_NIGHT: float = 50.0
+## In the afternoon nap hours she dozes off below this (calmer cats sooner).
+const SLEEPY_ENERGY_SIESTA: float = 65.0
 const NIGHT_START_HOUR:    int   = 22
 const NIGHT_END_HOUR:      int   = 7
 

@@ -34,6 +34,11 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
   trotando y vuelve con la varita en la boca, la deja en el piso y la levantas
   tocándola; con ganas de mimos se restriega en el aire, y se restriega contra tu dedo
   si lo dejas quieto en su cabeza (`scenes/pet/PetGestures.gd`). Dormida se acuesta.
+  Su día: nace con un temperamento (tranquila↔inquieta, independiente↔pegote,
+  `resources/Temperament.gd`) y sigue una rutina con el reloj real (`systems/Routine.gd`):
+  desayuno temprano, ratos de locura a media mañana, siesta de tarde, más mimosa al
+  atardecer. En su tiempo libre se acicala, se estira con un bostezo o corre de un lado
+  al otro. Los rasgos (glotona…) son sus costumbres y también empujan lo que hace.
 - **Mochi no habla** — lo que quiere es un dibujo en su burbuja, lo que siente es un
   símbolo que salta sobre su cabeza y los gestos se enseñan con una mano fantasma
   (`theme/felt/FeltPicto.gd`, `scenes/effects/ReactionPop.gd`, `scenes/hud/GhostHand.gd`).
@@ -69,7 +74,7 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
 - **Android (Fase 4)** — export headless, instalación por adb inalámbrico, verificado
   en dispositivo real.
 - **Tests** — `tests/TestRunner.tscn` (PetStats, migraciones de save, logros,
-  personalidad, caricias, caza, gustos, lenguaje corporal): 71/71.
+  personalidad, caricias, caza, gustos, lenguaje corporal, rutina, temperamento): 89/89.
 - **i18n** — `es.po` + `en.po`, español neutro latinoamericano.
 
 **Stats definitivas:** hambre · felicidad · energía · afecto
@@ -108,8 +113,9 @@ mantener barras a **una gata con vida propia**, pensada para criarse de a dos.
    (sin botón Dormir), piso en vez de cero al estar ausente, jugar con la varita, comer
    desde el plato con gustos por gata, lenguaje corporal (pide comida, trae la varita,
    pide mimos, se restriega contra el dedo), sin palabras (pictogramas y mano
-   fantasma), costurero en vez de barra, se acuesta a dormir. Falta: rutina con el
-   reloj real, notificaciones narradas, parpadeo lento.
+   fantasma), costurero en vez de barra, se acuesta a dormir, temperamento y rutina con
+   el reloj real. Falta: zona de caricias favorita, Libreta de Mochi, notificaciones
+   narradas, parpadeo lento.
 3. **🎁 Fase 3 · Razones para volver** — "mientras no estabas", regalos, visitas en la
    ventana, sueños, álbum de fotos.
 4. **🏠 Fase 4 · La casa** — skins y accesorios (rig por piezas), muro de logros de

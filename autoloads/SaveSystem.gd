@@ -20,7 +20,8 @@
 ##      "affection": 90.0,
 ##      "name":      "Mochi",
 ##      "bond_xp":   0,
-##      "tastes":    {"taste": {"tuna": "love", "carrot": "dislike", …}, "known": ["tuna"]}
+##      "tastes":    {"taste": {"tuna": "love", "carrot": "dislike", …}, "known": ["tuna"]},
+##      "temperament": {"energy": 0.4, "attachment": -0.2}
 ##    },
 ##    "settings": {
 ##      "locale":                "es",
@@ -42,7 +43,7 @@
 ##  }
 extends Node
 
-const SAVE_SCHEMA_VERSION: int = 5
+const SAVE_SCHEMA_VERSION: int = 6
 
 var _provider: BaseSaveProvider
 
@@ -170,5 +171,11 @@ func _migrate(data: Dictionary) -> Dictionary:
 		if data.has("pet") and not data["pet"].has("tastes"):
 			data["pet"]["tastes"] = {}
 		data["version"] = 5
+
+	# v5 → v6: add pet.temperament (who she is; empty = rolled on load)
+	if version < 6:
+		if data.has("pet") and not data["pet"].has("temperament"):
+			data["pet"]["temperament"] = {}
+		data["version"] = 6
 
 	return data

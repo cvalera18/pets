@@ -2,10 +2,13 @@
 ## Mochi's body language: she shows what she needs instead of saying it. Hungry,
 ## she paws at her bowl and meows; bored, she trots off and comes back with the
 ## feather wand in her mouth; wanting cuddles, she rubs her head against the air.
-## (Rubbing against your finger is a caress; see PetTouch.resting.)
+## (Rubbing against your finger is a caress; see PetTouch.resting.) And with
+## nothing to ask for, she lives her own day: she grooms, stretches with a yawn
+## or has a mad dash across the room (Pet picks which, see Temperament).
 ##
 ## Like PetPlay it only holds the timeline and a pose that Pet composes into its
-## animation (offset in design canvas px, facing, stride, paw, tilt, dip, rub);
+## animation (offset in design canvas px, facing, stride, paw, lift, reach, tilt,
+## dip, rub);
 ## the side effects go out as signals so Pet can play the sounds and move the bowl
 ## or the wand. Poses step at 12 fps. update() holds all the logic, so tests can
 ## drive it without a scene.
@@ -15,9 +18,10 @@ signal pawed        # a paw lands on the bowl
 signal meowed
 signal went_out     # out of sight: she picks up the wand here
 signal dropped      # she lets go of the wand, on the floor in front of you
+signal yawned       # at the top of a stretch
 signal done(kind: int)
 
-enum Kind { NONE, ASK_FOOD, ASK_PET, FETCH }
+enum Kind { NONE, ASK_FOOD, ASK_PET, FETCH, GROOM, STRETCH, ZOOMIES }
 enum Phase { OUT, AWAY, BACK, DROP, SIT }
 
 const FPS := 12.0
@@ -38,6 +42,16 @@ const DROP_TIME := 0.5
 const SIT_TIME := 1.4
 const SIT_MEOW := 0.25
 
+const GROOM_TIME := 3.4         # paw up to the chin, licks and wipes, paw down
+const GROOM_UP := 0.4
+const STRETCH_TIME := 2.2       # front down and rear up, a yawn, back
+const STRETCH_IN := 0.5
+const STRETCH_OUT := 1.6
+const YAWN_AT := 0.6
+const ZOOM_SPEED := 340.0
+const ZOOM_STOPS := [110.0, -100.0, 0.0]   # canvas px: dash right, left, home
+const ZOOM_REST := 0.6
+
 var kind: Kind = Kind.NONE
 var phase: Phase = Phase.OUT
 ## True while the wand is in her mouth: Pet reports where her mouth is.
@@ -48,6 +62,8 @@ var offset := Vector2.ZERO    # canvas px from her spot on the rug
 var facing := 1.0             # 1 = her own pose (facing left), -1 = mirrored
 var stride := 0.0             # -1..1, legs swinging in diagonal pairs
 var paw := 0.0                # 0..1, far front paw reaching for the bowl
+var lift := 0.0               # 0..1, near front paw raised to her chin (grooming)
+var reach := 0.0              # 0..1, front legs stretched forward (stretching)
 var tilt := 0.0               # radians
 var dip := 0.0                # canvas px, negative = lower
 var rub := 0.0                # 0..1, head rubbing against the air
@@ -58,6 +74,8 @@ var _walked := 0.0
 var _frame := 0.0
 var _fired := {}
 var _cancelled := false
+var _stop := 0
+var _arrived := 0.0
 
 
 func busy() -> bool:
@@ -79,6 +97,19 @@ func ask_pet() -> void:
 func fetch() -> void:
 	_start(Kind.FETCH)
 	_enter(Phase.OUT)
+
+
+func groom() -> void:
+	_start(Kind.GROOM)
+
+
+func stretch() -> void:
+	_start(Kind.STRETCH)
+
+
+func zoomies() -> void:
+	_start(Kind.ZOOMIES)
+	_stop = 0
 
 
 ## The wand came out some other way ("Jugar"): she heads back without it.
@@ -108,6 +139,18 @@ func update(delta: float) -> void:
 		Kind.ASK_PET:
 			if _t >= PET_TIME:
 				_finish()
+				return
+		Kind.GROOM:
+			if _t >= GROOM_TIME:
+				_finish()
+				return
+		Kind.STRETCH:
+			_once("yawn", _t >= YAWN_AT, yawned)
+			if _t >= STRETCH_TIME:
+				_finish()
+				return
+		Kind.ZOOMIES:
+			if _zoom_tick(delta):
 				return
 		Kind.FETCH:
 			if _fetch_tick(delta):
@@ -151,10 +194,24 @@ func _fetch_tick(delta: float) -> bool:
 	return false
 
 
-func _walk(delta: float, goal: float) -> void:
-	facing = -1.0 if goal > _x else 1.0
+## Returns true once the dash is over: from stop to stop, then a moment sitting.
+func _zoom_tick(delta: float) -> bool:
+	if _stop < ZOOM_STOPS.size():
+		_walk(delta, ZOOM_STOPS[_stop], ZOOM_SPEED)
+		if is_equal_approx(_x, ZOOM_STOPS[_stop]):
+			_stop += 1
+			_arrived = _t
+	elif _t - _arrived >= ZOOM_REST:
+		_finish()
+		return true
+	return false
+
+
+func _walk(delta: float, goal: float, speed := WALK_SPEED) -> void:
+	if not is_equal_approx(goal, _x):
+		facing = -1.0 if goal > _x else 1.0
 	var before := _x
-	_x = move_toward(_x, goal, WALK_SPEED * delta)
+	_x = move_toward(_x, goal, speed * delta)
 	_walked += absf(_x - before)
 
 
@@ -195,6 +252,8 @@ func _reset_pose() -> void:
 	facing = 1.0
 	stride = 0.0
 	paw = 0.0
+	lift = 0.0
+	reach = 0.0
 	tilt = 0.0
 	dip = 0.0
 	rub = 0.0
@@ -214,6 +273,27 @@ func _pose() -> void:
 		Kind.ASK_PET:
 			rub = clampf(minf(_t, PET_TIME - _t) / 0.3, 0.0, 1.0)
 			dip = -2.0 * rub
+		Kind.GROOM:
+			# Paw up to the chin, then licks and wipes: the paw bobs, the head sways.
+			var k := clampf(minf(_t / GROOM_UP, (GROOM_TIME - _t) / GROOM_UP), 0.0, 1.0)
+			var lick := 1.0 if int(_t * 6.0) % 2 == 0 else 0.0
+			lift = k * (0.88 + 0.12 * lick)
+			dip = -4.0 * k - 2.0 * lick * k
+			rub = 0.5 * k
+			tilt = deg_to_rad(-3.0) * k
+		Kind.STRETCH:
+			var k := clampf(minf(_t / STRETCH_IN, (STRETCH_TIME - _t) / (STRETCH_TIME - STRETCH_OUT)), 0.0, 1.0)
+			reach = k
+			tilt = deg_to_rad(-9.0) * k
+			dip = -5.0 * k
+		Kind.ZOOMIES:
+			facing = keep_facing
+			offset.x = _x
+			if _stop < ZOOM_STOPS.size():
+				var hop := fmod(_walked / STEP, 1.0)
+				offset.y = -HOP * 1.3 * sin(PI * hop)
+				stride = sin(PI * _walked / STEP)
+				tilt = deg_to_rad(3.0) * sin(TAU * hop)
 		Kind.FETCH:
 			facing = keep_facing
 			offset.x = _x

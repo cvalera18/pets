@@ -110,12 +110,14 @@ func set_mood(mood: int) -> void:
 ## Leg pose. leap 0..1: front legs reach forward and back legs push back.
 ## stride -1..1: trotting, the diagonal pairs swinging opposite ways.
 ## paw 0..1: the far front paw reaches forward and up (pawing at the bowl).
-func set_legs(leap: float, stride := 0.0, paw := 0.0) -> void:
+## lift 0..1: the near front paw comes up to her chin (grooming).
+## reach 0..1: both front legs stretch forward (a cat stretch).
+func set_legs(leap: float, stride := 0.0, paw := 0.0, lift := 0.0, reach := 0.0) -> void:
 	if _nodes.is_empty():
 		return
 	var swing := 22.0 * stride
-	_nodes["LegFF"].rotation_degrees = 35.0 * leap + swing + 72.0 * paw
-	_nodes["LegFN"].rotation_degrees = 35.0 * leap - swing
+	_nodes["LegFF"].rotation_degrees = 35.0 * leap + swing + 72.0 * paw + 45.0 * reach
+	_nodes["LegFN"].rotation_degrees = 35.0 * leap - swing + 150.0 * lift + 45.0 * reach
 	_nodes["LegBF"].rotation_degrees = -30.0 * leap - swing
 	_nodes["LegBN"].rotation_degrees = -30.0 * leap + swing
 	# Lying, the legs fold under her: they sink with the body and shorten so the
@@ -124,6 +126,7 @@ func set_legs(leap: float, stride := 0.0, paw := 0.0) -> void:
 		_nodes[key].position = _leg_base[key] + Vector2(0.0, LIE_DROP * _lie)
 		_nodes[key].scale.y = 1.0 - 0.5 * _lie
 	_nodes["LegFF"].position.y -= 16.0 * paw
+	_nodes["LegFN"].position.y -= 10.0 * lift
 
 
 ## Lying down, 0..1 (Pet steps it like the other poses).

@@ -7,6 +7,8 @@
 ##   • Sleeping on her own when tired and waking when rested (no sleep button)
 ##   • Caresses: turning PetTouch's gestures into affection, purring and reactions
 ##   • Body language (PetGestures): asking for food, play and cuddles with her body
+##   • Her day (Temperament + Routine): when she asks, naps, grooms, stretches or
+##     dashes around depends on who she is, the habits she picks up and the hour
 ##   • Playing animations via AnimatedSprite2D
 ##   • Scheduling local notifications when stats drop to critical / zero
 ##
@@ -56,6 +58,8 @@ const PetTouch := preload("res://scenes/pet/PetTouch.gd")
 const PetPlay := preload("res://scenes/pet/PetPlay.gd")
 const PetGestures := preload("res://scenes/pet/PetGestures.gd")
 const Tastes := preload("res://resources/Tastes.gd")
+const Temperament := preload("res://resources/Temperament.gd")
+const Routine := preload("res://systems/Routine.gd")
 const Haptics := preload("res://systems/Haptics.gd")
 
 # ─── Caress tuning ────────────────────────────────────────────────────────────
@@ -87,7 +91,9 @@ const MEOW_AT := Vector2(196, 116)
 const BACK_FROM := Vector2(130, 105)
 const BACK_TO := Vector2(262, 120)
 const NEED_PICTO := {"hunger": "hambre", "happiness": "jugar", "energy": "sueno", "affection": "mimos"}
-const TRAIT_PICTO := {"glotona": "hambre", "juguetona": "jugar", "dormilona": "sueno", "mimosa": "mimos"}
+
+const FREE_TIME_CHANCE := 0.45  # per look around with nothing to ask for
+const ZOOMIES_MIN_ENERGY := 50.0
 
 # ─── Child references ─────────────────────────────────────────────────────────
 
@@ -105,6 +111,7 @@ var bond_xp:    int      = 0
 var bond_level: int      = 1
 
 var tastes: Tastes = Tastes.new()
+var temperament: Temperament = Temperament.new()
 
 var _is_sleeping:          bool   = false
 var _thought_timer:        float  = 0.0
@@ -135,6 +142,7 @@ var _voiced:      Dictionary = {}   # needs already explained with a thought thi
 var _rub_grace:   float   = 0.0
 var _rub_at:      Vector2 = Vector2.INF
 var _lie:         float   = 0.0
+var _groom_next:  bool    = false   # after a meal she liked, her next free time is grooming
 
 # Procedural animation runtime state.
 var _mood:       Mood    = Mood.IDLE
@@ -175,6 +183,7 @@ func _ready() -> void:
 	play.missed.connect(_on_play_missed)
 	gestures.pawed.connect(_on_pawed)
 	gestures.meowed.connect(_meow)
+	gestures.yawned.connect(_yawn)
 	gestures.dropped.connect(_on_toy_dropped)
 	gestures.done.connect(_on_gesture_done)
 
@@ -244,6 +253,7 @@ func initialize_fresh(p_name: String = "Mochi") -> void:
 	bond_xp    = 0
 	bond_level = 1
 	tastes.roll()
+	temperament.roll()
 	_play_anim(ANIM_IDLE)
 	_set_mood(Mood.IDLE)
 
@@ -258,6 +268,7 @@ func load_from_save(pet_data: Dictionary, offline_seconds: float) -> void:
 	@warning_ignore("integer_division")
 	bond_level = 1 + bond_xp / GameConfig.BOND_XP_PER_LEVEL
 	tastes.load_from(pet_data.get("tastes", {}))
+	temperament.load_from(pet_data.get("temperament", {}))
 
 	if offline_seconds > 0.0:
 		stats.apply_offline_decay(offline_seconds)
@@ -376,6 +387,7 @@ func _finish_meal() -> void:
 	Personality.record("feed")
 	if taste != "dislike":
 		_cheer_up()
+		_groom_next = true
 	_meal = ""
 	sprite.release_look()
 	EventBus.pet_fed.emit()
@@ -458,7 +470,7 @@ func _wants_to_sleep() -> bool:
 	if _doze_grace > 0.0 or _stroking > 0.0 or _purr > 0.05 or _react_t < REACT_DURATION or play.is_busy() \
 			or _is_eating() or gestures.busy():
 		return false
-	return stats.energy < (GameConfig.SLEEPY_ENERGY_NIGHT if _is_night() else GameConfig.SLEEPY_ENERGY)
+	return stats.energy < temperament.sleepy_energy(Routine.block(), _trait_id)
 
 
 func _fall_asleep() -> void:
@@ -506,11 +518,11 @@ func _wake_up(disturbed: bool) -> void:
 	else:
 		# Letting her sleep it off is the care that grows a "dormilona".
 		Personality.record("sleep")
+		_start_stretch()
 
 
 func _is_night() -> bool:
-	var hour: int = Time.get_datetime_dict_from_system()["hour"]
-	return hour >= GameConfig.NIGHT_START_HOUR or hour < GameConfig.NIGHT_END_HOUR
+	return Routine.block() == "noche"
 
 
 # ─── Caresses ─────────────────────────────────────────────────────────────────
@@ -676,20 +688,68 @@ func _haptic(ms: int) -> void:
 	Haptics.vibrate(ms)
 
 
-## Every few seconds she shows her neediest stat: with her body when she can
-## (see _act_out), otherwise as a thought bubble (shown by the HUD).
-## Stays quiet while the pet is content (lowest stat still above LOW_THRESHOLD).
+## Every few seconds she looks at how she's doing. What she needs most, once it
+## falls below where she'd ask for it (her temperament, habits and the hour move
+## that line, see Temperament.asks_below), she shows with her body when she can
+## (see _act_out) or as a doodle in her thought bubble. With nothing to ask for,
+## now and then she does something of her own (see _free_time).
 func _maybe_think() -> void:
 	_thought_timer = randf_range(GameConfig.THOUGHT_INTERVAL_MIN, GameConfig.THOUGHT_INTERVAL_MAX)
 	if gestures.busy() or _is_eating():
 		return
-	var stat := stats.get_lowest_stat()
-	if float(stats.to_dict().get(stat, GameConfig.STAT_MAX)) < GameConfig.LOW_THRESHOLD:
-		if not _act_out(stat):
-			_think(NEED_PICTO[stat])
-	elif TRAIT_PICTO.has(_trait_id) and randf() < 0.5:
-		# Content and has a personality — now and then she dreams of her thing.
-		_think(TRAIT_PICTO[_trait_id])
+	var block := Routine.block()
+	var need := ""
+	var worst := 0.0
+	for stat in NEED_PICTO:
+		var line := GameConfig.LOW_THRESHOLD if stat == "energy" else temperament.asks_below(stat, block, _trait_id)
+		var short := line - float(stats.get(stat))
+		if short > worst:
+			worst = short
+			need = stat
+	if need != "":
+		if not _act_out(need):
+			_think(NEED_PICTO[need])
+	elif randf() < FREE_TIME_CHANCE:
+		_free_time(block)
+
+
+## Free time: she grooms (always after a meal she liked), stretches, has a mad
+## dash across the room or simply is, as her temperament, habits and the hour weigh it.
+func _free_time(block: String) -> void:
+	if play.active or _sulk > 0.0 or _stroking > 0.0:
+		return
+	var what := "groom" if _groom_next else Temperament.pick(temperament.free_time_weights(block, _trait_id), randf())
+	_groom_next = false
+	match what:
+		"groom":
+			gestures.groom()
+			_content_while(PetGestures.GROOM_TIME)
+		"stretch":
+			_start_stretch()
+		"zoomies":
+			if stats.energy < ZOOMIES_MIN_ENERGY:
+				return
+			touch.enabled = false
+			sprite.release_look()
+			sprite.set_excited(2.2)
+			gestures.zoomies()
+
+
+func _start_stretch() -> void:
+	gestures.stretch()
+	_content_while(PetGestures.STRETCH_TIME)
+
+
+## Eyes closed in bliss for a while, unless she's feeling low.
+func _content_while(seconds: float) -> void:
+	if stats.is_healthy():
+		_content_t = seconds
+		_set_mood(Mood.CONTENT)
+
+
+func _yawn() -> void:
+	sprite.meow(0.8)
+	EventBus.sound_requested.emit("yawn")
 
 
 # ─── Body language ────────────────────────────────────────────────────────────
@@ -707,7 +767,7 @@ func _act_out(stat: String) -> bool:
 			sprite.look_at_canvas(GameConfig.BOWL_OFFSET / _base_scale + PetTouch.ORIGIN)
 			_explain(stat)
 		"happiness":
-			var sleepy := GameConfig.SLEEPY_ENERGY_NIGHT if _is_night() else GameConfig.SLEEPY_ENERGY
+			var sleepy := temperament.sleepy_energy(Routine.block(), _trait_id)
 			if _fetch_cd > 0.0 or stats.energy < sleepy + 10.0:
 				return false
 			_fetch_cd = GameConfig.FETCH_COOLDOWN
@@ -763,6 +823,7 @@ func _meow() -> void:
 
 func _on_gesture_done(_kind: int) -> void:
 	sprite.release_look()
+	sprite.set_excited(1.8 if play.active else 1.0)
 	touch.enabled = not play.active
 
 
@@ -878,7 +939,7 @@ func _animate(delta: float) -> void:
 	sprite.set_torso_lift((1.0 - cos(_anim_time)) * 0.5 * _bob_amp() + play.torso_dip + _eat_dip + gestures.dip)
 	sprite.position = (play.pose_offset + gestures.offset) * _base_scale
 	sprite.rotation = (play.pose_tilt + _eat_tilt + gestures.tilt) * facing
-	sprite.set_legs(play.leap, gestures.stride, gestures.paw)
+	sprite.set_legs(play.leap, gestures.stride, gestures.paw, gestures.lift, gestures.reach)
 	if _rub_grace > 0.0:
 		_rub_grace -= delta
 	sprite.set_rub(maxf(1.0 if _rub_grace > 0.0 else 0.0, gestures.rub), _rub_at)
