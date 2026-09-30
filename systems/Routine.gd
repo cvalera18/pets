@@ -9,6 +9,7 @@
 extends RefCounted
 
 const BLOCKS := ["manana", "activa", "siesta", "atardecer", "calma", "noche"]
+const HOURS := {"manana": "7–10", "activa": "10–14", "siesta": "14–17", "atardecer": "17–20", "calma": "20–22", "noche": "22–7"}
 
 static var forced_hour := -1
 

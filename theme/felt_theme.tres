@@ -731,6 +731,44 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jtab0"]
+content_margin_left = 6.0
+content_margin_top = 8.0
+content_margin_right = 6.0
+content_margin_bottom = 10.0
+bg_color = Color(0.9137255, 0.85490197, 0.76862746, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jtab1"]
+content_margin_left = 6.0
+content_margin_top = 10.0
+content_margin_right = 6.0
+content_margin_bottom = 12.0
+bg_color = Color(0.9843137, 0.95686275, 0.9019608, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jtabf"]
+
+[sub_resource type="StyleBox" id="StyleBox_jcard"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+script = ExtResource("2_6f0mp")
+bg_color = Color(0.96862745, 0.92941177, 0.8666667, 1)
+corner_radius = 16.0
+lip_color = Color(0, 0, 0, 0)
+lip_offset = 0.0
+shadow_color = Color(0, 0, 0, 0)
+shadow_size = 0
+stitch_color = Color(0.8352941, 0.74509805, 0.6117647, 1)
+stitch_inset = 4.0
+stitch_width = 1.5
+stitch_dash = 5.0
+stitch_gap = 4.0
+
 [resource]
 default_font = ExtResource("4_sl3a5")
 default_font_size = 15
@@ -823,6 +861,21 @@ InnerCard/base_type = &"PanelContainer"
 InnerCard/styles/panel = SubResource("StyleBox_avxoh")
 InnerCardPadded/base_type = &"PanelContainer"
 InnerCardPadded/styles/panel = SubResource("StyleBox_vryke")
+JournalCard/base_type = &"PanelContainer"
+JournalCard/styles/panel = SubResource("StyleBox_jcard")
+JournalTab/base_type = &"Button"
+JournalTab/colors/font_color = Color(0.43137255, 0.3372549, 0.26666668, 1)
+JournalTab/colors/font_focus_color = Color(0.43137255, 0.3372549, 0.26666668, 1)
+JournalTab/colors/font_hover_color = Color(0.2901961, 0.20392157, 0.14901961, 1)
+JournalTab/colors/font_hover_pressed_color = Color(0.2901961, 0.20392157, 0.14901961, 1)
+JournalTab/colors/font_pressed_color = Color(0.2901961, 0.20392157, 0.14901961, 1)
+JournalTab/font_sizes/font_size = 12
+JournalTab/fonts/font = ExtResource("1_inuky")
+JournalTab/styles/focus = SubResource("StyleBoxEmpty_jtabf")
+JournalTab/styles/hover = SubResource("StyleBoxFlat_jtab0")
+JournalTab/styles/hover_pressed = SubResource("StyleBoxFlat_jtab1")
+JournalTab/styles/normal = SubResource("StyleBoxFlat_jtab0")
+JournalTab/styles/pressed = SubResource("StyleBoxFlat_jtab1")
 KickerLabel/base_type = &"Label"
 KickerLabel/colors/font_color = Color(0.6039216, 0.41568628, 0.078431375, 1)
 KickerLabel/font_sizes/font_size = 12

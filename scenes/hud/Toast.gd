@@ -1,6 +1,7 @@
 ## Toast.gd
 ## A felt notice that drops in under the header and fades away on its own:
-## achievement unlocked, bond level up or a newly revealed trait.
+## achievement unlocked, bond level up, a newly revealed trait or something new
+## in the Libreta.
 ## Call one show_* method right after adding it to the tree.
 extends PanelContainer
 
@@ -42,6 +43,17 @@ func show_trait(trait_id: String) -> void:
 	%Title.text = "TRAIT_REVEAL_" + trait_id
 	%Body.text = "«%s»" % tr("TRAIT_" + trait_id.to_upper() + "_IDLE")
 	%Body.theme_type_variation = "QuoteLabel"
+	_play()
+
+
+func show_journal(text: String) -> void:
+	_badge(P.SAGE_LIGHT, "res://assets/icons/notebook.svg")
+	%Kicker.show()
+	%Kicker.text = "JOURNAL_NEW"
+	%Title.text = text
+	%Title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	%Title.add_theme_font_size_override("font_size", 16)
+	%Detail.hide()
 	_play()
 
 

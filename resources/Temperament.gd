@@ -78,6 +78,15 @@ func free_time_weights(block: String, habit: String) -> Dictionary:
 	return w
 
 
+## Which side of an axis a value leans to, for the Libreta: "HIGH", "MID" or "LOW".
+static func level(value: float) -> String:
+	if value > 0.33:
+		return "HIGH"
+	if value < -0.33:
+		return "LOW"
+	return "MID"
+
+
 ## Picks one of the weighted options.
 static func pick(weights: Dictionary, roll_value: float) -> String:
 	var total := 0.0

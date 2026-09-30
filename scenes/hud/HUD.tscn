@@ -7,6 +7,18 @@
 [ext_resource type="Script" path="res://theme/felt/FeltPicto.gd" id="4_picto"]
 [ext_resource type="Script" path="res://scenes/hud/GhostHand.gd" id="5_ghost"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jdot"]
+bg_color = Color(0.8117647, 0.50980395, 0.5647059, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96862745, 0.92941177, 0.8666667, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
 [node name="HUD" type="CanvasLayer" unique_id=408560496]
 script = ExtResource("root_script")
 
@@ -84,6 +96,44 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"TagLabel"
 text = "TRAIT_NAME_glotona"
+
+[node name="JournalButton" type="BaseButton" parent="Control/Header/Row/Right" unique_id=1398842211]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+script = ExtResource("1_xvj7f")
+color = Color(0.9137255, 0.85490197, 0.76862746, 1)
+diameter = 48.0
+ring_color = Color(0.72156864, 0.6039216, 0.45490196, 1)
+ring_inset = 4.0
+ring_width = 1.5
+ring_dash = 4.0
+ring_gap = 3.5
+lip = 2.0
+lip_color = Color(0.47, 0.35, 0.24, 0.3)
+inner_shade = false
+
+[node name="JournalIcon" type="Control" parent="Control/Header/Row/Right/JournalButton" unique_id=1398842212]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 38.0
+offset_bottom = 38.0
+mouse_filter = 2
+script = ExtResource("4_picto")
+kind = "libreta"
+
+[node name="JournalDot" type="Panel" parent="Control/Header/Row/Right/JournalButton" unique_id=1398842213]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 34.0
+offset_top = 1.0
+offset_right = 47.0
+offset_bottom = 14.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_jdot")
 
 [node name="SettingsButton" type="BaseButton" parent="Control/Header/Row/Right" unique_id=706349107]
 unique_name_in_owner = true

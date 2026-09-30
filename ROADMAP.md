@@ -41,6 +41,10 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
   al otro. Los rasgos (glotona…) son sus costumbres y también empujan lo que hace.
   Tiene una zona de caricias favorita (mejillas, cabeza o lomo): ahí el afecto sube
   más y ronronea antes; la primera vez que la encuentras salta «le encanta».
+- **Libreta de Mochi** — una libreta de fieltro (botón en el encabezado) donde queda
+  anotado lo que descubres de ella: quién es (temperamento, tras 3 señales), sus gustos
+  (comidas y zona favorita), su día (cada franja la primera vez que la ves) y lo que
+  construyeron juntos. Cada descubrimiento avisa «Nuevo en la libreta».
 - **Mochi no habla** — lo que quiere es un dibujo en su burbuja, lo que siente es un
   símbolo que salta sobre su cabeza y los gestos se enseñan con una mano fantasma
   (`theme/felt/FeltPicto.gd`, `scenes/effects/ReactionPop.gd`, `scenes/hud/GhostHand.gd`).
@@ -76,7 +80,8 @@ probada en dispositivo (Xiaomi, Android 16, Vulkan).
 - **Android (Fase 4)** — export headless, instalación por adb inalámbrico, verificado
   en dispositivo real.
 - **Tests** — `tests/TestRunner.tscn` (PetStats, migraciones de save, logros,
-  personalidad, caricias, caza, gustos, lenguaje corporal, rutina, temperamento): 89/89.
+  personalidad, caricias, caza, gustos, lenguaje corporal, rutina, temperamento,
+  libreta): 99/99.
 - **i18n** — `es.po` + `en.po`, español neutro latinoamericano.
 
 **Stats definitivas:** hambre · felicidad · energía · afecto
@@ -116,7 +121,7 @@ mantener barras a **una gata con vida propia**, pensada para criarse de a dos.
    desde el plato con gustos por gata, lenguaje corporal (pide comida, trae la varita,
    pide mimos, se restriega contra el dedo), sin palabras (pictogramas y mano
    fantasma), costurero en vez de barra, se acuesta a dormir, temperamento y rutina con
-   el reloj real, zona de caricias favorita. Falta: Libreta de Mochi, notificaciones
+   el reloj real, zona de caricias favorita, Libreta de Mochi. Falta: notificaciones
    narradas, parpadeo lento.
 3. **🎁 Fase 3 · Razones para volver** — "mientras no estabas", regalos, visitas en la
    ventana, sueños, álbum de fotos.

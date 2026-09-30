@@ -13,6 +13,7 @@ const PetGesturesScript := preload("res://scenes/pet/PetGestures.gd")
 const TastesScript := preload("res://resources/Tastes.gd")
 const TemperamentScript := preload("res://resources/Temperament.gd")
 const RoutineScript := preload("res://systems/Routine.gd")
+const JournalScript := preload("res://resources/JournalData.gd")
 
 var _passed: int = 0
 var _failed: int = 0
@@ -29,6 +30,7 @@ func _ready() -> void:
 	_test_pet_gestures()
 	_test_tastes()
 	_test_routine_and_temperament()
+	_test_journal()
 	print("=== RESULT: %d passed, %d failed ===" % [_passed, _failed])
 	if _failed > 0:
 		push_error("Test suite has %d failing assertion(s)." % _failed)
@@ -138,7 +140,11 @@ func _test_migrations() -> void:
 
 	var v5: Dictionary = {"version": 5, "pet": {"name": "W", "tastes": {}}}
 	var m5: Dictionary = SaveSystem._migrate(v5)
-	_check("v5 backfills pet.temperament", m5["pet"].has("temperament") and m5["version"] == 6)
+	_check("v5 backfills pet.temperament", m5["pet"].has("temperament") and m5["version"] >= 6)
+
+	var v6: Dictionary = {"version": 6, "pet": {"name": "V", "temperament": {}}}
+	var m6: Dictionary = SaveSystem._migrate(v6)
+	_check("v6 backfills pet.journal", m6["pet"].has("journal") and m6["version"] == 7)
 
 
 # ─── Food tastes ──────────────────────────────────────────────────────────────
@@ -436,6 +442,26 @@ func _test_routine_and_temperament() -> void:
 	_check("no mad dashes at night", restless.free_time_weights("noche", "")["zoomies"] == 0.0)
 	_check("weighted pick lands on the right option",
 			TemperamentScript.pick({"a": 1.0, "b": 0.0, "c": 1.0}, 0.25) == "a" and TemperamentScript.pick({"a": 1.0, "b": 0.0, "c": 1.0}, 0.75) == "c")
+
+
+# ─── The Libreta (JournalData) ────────────────────────────────────────────────
+
+func _test_journal() -> void:
+	var j = JournalScript.new()
+	j.start(1000.0)
+	_check("a new notebook knows nothing yet", not j.knows("energy") and not j.knows("attach") and j.seen.is_empty())
+	var revealed := [j.add_sign("energy"), j.add_sign("energy"), j.add_sign("energy"), j.add_sign("energy")]
+	_check("three signs reveal a side of her temperament, once", revealed == [false, false, true, false] and j.knows("energy"))
+	_check("each part of her day is noted the first time", j.see("siesta") and not j.see("siesta"))
+	_check("days together count from her arrival", j.days_together(1000.0) == 1 and j.days_together(1000.0 + 86400.0 * 4.5) == 5)
+	j.unread = true
+	var copy = JournalScript.new()
+	copy.load_from(j.to_dict(), 5000.0)
+	_check("the notebook survives a save",
+			copy.arrived_at == 1000.0 and copy.knows("energy") and copy.seen.has("siesta") and copy.unread)
+	var older = JournalScript.new()
+	older.load_from({}, 5000.0)
+	_check("an older save starts its notebook now", older.arrived_at == 5000.0 and not older.knows("attach"))
 
 
 # ─── Play (PetPlay) ───────────────────────────────────────────────────────────

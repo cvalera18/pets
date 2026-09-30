@@ -20,6 +20,7 @@
 extends CanvasLayer
 
 const SETTINGS := preload("res://scenes/ui/Settings.tscn")
+const JOURNAL := preload("res://scenes/ui/Journal.tscn")
 const TOAST := preload("res://scenes/hud/Toast.tscn")
 const P := preload("res://theme/Palette.gd")
 const StyleBoxKnit := preload("res://theme/felt/StyleBoxKnit.gd")
@@ -88,6 +89,10 @@ func _ready() -> void:
 	EventBus.taste_discovered.connect(_on_taste_discovered)
 	EventBus.play_mode_changed.connect(_on_play_mode_changed)
 	%SettingsButton.pressed.connect(_on_settings_pressed)
+	# The Libreta de Mochi: the header button opens it; its dot means something new.
+	%JournalButton.pressed.connect(func() -> void: add_child(JOURNAL.instantiate()))
+	EventBus.journal_noted.connect(func(text: String) -> void: _toast().show_journal(text))
+	EventBus.journal_unread.connect(func(unread: bool) -> void: %JournalDot.visible = unread)
 
 	_crit_fill = StyleBoxKnit.new()
 	_crit_fill.bg_color = P.CRIT

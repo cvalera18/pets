@@ -211,3 +211,200 @@ msgstr "Devoted Caretaker"
 
 msgid "ACH_CARETAKER_200"
 msgstr "Faithful Guardian"
+
+# ── Mochi's notebook ──────────────────────────────────────────────────────────
+
+msgid "JOURNAL_TAB_WHO"
+msgstr "Who she is"
+
+msgid "JOURNAL_TAB_TASTES"
+msgstr "Likes"
+
+msgid "JOURNAL_TAB_DAY"
+msgstr "Her day"
+
+msgid "JOURNAL_TAB_US"
+msgstr "With you"
+
+msgid "JOURNAL_NEW"
+msgstr "NEW IN THE NOTEBOOK"
+
+msgid "JOURNAL_ARRIVED"
+msgstr "Arrived on %s"
+
+msgid "JOURNAL_ARRIVED_TODAY"
+msgstr "Arrived today"
+
+msgid "JOURNAL_DATE"
+msgstr "{month} {day}"
+
+msgid "JOURNAL_DAYS"
+msgstr "%d days together"
+
+msgid "JOURNAL_DAYS_ONE"
+msgstr "1 day together"
+
+msgid "JOURNAL_TEMPERAMENT"
+msgstr "TEMPERAMENT"
+
+msgid "JOURNAL_CALM"
+msgstr "Calm"
+
+msgid "JOURNAL_RESTLESS"
+msgstr "Restless"
+
+msgid "JOURNAL_ALOOF"
+msgstr "Independent"
+
+msgid "JOURNAL_CLINGY"
+msgstr "Clingy"
+
+msgid "JOURNAL_ENERGY_HIGH"
+msgstr "She's restless: she has her mad dashes."
+
+msgid "JOURNAL_ENERGY_MID"
+msgstr "Neither very calm nor very restless."
+
+msgid "JOURNAL_ENERGY_LOW"
+msgstr "She's calm: she loves her naps."
+
+msgid "JOURNAL_ATTACH_HIGH"
+msgstr "She's clingy: she often asks for cuddles."
+
+msgid "JOURNAL_ATTACH_MID"
+msgstr "She asks for cuddles now and then."
+
+msgid "JOURNAL_ATTACH_LOW"
+msgstr "She lets you cuddle her, but hardly ever asks."
+
+msgid "JOURNAL_WATCH_MORE"
+msgstr "Watch her a little more."
+
+msgid "JOURNAL_FOOD"
+msgstr "FOOD"
+
+msgid "JOURNAL_PETTING"
+msgstr "PETTING"
+
+msgid "JOURNAL_FAV_ZONE"
+msgstr "Her favorite spot"
+
+msgid "ZONE_CHEEKS"
+msgstr "her cheeks"
+
+msgid "ZONE_HEAD"
+msgstr "her head"
+
+msgid "ZONE_BACK"
+msgstr "her back"
+
+msgid "JOURNAL_ZONE_NOTE"
+msgstr "She purrs sooner there."
+
+msgid "JOURNAL_ZONE_UNKNOWN"
+msgstr "You don't know yet"
+
+msgid "JOURNAL_ZONE_HINT"
+msgstr "Stroke her in different places: cheeks, head, back."
+
+msgid "TASTE_LOVES"
+msgstr "Loves it"
+
+msgid "TASTE_LIKES"
+msgstr "Likes it"
+
+msgid "TASTE_DISLIKES"
+msgstr "Won't eat it"
+
+msgid "TASTE_UNTRIED"
+msgstr "Not tried yet"
+
+msgid "JOURNAL_DAY"
+msgstr "HER DAY"
+
+msgid "DAY_MANANA"
+msgstr "Asks for breakfast early."
+
+msgid "DAY_ACTIVA"
+msgstr "Feels like playing."
+
+msgid "DAY_SIESTA"
+msgstr "Takes her nap."
+
+msgid "DAY_ATARDECER"
+msgstr "Gets cuddly."
+
+msgid "DAY_CALMA"
+msgstr "Grooms before bed."
+
+msgid "DAY_NOCHE"
+msgstr "Sleeps through the night."
+
+msgid "DAY_UNSEEN"
+msgstr "You haven't seen her at this time yet."
+
+msgid "JOURNAL_HABITS"
+msgstr "HABITS"
+
+msgid "HABIT_NOTE_glotona"
+msgstr "You feed her often: she asks for food sooner."
+
+msgid "HABIT_NOTE_juguetona"
+msgstr "You play a lot together: she brings the wand more often and has more mad dashes."
+
+msgid "HABIT_NOTE_dormilona"
+msgstr "You let her sleep in peace: she naps more."
+
+msgid "HABIT_NOTE_mimosa"
+msgstr "You pet her a lot: she asks for cuddles sooner."
+
+msgid "JOURNAL_HABIT_NONE"
+msgstr "It takes shape with what you do together most."
+
+msgid "JOURNAL_TOGETHER"
+msgstr "TOGETHER"
+
+msgid "JOURNAL_BOND"
+msgstr "bond level"
+
+msgid "JOURNAL_DAYS_LABEL"
+msgstr "days together"
+
+msgid "JOURNAL_CARES"
+msgstr "cares"
+
+msgid "MONTH_01"
+msgstr "January"
+
+msgid "MONTH_02"
+msgstr "February"
+
+msgid "MONTH_03"
+msgstr "March"
+
+msgid "MONTH_04"
+msgstr "April"
+
+msgid "MONTH_05"
+msgstr "May"
+
+msgid "MONTH_06"
+msgstr "June"
+
+msgid "MONTH_07"
+msgstr "July"
+
+msgid "MONTH_08"
+msgstr "August"
+
+msgid "MONTH_09"
+msgstr "September"
+
+msgid "MONTH_10"
+msgstr "October"
+
+msgid "MONTH_11"
+msgstr "November"
+
+msgid "MONTH_12"
+msgstr "December"

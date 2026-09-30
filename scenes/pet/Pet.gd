@@ -9,6 +9,7 @@
 ##   • Body language (PetGestures): asking for food, play and cuddles with her body
 ##   • Her day (Temperament + Routine): when she asks, naps, grooms, stretches or
 ##     dashes around depends on who she is, the habits she picks up and the hour
+##   • The Libreta (JournalData): noting what you find out about her as you do
 ##   • Playing animations via AnimatedSprite2D
 ##   • Scheduling local notifications when stats drop to critical / zero
 ##
@@ -60,6 +61,7 @@ const PetGestures := preload("res://scenes/pet/PetGestures.gd")
 const Tastes := preload("res://resources/Tastes.gd")
 const Temperament := preload("res://resources/Temperament.gd")
 const Routine := preload("res://systems/Routine.gd")
+const JournalData := preload("res://resources/JournalData.gd")
 const Haptics := preload("res://systems/Haptics.gd")
 
 # ─── Caress tuning ────────────────────────────────────────────────────────────
@@ -92,6 +94,7 @@ const BACK_FROM := Vector2(130, 105)
 const BACK_TO := Vector2(262, 120)
 const NEED_PICTO := {"hunger": "hambre", "happiness": "jugar", "energy": "sueno", "affection": "mimos"}
 
+const TASTE_KEYS := {"love": "TASTE_LOVES", "like": "TASTE_LIKES", "dislike": "TASTE_DISLIKES"}
 const FREE_TIME_CHANCE := 0.45  # per look around with nothing to ask for
 const ZOOMIES_MIN_ENERGY := 50.0
 
@@ -112,6 +115,7 @@ var bond_level: int      = 1
 
 var tastes: Tastes = Tastes.new()
 var temperament: Temperament = Temperament.new()
+var journal: JournalData = JournalData.new()
 
 var _is_sleeping:          bool   = false
 var _thought_timer:        float  = 0.0
@@ -190,6 +194,7 @@ func _ready() -> void:
 	gestures.done.connect(_on_gesture_done)
 
 	EventBus.bowl_changed.connect(_on_bowl_changed)
+	EventBus.journal_requested.connect(_on_journal_requested)
 	EventBus.play_mode_changed.connect(_on_play_mode_changed)
 	EventBus.wand_moved.connect(_on_wand_moved)
 	EventBus.stat_depleted.connect(_on_stat_depleted)
@@ -256,6 +261,7 @@ func initialize_fresh(p_name: String = "Mochi") -> void:
 	bond_level = 1
 	tastes.roll()
 	temperament.roll()
+	journal.start(Time.get_unix_time_from_system())
 	_play_anim(ANIM_IDLE)
 	_set_mood(Mood.IDLE)
 
@@ -271,6 +277,7 @@ func load_from_save(pet_data: Dictionary, offline_seconds: float) -> void:
 	bond_level = 1 + bond_xp / GameConfig.BOND_XP_PER_LEVEL
 	tastes.load_from(pet_data.get("tastes", {}))
 	temperament.load_from(pet_data.get("temperament", {}))
+	journal.load_from(pet_data.get("journal", {}), Time.get_unix_time_from_system())
 
 	if offline_seconds > 0.0:
 		stats.apply_offline_decay(offline_seconds)
@@ -292,6 +299,7 @@ func broadcast_stats() -> void:
 	EventBus.pet_name_changed.emit(pet_name)
 	for food in tastes.known:
 		EventBus.taste_discovered.emit(food, tastes.of(food))
+	EventBus.journal_unread.emit(journal.unread)
 
 
 # ─── Food (bowl) ──────────────────────────────────────────────────────────────
@@ -409,6 +417,7 @@ func _discover(food: String) -> void:
 		return
 	tastes.known[food] = true
 	EventBus.taste_discovered.emit(food, tastes.of(food))
+	_note("%s: %s" % [tr(TASTE_KEYS[tastes.of(food)]), tr("FOOD_" + food.to_upper())])
 
 
 # ─── Play (feather wand) ──────────────────────────────────────────────────────
@@ -454,6 +463,7 @@ func _on_play_caught(_at: Vector2) -> void:
 	_add_bond(_bond_for(GameConfig.BOND_XP_PLAY, "play", gain, nominal))
 	Personality.record("play", before)
 	_cheer_up()
+	_see("activa")
 	EventBus.pet_played.emit()
 
 
@@ -485,6 +495,10 @@ func _fall_asleep() -> void:
 	_feedback("Zzz", GameConfig.COLOR_ENERGY, "sleep", 0)
 	EventBus.sleeping_changed.emit(true)
 	EventBus.pet_slept.emit()
+	if Routine.block() == "siesta":
+		_sign("energy")
+	_see("siesta")
+	_see("noche")
 
 
 func _sleep_tick(delta: float) -> void:
@@ -565,6 +579,7 @@ func _award_caress() -> void:
 		tastes.zone_known = true
 		_react("encanta")
 		_haptic(20)
+		_note("%s: %s" % [tr("JOURNAL_FAV_ZONE"), tr("ZONE_" + tastes.zone.to_upper())])
 	_fav_time = 0.0
 	if not _is_sleeping:
 		EventBus.burst_requested.emit("love", global_position)
@@ -739,6 +754,7 @@ func _free_time(block: String) -> void:
 		"groom":
 			gestures.groom()
 			_content_while(PetGestures.GROOM_TIME)
+			_see("calma")
 		"stretch":
 			_start_stretch()
 		"zoomies":
@@ -748,6 +764,8 @@ func _free_time(block: String) -> void:
 			sprite.release_look()
 			sprite.set_excited(2.2)
 			gestures.zoomies()
+			_sign("energy")
+			_see("activa")
 
 
 func _start_stretch() -> void:
@@ -781,6 +799,7 @@ func _act_out(stat: String) -> bool:
 			gestures.ask_food()
 			sprite.look_at_canvas(GameConfig.BOWL_OFFSET / _base_scale + PetTouch.ORIGIN)
 			_explain(stat)
+			_see("manana")
 		"happiness":
 			var sleepy := temperament.sleepy_energy(Routine.block(), _trait_id)
 			if _fetch_cd > 0.0 or stats.energy < sleepy + 10.0:
@@ -789,15 +808,73 @@ func _act_out(stat: String) -> bool:
 			touch.enabled = false
 			sprite.release_look()
 			gestures.fetch()
+			_see("activa")
 		"affection":
 			gestures.ask_pet()
 			_rub_at = Vector2.INF
 			sprite.release_look()
 			EventBus.sound_requested.emit("mrrp")
 			_explain(stat)
+			_sign("attach")
+			_see("atardecer")
 		_:
 			return false
 	return true
+
+
+# ─── The Libreta ─────────────────────────────────────────────────────────────
+# What you find out about her gets noted: her tastes as you discover them, her
+# temperament after a few signs of it, each part of her day once you've watched it.
+
+## Something new for the Libreta: a notice now, and a dot until you read it.
+func _note(text: String) -> void:
+	journal.unread = true
+	EventBus.journal_noted.emit(text)
+	EventBus.journal_unread.emit(true)
+
+
+## One more sign of her energy (mad dashes, afternoon naps) or her attachment
+## (asking for cuddles, rubbing against your finger).
+func _sign(axis: String) -> void:
+	if journal.add_sign(axis):
+		var value := temperament.energy if axis == "energy" else temperament.attachment
+		_note(tr("JOURNAL_%s_%s" % [axis.to_upper(), Temperament.level(value)]))
+
+
+## She just did what she does at this time of day; noted the first time you see it.
+func _see(block: String) -> void:
+	if Routine.block() == block and journal.see(block):
+		_note("%s h · %s" % [Routine.HOURS[block], tr("DAY_" + block.to_upper())])
+
+
+func _on_journal_requested() -> void:
+	journal.unread = false
+	EventBus.journal_unread.emit(false)
+	EventBus.journal_snapshot.emit(_journal_snapshot())
+
+
+func _journal_snapshot() -> Dictionary:
+	var foods := {}
+	for food in tastes.known:
+		foods[food] = tastes.of(food)
+	var now := Time.get_unix_time_from_system()
+	return {
+		"name": pet_name,
+		"arrived_at": journal.arrived_at,
+		"days": journal.days_together(now),
+		"energy": temperament.energy,
+		"energy_known": journal.knows("energy"),
+		"energy_signs": journal.signs["energy"],
+		"attach": temperament.attachment,
+		"attach_known": journal.knows("attach"),
+		"attach_signs": journal.signs["attach"],
+		"foods": foods,
+		"zone": tastes.zone if tastes.zone_known else "",
+		"seen": journal.seen.duplicate(),
+		"habit": _trait_id,
+		"bond_level": bond_level,
+		"cares": Achievements.interactions(),
+	}
 
 
 ## The first time each session a gesture comes with its thought bubble, so it reads.
@@ -846,6 +923,8 @@ func _on_gesture_done(_kind: int) -> void:
 func _on_resting(_zone: String, delta: float, at: Vector2) -> void:
 	if _is_sleeping or _sulk > 0.0:
 		return
+	if _rub_grace <= 0.0:
+		_sign("attach")   # a new rub against your finger
 	_rub_grace = RUB_GRACE
 	_rub_at = at
 	_content_t = maxf(_content_t, 0.6)
